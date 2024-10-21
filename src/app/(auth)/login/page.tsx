@@ -1,9 +1,10 @@
+'use client';
 import React from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import bg from '@/assets/bg_login.jpg';
 
 const LoginPage: React.FC = () => {
-  const router = useRouter();
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,7 +16,7 @@ const LoginPage: React.FC = () => {
     <div className="flex h-screen">
       <div className="flex-1 relative overflow-hidden">
         <Image
-          src="/image.png"
+          src={bg}
           layout="fill"
           objectFit="cover"
           alt="Background"
@@ -29,7 +30,6 @@ const LoginPage: React.FC = () => {
           </p>
           <button
             className="bg-snappy-first-blue text-snappy-white px-6 py-3 rounded-md hover:bg-snappy-second-blue transition duration-300"
-            onClick={() => router.push('/signup')}
           >
             Create An Account
           </button>
