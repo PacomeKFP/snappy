@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-document-import-in-page */
+import { Head } from "next/document";
 import React from "react"
 
 const Header = () => {
