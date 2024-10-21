@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import React from 'react';
 import Image from 'next/image';
@@ -17,11 +18,11 @@ const LoginPage: React.FC = () => {
       <div className="flex-1 relative overflow-hidden">
         <Image
           src={bg}
-          layout="fill"
-          objectFit="cover"
           alt="Background"
-          className="z-0"
+          fill
+          className="object-cover"
         />
+        
         <div className="absolute inset-0 flex flex-col justify-center items-center bg-snappy-dark-blue bg-opacity-70 backdrop-blur-custom text-snappy-white p-8">
           <h1 className="text-5xl mb-4">Snappy</h1>
           <p className="text-center mb-8">
