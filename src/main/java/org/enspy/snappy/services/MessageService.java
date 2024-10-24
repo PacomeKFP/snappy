@@ -1,0 +1,30 @@
+package org.enspy.snappy.services;
+
+import org.enspy.snappy.models.Message;
+import org.enspy.snappy.repositories.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class MessageService {
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    public Message createMessage(Message message) {
+        return messageRepository.save(message);
+    }
+
+    /**Reccuperer un bloc de messages dans une conversation*/
+    public List<Message> findMessagesForConversation(UUID conversationUuid, UUID fromMessage, int limit) {
+        return messageRepository.findMessagesForConversation(conversationUuid, fromMessage, limit);
+    }
+
+    /**Recuperer les messages non lus d'une conversation*/
+    public List<Message> findUnreadMessages(UUID conversationUuid) {
+        return messageRepository.findUnreadMessages(conversationUuid);
+    }
+}
