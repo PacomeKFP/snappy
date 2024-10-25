@@ -23,7 +23,6 @@ public class Message {
     String content; // le contenu en texte du message
     private Boolean isRead;
     private UUID replyTo;
-    private Date
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt= LocalDateTime.now();
 //    private MessageStatus status;

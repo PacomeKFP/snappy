@@ -21,17 +21,10 @@ public class User {
     private String email;
     private String password;
     private String phone;
-    private String profilePicture;
+    private String picture;
     private String bio;
-//     private UserStatus status;
-//    private LocalDateTime lastSeen;
-    // Getters et Setters
-
-    public User(String name, String password, String email, String phone) {
-        this.name = name;
-        // TODO: hash password before saving
-        this.password = password;
-        this.email = email;
-        this.phone = phone;
-    }
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt= LocalDateTime.now();
 }
+
+
