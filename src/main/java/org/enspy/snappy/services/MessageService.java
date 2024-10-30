@@ -18,13 +18,29 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    /**Reccuperer un bloc de messages dans une conversation*/
+    /**
+     * Reccuperer un bloc de messages dans une conversation
+     */
     public List<Message> findMessagesForConversation(UUID conversationUuid, UUID fromMessage, int limit) {
         return messageRepository.findMessagesForConversation(conversationUuid, fromMessage, limit);
     }
 
-    /**Recuperer les messages non lus d'une conversation*/
-    public List<Message> findUnreadMessages(UUID conversationUuid) {
-        return messageRepository.findUnreadMessages(conversationUuid);
+    /**
+     * Recuperer les messages non lus d'une conversation
+     */
+    public List<Message> findUnreadMessages(UUID conversationUuid, UUID user) {
+        List<Message> unreadMessages = messageRepository.findUnreadMessages(conversationUuid, user);
+
+        // marquer ces messages comme lus
+//        unreadMessages.stream().forEach((unreadMessage) -> {unreadMessage.setIsRead(true);});
+        unreadMessages.stream().forEach((unreadMessage) -> {
+            messageRepository.markMessageAdRead(unreadMessage.getUuid());
+        });
+
+        return unreadMessages;
+    }
+
+    public void markMessageAsRead(UUID messageUuid) {
+        messageRepository.markMessageAdRead(messageUuid);
     }
 }

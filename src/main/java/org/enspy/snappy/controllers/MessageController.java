@@ -27,8 +27,10 @@ public class MessageController {
     }
 
     @GetMapping("/unread")
-    public List<Message> getUnreadMessages(@RequestParam(required = true) UUID conversationUuid) {
-        return messageService.findUnreadMessages(conversationUuid);
+    public List<Message> getUnreadMessages(
+            @RequestParam(required = true) UUID conversationUuid,
+            @RequestParam(required = true) UUID userUuid) {
+        return messageService.findUnreadMessages(conversationUuid, userUuid);
     }
 
 }
