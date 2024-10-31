@@ -8,9 +8,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Table
@@ -23,6 +21,11 @@ public class Conversation {
     @CassandraType(type = CassandraType.Name.LIST, typeArguments = CassandraType.Name.UUID)
     private List<UUID> users = new ArrayList<>();
 
+    /**
+     * -1: Off, 0: Listen, 1: On
+     */
+    @CassandraType(type = CassandraType.Name.MAP, typeArguments = {CassandraType.Name.UUID, CassandraType.Name.INT})
+    private Map<UUID, Integer> states = new HashMap<>();
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 

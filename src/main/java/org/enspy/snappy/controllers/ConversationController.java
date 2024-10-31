@@ -2,14 +2,10 @@ package org.enspy.snappy.controllers;
 
 import org.enspy.snappy.controllers.dto.CreateConversationDto;
 import org.enspy.snappy.models.Conversation;
-import org.enspy.snappy.models.Message;
 import org.enspy.snappy.services.ConversationService;
-import org.enspy.snappy.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,15 +17,22 @@ public class ConversationController {
 
     @PostMapping
     public Conversation postMessage(@RequestBody CreateConversationDto conversationDto) {
-        List<UUID> uuids = new ArrayList<>();
-        for (String user : conversationDto.getUsers()) {
-            uuids.add(UUID.fromString(user));
-        }
-        return conversationService.createConversation(new Conversation(UUID.randomUUID(), uuids, LocalDateTime.now(), LocalDateTime.now()));
+        return conversationService.createConversation(conversationDto);
     }
 
+    @PatchMapping("/{conversationUid}")
+    public Integer switchSnappyStatus(@PathVariable UUID conversationUid, @RequestParam(required = true) UUID userUuid) {
+        return conversationService.switchSnappyStatus(conversationUid, userUuid);
+    }
+
+
+
     @GetMapping("/users")
-    public List<Conversation> getAllUserConversations(@RequestParam(required = true) UUID conversationUuid) {
-        return conversationService.findUserConversations(conversationUuid);
+    public List<Conversation> getAllUserConversations(@RequestParam(required = true) UUID userUid) {
+        return conversationService.findUserConversations(userUid);
+    }
+    @PostMapping("/normalize")
+    public List<Conversation> normalizeMessages() {
+        return conversationService.normalize();
     }
 }

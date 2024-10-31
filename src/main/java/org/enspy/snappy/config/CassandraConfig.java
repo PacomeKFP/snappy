@@ -1,13 +1,11 @@
 package org.enspy.snappy.config;
-
-
+import com.datastax.oss.driver.api.core.CqlSession;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
-import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
-//@Configuration
-//@EnableCassand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            raRepositories(basePackages = "org.enspy.snappy.repositories")
+@Configuration
 public class CassandraConfig extends AbstractCassandraConfiguration {
+
     @Override
     protected String getKeyspaceName() {
         return "snappy";
@@ -15,11 +13,18 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Override
     protected String getContactPoints() {
-        return "localhost";
+        return "127.0.0.1";
     }
 
     @Override
     protected int getPort() {
         return 9042;
+    }
+
+
+    public CqlSession session() {
+        return CqlSession.builder()
+                .withLocalDatacenter("datacenter1")
+                .build();
     }
 }
