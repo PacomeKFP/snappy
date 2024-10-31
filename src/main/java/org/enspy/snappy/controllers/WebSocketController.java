@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 import lombok.extern.log4j.Log4j2;
+import org.enspy.snappy.controllers.dto.CreateMessageDto;
 import org.enspy.snappy.helpers.WebSocketAcknowledges;
 import org.enspy.snappy.helpers.WebSocketHelper;
 import org.enspy.snappy.models.Conversation;
@@ -15,6 +16,7 @@ import org.enspy.snappy.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -41,25 +43,29 @@ public class WebSocketController {
         this.socketServer = socketServer;
 
         log.info("Connected Users " + connectedUsers);
-        this.socketServer.addEventListener(WebSocketHelper.InputEndpoints.REVEICE_MESSAGE_FROM_USER, Message.class, onSendMessage);
+        this.socketServer.addEventListener(WebSocketHelper.InputEndpoints.REVEICE_MESSAGE_FROM_USER, CreateMessageDto.class, onSendMessage);
 
     }
 
 
-    public DataListener<Message> onSendMessage = new DataListener<Message>() {
+    public DataListener<CreateMessageDto> onSendMessage = new DataListener<>() {
         @Override
-        public void onData(SocketIOClient client, Message message, AckRequest acknowledge) throws Exception {
+        public void onData(SocketIOClient client, CreateMessageDto messageDto, AckRequest acknowledge) throws Exception {
             String user = client.getHandshakeData().getSingleUrlParam("user");
-            log.info("User: " + user);
+
             // regarder les utilisateurs connectés.
-            Optional<Conversation> conversation = conversationRepository.findById(message.getConversation());
+            log.info("Conversation: \n" + messageDto);
+//            LocalDateTime now = LocalDateTime.now();
+//            Message message = new Message();
+
+            Optional<Conversation> conversation = conversationRepository.findById(messageDto.getConversation());
             // Si la conversation n'existe pas, on arrete tout
             if (conversation.isEmpty()) {
                 acknowledge.sendAckData(WebSocketAcknowledges.CONVERSATION_NOT_FOUND);
                 return;
             }
             // Sauvegarder le message et l'envoyer aux membres connectés de la conversation
-            UUID messageUuid = messageService.createMessage(message).getUuid();
+            Message message = messageService.createMessage(messageDto);
             conversation.get().getUsers().forEach((userInConversation) -> {
                 String userSession = connectedUsers.get(userInConversation.toString());
                 if (userSession != null && !userSession.equals(user)) {

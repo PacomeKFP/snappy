@@ -1,5 +1,6 @@
 package org.enspy.snappy.controllers;
 
+import org.enspy.snappy.controllers.dto.CreateMessageDto;
 import org.enspy.snappy.models.Message;
 import org.enspy.snappy.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,8 @@ public class MessageController {
     public MessageService messageService;
 
     @PostMapping
-    public Message postMessage(@RequestBody Message message) {
-        return messageService.createMessage(message);
+    public Message postMessage(@RequestBody CreateMessageDto messageDto) {
+        return messageService.createMessage(messageDto);
     }
 
     @GetMapping("/paginate")
