@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.controllers.dto.CreateMessageDto;
+import org.enspy.snappy.controllers.presenters.GetMessagePresenter;
 import org.enspy.snappy.helpers.WebSocketAcknowledges;
 import org.enspy.snappy.helpers.WebSocketHelper;
 import org.enspy.snappy.models.Conversation;
@@ -68,8 +69,8 @@ public class WebSocketController {
             Message message = messageService.createMessage(messageDto);
             conversation.get().getUsers().forEach((userInConversation) -> {
                 String userSession = connectedUsers.get(userInConversation.toString());
-                if (userSession != null && !userSession.equals(user)) {
-                    socketServer.getClient(UUID.fromString(userSession)).sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
+                if (userSession != null && !userSession.equals(client.getSessionId().toString())) {
+                    socketServer.getClient(UUID.fromString(userSession)).sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, GetMessagePresenter.fromMessage(message));
                 }
             });
             acknowledge.sendAckData("SENT");
