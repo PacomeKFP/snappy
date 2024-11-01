@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { 
   FaUser, FaSearch, FaPlusCircle, FaEllipsisV, FaCircle, 
-  FaBell, FaMoon, FaSun, FaLock, FaImage
+  FaBell, FaMoon, FaSun, FaLock, FaImage, FaUserPlus, FaUsers, FaCog
 } from 'react-icons/fa';
 import Link from 'next/link';
 import bg_login from '@/assets/bg_login.jpg';
@@ -16,14 +16,24 @@ interface Contact {
   time: string;
   unread?: number;
   isTyping?: boolean;
+  messages?: Message[];
 }
 
-const ChatInitiate: React.FC = () => {
+interface Message {
+  id: number;
+  text: string;
+  sender: 'me' | 'other';
+  time: string;
+}
+
+const Chat_initiate: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedContact, setSelectedContact] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
 
-  const [contacts] = useState<Contact[]>([
+  const [contacts, setContacts] = useState<Contact[]>([
     { 
       id: 1, 
       name: 'Hello 1', 
@@ -31,7 +41,11 @@ const ChatInitiate: React.FC = () => {
       lastMessage: "Hey, how are you doing?",
       time: "09:34",
       unread: 2,
-      isTyping: true
+      isTyping: true,
+      messages: [
+        { id: 1, text: "Hey, how are you doing?", sender: 'other', time: "09:34" },
+        { id: 2, text: "I'm good, thanks! How about you?", sender: 'me', time: "09:35" }
+      ]
     },
     { 
       id: 2, 
@@ -39,6 +53,9 @@ const ChatInitiate: React.FC = () => {
       status: 'offline',
       lastMessage: "See you tomorrow!",
       time: "Yesterday",
+      messages: [
+        { id: 1, text: "See you tomorrow!", sender: 'other', time: "Yesterday" }
+      ]
     },
     { 
       id: 3, 
@@ -46,11 +63,13 @@ const ChatInitiate: React.FC = () => {
       status: 'online',
       lastMessage: "Meeting at 3 PM",
       time: "08:15",
-      unread: 5
+      unread: 5,
+      messages: [
+        { id: 1, text: "Meeting at 3 PM", sender: 'other', time: "08:15" }
+      ]
     },
   ]);
 
-  // Définition des couleurs basées sur le thème
   const theme = {
     bg: isDarkMode ? '#171717' : '#ffffff',
     text: isDarkMode ? '#ffffff' : '#171717',
@@ -60,13 +79,183 @@ const ChatInitiate: React.FC = () => {
     border: isDarkMode ? '#333333' : '#D9D9D9',
   };
 
+  const handleMoreOptionsToggle = () => {
+    setShowMoreOptions(!showMoreOptions);
+  };
+
+  const sendMessage = () => {
+    if (newMessage.trim() === '') return;
+
+    const currentContact = contacts.find(c => c.id === selectedContact);
+    if (currentContact) {
+      const newMessageObj: Message = {
+        id: (currentContact.messages?.length || 0) + 1,
+        text: newMessage,
+        sender: 'me',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      const updatedContacts = contacts.map(contact => {
+        if (contact.id === selectedContact) {
+          return {
+            ...contact,
+            lastMessage: newMessage,
+            messages: [...(contact.messages || []), newMessageObj]
+          };
+        }
+        return contact;
+      });
+
+      setContacts(updatedContacts);
+      setNewMessage('');
+    }
+  };
+
+  const renderMoreOptionsMenu = () => {
+    if (!showMoreOptions) return null;
+
+    return (
+      <div 
+        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg z-50 overflow-hidden"
+        style={{ 
+          background: theme.bg, 
+          color: theme.text, 
+          border: `1px solid ${theme.border}` 
+        }}
+      >
+        <div 
+          className="flex items-center p-3 hover:bg-gray-100 cursor-pointer group transition-colors"
+          style={{ 
+            backgroundColor: theme.hover 
+          }}
+        >
+          <FaPlusCircle className="mr-3 text-[#247EE4] group-hover:scale-110 transition-transform" />
+          <div>
+            <span className="font-semibold">Add a discussion</span>
+            <p className="text-xs text-gray-500">Start a new conversation</p>
+          </div>
+        </div>
+        <div 
+          className="flex items-center p-3 hover:bg-gray-100 cursor-pointer group transition-colors"
+          style={{ 
+            backgroundColor: theme.hover 
+          }}
+        >
+          <FaUsers className="mr-3 text-[#247EE4] group-hover:scale-110 transition-transform" />
+          <div>
+            <span className="font-semibold">Create a group</span>
+            <p className="text-xs text-gray-500">Invite multiple people</p>
+          </div>
+        </div>
+        <div 
+          className="flex items-center p-3 hover:bg-gray-100 cursor-pointer group transition-colors"
+          style={{ 
+            backgroundColor: theme.hover 
+          }}
+        >
+          <FaCog className="mr-3 text-[#247EE4] group-hover:scale-110 transition-transform" />
+          <div>
+            <span className="font-semibold">Settings</span>
+            <p className="text-xs text-gray-500">Configure your account</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderChatArea = (contact: Contact) => {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Chat Header */}
+        <div 
+          className="h-16 px-4 flex items-center justify-between"
+          style={{ 
+            background: 'linear-gradient(135deg, #247EE4, #0069E0, #322F44)',
+            opacity: isDarkMode ? 0.8 : 1
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <FaUser className="w-10 h-10 rounded-full bg-white/90 p-2 text-[#247EE4]" />
+            <div>
+              <h3 className="text-white font-semibold">{contact.name}</h3>
+              <span className="text-xs text-white/80">{contact.status}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-white relative">
+            <FaSearch className="w-5 h-5 cursor-pointer hover:text-white/80" />
+            <FaImage className="w-5 h-5 cursor-pointer hover:text-white/80" />
+            <div className="relative">
+              <FaEllipsisV 
+                className="w-5 h-5 cursor-pointer hover:text-white/80"
+                onClick={handleMoreOptionsToggle} 
+              />
+              {renderMoreOptionsMenu()}
+            </div>
+          </div>
+        </div>
+        
+        {/* Chat Messages Area */}
+        <div 
+          className="flex-1 p-6 overflow-y-auto"
+          style={{ 
+            background: isDarkMode ? '#1a1a1a' : '#f0f2f5',
+            backgroundImage: `url(${bg_login.src})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: isDarkMode ? 0.9 : 1
+          }}
+        >
+          {contact.messages?.map((message) => (
+            <div 
+              key={message.id} 
+              className={`flex mb-4 ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div 
+                className={`p-3 rounded-xl max-w-[70%] ${
+                  message.sender === 'me' 
+                    ? 'bg-[#247EE4] text-white' 
+                    : 'bg-white text-black shadow-md'
+                }`}
+              >
+                {message.text}
+                <div className="text-xs mt-1 opacity-70 text-right">{message.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Message Input */}
+        <div className="p-4 bg-white border-t flex items-center gap-3">
+          <input 
+            type="text" 
+            placeholder="Type a message..."
+            className="flex-1 p-2 border rounded-xl"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <button 
+            className="bg-[#247EE4] text-white p-2 rounded-full"
+            onClick={sendMessage}
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className={`flex h-screen transition-colors duration-300 ease-in-out`}
-         style={{ background: theme.bg }}>
+    <div 
+      className={`flex h-screen transition-colors duration-300 ease-in-out`}
+      style={{ background: theme.bg }}
+    >
       {/* Left Sidebar */}
-      <div className="w-[400px] flex flex-col border-r transition-all duration-300"
-           style={{ borderColor: theme.border }}>
-        {/* Header with gradient */}
+      <div 
+        className="w-[400px] flex flex-col border-r transition-all duration-300"
+        style={{ borderColor: theme.border }}
+      >
+        {/* Header */}
         <div className="h-16 relative overflow-hidden">
           <div className="absolute inset-0" 
                style={{
@@ -77,7 +266,7 @@ const ChatInitiate: React.FC = () => {
           <div className="relative h-full flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
               <FaUser className="w-10 h-10 rounded-full bg-white/90 p-2 text-[#247EE4]" />
-              <span className="text-white font-semibold">Mon profil</span>
+              <span className="text-white font-semibold">My Profile</span>
             </div>
             <div className="flex items-center space-x-4 text-white">
               <FaBell className="w-6 h-6 cursor-pointer hover:text-white/80 transition-colors" />
@@ -93,7 +282,7 @@ const ChatInitiate: React.FC = () => {
           </div>
         </div>
 
-        {/* Search Bar with animation */}
+        {/* Search Bar */}
         <div className="px-4 py-3" style={{ background: theme.bg }}>
           <div className="relative group bg-[#ffffff]">
             <input
@@ -108,36 +297,36 @@ const ChatInitiate: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <FaSearch className="absolute  left-3 top-3 text-[#322F44] group-focus-within:text-[#247EE4] transition-colors" />
+            <FaSearch className="absolute left-3 top-3 text-[#322F44] group-focus-within:text-[#247EE4] transition-colors" />
           </div>
         </div>
 
-        {/* Contacts List with hover and selection effects */}
+        {/* Contacts List */}
         <div className="flex-1 overflow-y-auto">
-          {contacts.map((contact) => (
-            <Link href={`/chat/chat-discussion/${contact.id}`} key={contact.id}>
+          {contacts
+            .filter(contact => 
+              contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((contact) => (
               <div
+                key={contact.id}
                 className={`flex items-center p-4 cursor-pointer transition-all duration-300 relative ${
-                  selectedContact === contact.id ? 'scale-[0.98]' : ''
+                  selectedContact === contact.id ? 'bg-[#f0f0f0]' : ''
                 }`}
-                style={{
-                  background: selectedContact === contact.id ? theme.hover : theme.bg,
-                  borderBottom: `1px solid ${theme.border}`,
-                }}
-                onClick={() => setSelectedContact(contact.id)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(8px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateX(0)';
+                onClick={() => {
+                  setSelectedContact(contact.id);
+                  setShowMoreOptions(false);
                 }}
               >
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full overflow-hidden relative">
-                    <FaUser className="w-full h-full p-2" style={{ 
-                      background: theme.secondary,
-                      color: theme.primary 
-                    }} />
+                    <FaUser 
+                      className="w-full h-full p-2" 
+                      style={{ 
+                        background: theme.secondary,
+                        color: theme.primary 
+                      }} 
+                    />
                   </div>
                   {contact.status === 'online' && (
                     <FaCircle className="absolute bottom-0 right-0 text-[#14F400] text-xs" />
@@ -145,8 +334,10 @@ const ChatInitiate: React.FC = () => {
                 </div>
                 <div className="flex-1 ml-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold transition-colors"
-                        style={{ color: theme.text }}>
+                    <h3 
+                      className="font-semibold transition-colors"
+                      style={{ color: theme.text }}
+                    >
                       {contact.name}
                     </h3>
                     <span className="text-xs" style={{ color: theme.secondary }}>
@@ -157,7 +348,6 @@ const ChatInitiate: React.FC = () => {
                     {contact.isTyping ? (
                       <div className="flex items-center gap-1">
                         <span className="text-sm text-[#247EE4]">typing</span>
-                       
                       </div>
                     ) : (
                       <p className="text-sm truncate" style={{ color: theme.secondary }}>
@@ -172,59 +362,27 @@ const ChatInitiate: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </Link>
           ))}
         </div>
       </div>
 
-      {/* Main Content with Welcome Screen */}
+      
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {selectedContact ? (
-          <div className="h-full flex flex-col">
-            {/* Chat Header */}
-            <div className="h-16 px-4 flex items-center justify-between"
-                 style={{ 
-                   background: 'linear-gradient(135deg, #247EE4, #0069E0, #322F44)',
-                   opacity: isDarkMode ? 0.8 : 1
-                 }}>
-              <div className="flex items-center gap-4">
-                <FaUser className="w-10 h-10 rounded-full bg-white/90 p-2 text-[#247EE4]" />
-                <div>
-                  <h3 className="text-white font-semibold">
-                    {contacts.find(c => c.id === selectedContact)?.name}
-                  </h3>
-                  <span className="text-xs text-white/80">online</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-white">
-                <FaSearch className="w-5 h-5 cursor-pointer hover:text-white/80" />
-                <FaImage className="w-5 h-5 cursor-pointer hover:text-white/80" />
-                <FaEllipsisV className="w-5 h-5 cursor-pointer hover:text-white/80" />
-              </div>
-            </div>
-            
-            {/* Chat Area */}
-            <div className="flex-1 p-6" style={{ 
-              background: isDarkMode ? '#1a1a1a' : '#f0f2f5',
-              backgroundImage: `url(${bg_login.src})`,
+          renderChatArea(contacts.find(c => c.id === selectedContact)!)
+        ) : (
+          <div 
+            className="flex-1 flex flex-col items-center justify-center p-8"
+            style={{
+              backgroundImage: `url(${bg_login.src})`,  
               backgroundSize: 'cover',
               backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
               opacity: isDarkMode ? 0.9 : 1
-            }}>
-              {/* Messages would go here */}
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8"
-                
-                style={{
-                  backgroundImage: `url(${bg_login.src})`,  
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: isDarkMode ? 0.9 : 1
-                }}
-              >
+            }}
+          >
             <div className="text-center max-w-md backdrop-blur-sm bg-white/10 p-8 rounded-2xl shadow-lg">
               <div className="mb-6 text-center">
                 <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-[#247EE4] to-[#0069E0] text-transparent bg-clip-text">
@@ -236,9 +394,12 @@ const ChatInitiate: React.FC = () => {
                 </div>
               </div>
               <p className="text-[#171717] mb-8 leading-relaxed" style={{ color: theme.text }}>
-              welcome to Snappy connect with friends and colleagues either for friendly conversations or for Business Group meetings
+                welcome to Snappy connect with friends and colleagues either for friendly conversations or for Business Group meetings
               </p>
-              <button className="bg-[#247EE4] text-white px-8 py-3 rounded-xl hover:bg-[#0069E0] transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+              <button 
+                className="bg-[#247EE4] text-white px-8 py-3 rounded-xl hover:bg-[#0069E0] transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                onClick={() => setSelectedContact(contacts[0].id)}
+              >
                 Start a discussion
               </button>
             </div>
@@ -249,4 +410,4 @@ const ChatInitiate: React.FC = () => {
   );
 };
 
-export default ChatInitiate;
+export default Chat_initiate;
