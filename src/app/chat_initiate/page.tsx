@@ -411,3 +411,233 @@ const Chat_initiate: React.FC = () => {
 };
 
 export default Chat_initiate;
+
+{/*
+  // Import necessary dependencies
+'use client'
+import React, { useState, useEffect } from 'react';
+import { 
+  FaUser, FaSearch, FaPlusCircle, FaEllipsisV, FaCircle, 
+  FaMoon, FaSun, FaLock, FaImage, FaUserPlus, FaUsers, FaCog
+} from 'react-icons/fa';
+import Link from 'next/link';
+import bg_login from '@/assets/bg_login.jpg';
+
+// WebSocket connection for real-time messaging
+const ws = new WebSocket('ws://your-backend-url/ws');
+
+// Define TypeScript interfaces for data structures
+interface Message {
+  id: number;
+  uuid: string;
+  text: string;
+  sender: 'me' | 'other';
+  time: string;
+  conversationUuid: string;
+}
+
+interface User {
+  id: number;
+  uuid: string;
+  email: string;
+  name: string;
+  status: string;
+}
+
+interface Contact {
+  id: number;
+  uuid: string;
+  name: string;
+  status: string;
+  lastMessage: string;
+  time: string;
+  unread?: number;
+  isTyping?: boolean;
+  messages?: Message[];
+}
+
+interface LoginDto {
+  email: string;
+  password: string;
+}
+
+const Chat_initiate: React.FC = () => {
+  // State management
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Theme configuration
+  const theme = {
+    bg: isDarkMode ? '#171717' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#171717',
+    primary: '#247EE4',
+    secondary: isDarkMode ? '#322F44' : '#D9D9D9',
+    hover: isDarkMode ? '#2a2a2a' : '#f5f5f5',
+    border: isDarkMode ? '#333333' : '#D9D9D9',
+  };
+
+  // Fetch user conversations on component mount
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const response = await fetch(`/api/conversations/users?conversationUuid=${currentUser?.uuid}`);
+        const data = await response.json();
+        setContacts(data);
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+      }
+    };
+
+    if (currentUser) {
+      fetchConversations();
+    }
+  }, [currentUser]);
+
+  // Handle WebSocket messages
+  useEffect(() => {
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      updateContactMessages(message);
+    };
+  }, [contacts]);
+
+  // Update contact messages when new message arrives
+  const updateContactMessages = (newMessage: Message) => {
+    setContacts(prevContacts => 
+      prevContacts.map(contact => {
+        if (contact.uuid === newMessage.conversationUuid) {
+          return {
+            ...contact,
+            lastMessage: newMessage.text,
+            messages: [...(contact.messages || []), newMessage]
+          };
+        }
+        return contact;
+      })
+    );
+  };
+
+  // Send message to backend
+  const sendMessage = async () => {
+    if (newMessage.trim() === '' || !selectedContact) return;
+
+    const message = {
+      text: newMessage,
+      conversationUuid: contacts.find(c => c.id === selectedContact)?.uuid,
+      sender: 'me',
+      time: new Date().toISOString()
+    };
+
+    try {
+      // Send message to backend
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      });
+
+      if (response.ok) {
+        // Send message through WebSocket for real-time updates
+        ws.send(JSON.stringify(message));
+        setNewMessage('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  // Fetch previous messages for a conversation
+  const fetchMessages = async (conversationUuid: string, fromMessage: string, limit: number = 5) => {
+    try {
+      const response = await fetch(
+        `/api/messages/paginate?conversationUuid=${conversationUuid}&fromMessage=${fromMessage}&limit=${limit}`
+      );
+      const messages = await response.json();
+      return messages;
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      return [];
+    }
+  };
+
+  // Login handler
+  const handleLogin = async (loginDto: LoginDto) => {
+    try {
+      const response = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginDto)
+      });
+      
+      if (response.ok) {
+        const user = await response.json();
+        setCurrentUser(user);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
+
+  // More options menu renderer
+  const renderMoreOptionsMenu = () => {
+    // ... (rest of the menu rendering code remains the same)
+  };
+
+  // Chat area renderer
+  const renderChatArea = (contact: Contact) => {
+    // ... (rest of the chat area rendering code remains the same)
+  };
+
+  return (
+    <div 
+      className={`flex h-screen transition-colors duration-300 ease-in-out`}
+      style={{ background: theme.bg }}
+    >
+      {/* Left Sidebar */}
+      {/*<div 
+        className="w-[400px] flex flex-col border-r transition-all duration-300"
+        style={{ borderColor: theme.border }}
+      >
+        {/* Header - Removed notification icon */}
+        {/*<div className="h-16 relative overflow-hidden">
+          <div className="absolute inset-0" 
+               style={{
+                 background: 'linear-gradient(135deg, #247EE4, #0069E0, #322F44)',
+                 opacity: isDarkMode ? 0.8 : 1
+               }}
+          />
+          <div className="relative h-full flex items-center justify-between px-4">
+            <div className="flex items-center gap-4">
+              <FaUser className="w-10 h-10 rounded-full bg-white/90 p-2 text-[#247EE4]" />
+              <span className="text-white font-semibold">
+                {currentUser?.name || 'My Profile'}
+              </span>
+            </div>
+            <div className="flex items-center space-x-4 text-white">
+              <div onClick={() => setIsDarkMode(!isDarkMode)} className="cursor-pointer">
+                {isDarkMode ? (
+                  <FaSun className="w-6 h-6 hover:text-white/80 transition-colors" />
+                ) : (
+                  <FaMoon className="w-6 h-6 hover:text-white/80 transition-colors" />
+                )}
+              </div>
+              <FaEllipsisV className="w-6 h-6 cursor-pointer hover:text-white/80 transition-colors" />
+            </div>
+          </div>
+        </div>
+
+        {/* Rest of the component remains the same */}
+        {/* ... */}
+     {/* </div>
+    </div>
+  );
+};
+
+export default Chat_initiate;
+  
+  */ }

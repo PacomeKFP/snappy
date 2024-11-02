@@ -1,16 +1,67 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import bg from '@/assets/Mask group.png'; 
 import bg_login from '@/assets/bg_login.jpg'; 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  username: string;
+  email: string;
+  password: string;
+}
 
 const RegisterPage: React.FC = () => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const [formData, setFormData] = useState<User>({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    console.log('Register attempted');
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8001/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      console.log(response);
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const userData = await response.json();
+      
+      if (userData) {
+        // Stocker les informations de l'utilisateur si nécessaire
+        localStorage.setItem('user', JSON.stringify(userData));
+        // Rediriger vers la page de login après inscription réussie
+        router.push('/login');
+      } else {
+        setError('Registration failed');
+      }
+    } catch (error) {
+      setError('An error occurred during registration');
+      console.error('Registration error:', error);
+    }
   };
 
   return (
@@ -51,6 +102,12 @@ const RegisterPage: React.FC = () => {
         <div className="flex-1 flex justify-center items-center bg-[#ffffff] rounded-b-2xl lg:rounded-r-2xl lg:rounded-b-none p-6 lg:p-0">
           <form onSubmit={handleSubmit} className="w-full max-w-sm">
             <h2 className="text-2xl md:text-3xl font-bold text-[#247EE4] mb-6 md:mb-8 text-center">Create Your Account</h2>
+            
+            {error && (
+              <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-center">
+                {error}
+              </div>
+            )}
 
             {/* Nom d'utilisateur */}
             <div className="mb-4 md:mb-6">
@@ -59,6 +116,8 @@ const RegisterPage: React.FC = () => {
                 type="text" 
                 id="username" 
                 name="username" 
+                value={formData.username}
+                onChange={handleChange}
                 required 
                 className="w-full p-2 md:p-3 bg-[#D9D9D9] border-2 border-[#D9D9D9] rounded-md focus:outline-none focus:ring-2 focus:ring-snappy-first-blue"
               />
@@ -71,6 +130,8 @@ const RegisterPage: React.FC = () => {
                 type="email" 
                 id="email" 
                 name="email" 
+                value={formData.email}
+                onChange={handleChange}
                 required 
                 className="w-full p-2 md:p-3 bg-[#D9D9D9] border-2 border-[#D9D9D9] rounded-md focus:outline-none focus:ring-2 focus:ring-snappy-first-blue"
               />
@@ -83,6 +144,8 @@ const RegisterPage: React.FC = () => {
                 type="password" 
                 id="password" 
                 name="password" 
+                value={formData.password}
+                onChange={handleChange}
                 required 
                 className="w-full p-2 md:p-3 bg-[#D9D9D9] border-2 border-[#D9D9D9] rounded-md focus:outline-none focus:ring-2 focus:ring-snappy-first-blue"
               />
