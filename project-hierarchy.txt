@@ -1,0 +1,76 @@
+snappy
+├─ .gitignore
+├─ .idea
+│  ├─ .gitignore
+│  ├─ compiler.xml
+│  ├─ dataSources
+│  │  └─ b679ebb2-be8c-4de8-9437-4214ebb3d86a.xml
+│  ├─ dataSources.local.xml
+│  ├─ dataSources.xml
+│  ├─ encodings.xml
+│  ├─ inspectionProfiles
+│  │  └─ Project_Default.xml
+│  ├─ jarRepositories.xml
+│  ├─ misc.xml
+│  ├─ sqlDataSources.xml
+│  ├─ sqldialects.xml
+│  ├─ uiDesigner.xml
+│  ├─ vcs.xml
+│  └─ workspace.xml
+├─ .mvn
+│  └─ wrapper
+│     └─ maven-wrapper.properties
+├─ doc-ws.md
+├─ HELP.md
+├─ info.md
+├─ mvnw
+├─ mvnw.cmd
+├─ pom.xml
+└─ src
+   ├─ main
+   │  ├─ java
+   │  │  └─ org
+   │  │     └─ enspy
+   │  │        └─ snappy
+   │  │           ├─ config
+   │  │           │  ├─ CassandraConfig.java
+   │  │           │  ├─ WebSocketAuthorizationListener.java
+   │  │           │  └─ WebSocketServer.java
+   │  │           ├─ controllers
+   │  │           │  ├─ ConversationController.java
+   │  │           │  ├─ dto
+   │  │           │  │  ├─ CreateConversationDto.java
+   │  │           │  │  ├─ CreateMessageDto.java
+   │  │           │  │  └─ LoginDto.java
+   │  │           │  ├─ MessageController.java
+   │  │           │  ├─ presenters
+   │  │           │  │  └─ GetMessagePresenter.java
+   │  │           │  ├─ UserController.java
+   │  │           │  └─ WebSocketController.java
+   │  │           ├─ helpers
+   │  │           │  ├─ WebSocketAcknowledges.java
+   │  │           │  └─ WebSocketHelper.java
+   │  │           ├─ models
+   │  │           │  ├─ Conversation.java
+   │  │           │  ├─ Message.java
+   │  │           │  ├─ SubConversation.java
+   │  │           │  └─ User.java
+   │  │           ├─ repositories
+   │  │           │  ├─ ConversationRepository.java
+   │  │           │  ├─ MessageRepository.java
+   │  │           │  └─ UserRepository.java
+   │  │           ├─ services
+   │  │           │  ├─ ConversationService.java
+   │  │           │  ├─ MessageService.java
+   │  │           │  └─ UserService.java
+   │  │           └─ SnappyApplication.java
+   │  └─ resources
+   │     ├─ application.properties
+   │     ├─ static
+   │     └─ templates
+   └─ test
+      └─ java
+         └─ org
+            └─ enspy
+               └─ snappy
+                  └─ SnappyApplicationTests.java
