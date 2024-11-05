@@ -54,11 +54,6 @@ public class WebSocketController {
         public void onData(SocketIOClient client, CreateMessageDto messageDto, AckRequest acknowledge) throws Exception {
             String user = client.getHandshakeData().getSingleUrlParam("user");
 
-            // regarder les utilisateurs connectés.
-            log.info("Conversation: \n" + messageDto);
-//            LocalDateTime now = LocalDateTime.now();
-//            Message message = new Message();
-
             Optional<Conversation> conversation = conversationRepository.findById(messageDto.getConversation());
             // Si la conversation n'existe pas, on arrete tout
             if (conversation.isEmpty()) {
@@ -73,7 +68,7 @@ public class WebSocketController {
                     socketServer.getClient(UUID.fromString(userSession)).sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, GetMessagePresenter.fromMessage(message));
                 }
             });
-            acknowledge.sendAckData("SENT");
+            acknowledge.sendAckData(message.getUuid());
         }
     };
 

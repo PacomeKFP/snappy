@@ -2,6 +2,9 @@ package org.enspy.snappy.config;
 
 
 import com.corundumstudio.socketio.AuthorizationListener;
+import com.corundumstudio.socketio.protocol.JacksonJsonSupport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.helpers.WebSocketHelper;
