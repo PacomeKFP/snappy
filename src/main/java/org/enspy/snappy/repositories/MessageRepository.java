@@ -6,18 +6,19 @@ import org.springframework.data.cassandra.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface MessageRepository extends CassandraRepository<Message, UUID> {
 
-    @Query("SELECT * FROM messages WHERE conversation_uuid = ?0 AND message_uuid < ?1 LIMIT ?2")
+    @Query("SELECT * FROM message WHERE conversation = ?0 AND uuid < ?1 LIMIT ?2 ALLOW FILTERING")
     List<Message> findMessagesForConversation(UUID conversationUuid, UUID messageUuid, int limit);
 
-    @Query("SELECT * FROM messages WHERE conversation_uuid = ?0 AND author != ?1 AND isRead = false")
-    List<Message> findUnreadMessages(UUID conversationUuid, UUID user);
+    @Query("SELECT * FROM message WHERE conversation = ?0  AND isRead = false ALLOW FILTERING")
+    List<Message> findUnreadMessages(UUID conversationUuid);
 
-    @Query("UPDATE messages SET isRead = true WHERE uuid = ?0 IF EXISTS")
-    void markMessageAdRead(UUID uuid);
+    @Query("UPDATE message SET isRead = true WHERE uuid = ?0 IF EXISTS")
+    Optional<Message> markMessageAsRead(UUID uuid);
 }
 
