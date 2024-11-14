@@ -1,34 +1,39 @@
-// components/ThemeContext.tsx
+// src/components/ThemeContext.tsx
+"use client";
+
 import React, { createContext, useContext, useState } from 'react';
 
-const lightTheme = {
-  bg: '#ffffff',
-  text: '#171717',
-  primary: '#247EE4',
-  secondary: '#D9D9D9',
-  hover: '#f5f5f5',
-  border: '#D9D9D9',
+interface Theme {
+  bg: string;
+  border: string;
+}
+
+interface ThemeContextProps {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+const defaultTheme: Theme = {
+  bg: '#ffffff', // Couleur de fond par défaut
+  border: '#cccccc', // Couleur de bordure par défaut
 };
 
-const darkTheme = {
-  bg: '#171717',
-  text: '#ffffff',
-  primary: '#247EE4',
-  secondary: '#322F44',
-  hover: '#2a2a2a',
-  border: '#333333',
+const darkTheme: Theme = {
+  bg: '#333333', // Couleur de fond en mode sombre
+  border: '#555555', // Couleur de bordure en mode sombre
 };
 
-const ThemeContext = createContext({
-  theme: lightTheme,
+const ThemeContext = createContext<ThemeContextProps>({
+  theme: defaultTheme,
   toggleTheme: () => {},
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const theme = isDarkMode ? darkTheme : lightTheme;
 
-  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  const theme = isDarkMode ? darkTheme : defaultTheme;
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

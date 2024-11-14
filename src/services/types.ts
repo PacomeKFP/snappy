@@ -1,5 +1,6 @@
 // types.ts
 export interface User {
+    id: Key | null | undefined;
     uuid: string;
     name: string;
     email: string;

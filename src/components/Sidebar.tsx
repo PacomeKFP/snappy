@@ -15,7 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ users, setSelectedUser }) => {
   return (
     <aside className="w-[400px] border-r" style={{ background: theme.bg, borderColor: theme.border }}>
       <Header toggleTheme={toggleTheme} />
-      <UserList users={users} setSelectedUser={setSelectedUser} />
+      <UserList users={users} onUserClick={setSelectedUser} />
     </aside>
   );
 };

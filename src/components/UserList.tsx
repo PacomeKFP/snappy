@@ -1,17 +1,17 @@
 import React from 'react';
-import UserCard from '@/components/UserCard';
+import UserCard from './UserCard';
 import { User } from '@/services/types';
 
 interface UserListProps {
   users: User[];
-  setSelectedUser: (user: User) => void;
+  onUserClick: (user: User) => void;
 }
 
-const UserList: React.FC<UserListProps> = ({ users, setSelectedUser }) => {
+const UserList: React.FC<UserListProps> = ({ users, onUserClick }) => {
   return (
-    <div>
-      {users.map((user) => (
-        <UserCard key={user.uuid} user={user} onClick={() => setSelectedUser(user)} />
+    <div className="user-list">
+      {users.map(user => (
+        <UserCard key={user.id} user={user} onClick={() => onUserClick(user)} />
       ))}
     </div>
   );
