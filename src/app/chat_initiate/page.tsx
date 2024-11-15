@@ -9,7 +9,8 @@ import { User, Message } from '@/services/types';
 import bg_login from '@/assets/bg_login.jpg';
 
 // Initialize socket connection for receiving messages only
-const socket = io('http://localhost:8001'); // Replace with your WebSocket server URL
+const socket = io('http://localhost:3305'); //Receive ici
+const urlApi = 'http://localhost:8001'; //Send ici
 
 const Chat: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);

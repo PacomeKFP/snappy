@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { 
   FaUser, FaSearch, FaPlusCircle, FaEllipsisV, FaCircle, 
   FaBell, FaMoon, FaSun, FaLock, FaImage, FaUserPlus, FaUsers, FaCog
 } from 'react-icons/fa';
-import Link from 'next/link';
 import bg_login from '@/assets/bg_login.jpg';
 
 interface Contact {
-  id: number;
+  uuid: string;
   name: string;
-  status: string;
-  lastMessage: string;
-  time: string;
-  unread?: number;
-  isTyping?: boolean;
-  messages?: Message[];
+  email: string;
+  password: string;
+  phone: string;
+  picture: string;
+  bio: string;
+  createdat: string;
+  updatedat: string;
 }
+
 
 interface Message {
   id: number;
@@ -32,43 +33,67 @@ const Chat_initiate: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [message, setMessage] = useState([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [contacts, setContacts] = useState<Contact[]>([
-    { 
-      id: 1, 
-      name: 'Hello 1', 
-      status: 'online',
-      lastMessage: "Hey, how are you doing?",
-      time: "09:34",
-      unread: 2,
-      isTyping: true,
-      messages: [
-        { id: 1, text: "Hey, how are you doing?", sender: 'other', time: "09:34" },
-        { id: 2, text: "I'm good, thanks! How about you?", sender: 'me', time: "09:35" }
-      ]
-    },
-    { 
-      id: 2, 
-      name: 'Hello 2', 
-      status: 'offline',
-      lastMessage: "See you tomorrow!",
-      time: "Yesterday",
-      messages: [
-        { id: 1, text: "See you tomorrow!", sender: 'other', time: "Yesterday" }
-      ]
-    },
-    { 
-      id: 3, 
-      name: 'Hello 3', 
-      status: 'online',
-      lastMessage: "Meeting at 3 PM",
-      time: "08:15",
-      unread: 5,
-      messages: [
-        { id: 1, text: "Meeting at 3 PM", sender: 'other', time: "08:15" }
-      ]
-    },
-  ]);
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const response = await fetch('http://localhost:8001/users');
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data: Contact[] = await response.json();
+        setContacts(data);
+        console.log(data);
+      } catch (err: any) {
+        setError(err.message || 'An error occurred while fetching data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContacts();
+  }, []);
+
+  // const [contacts, setContacts] = useState<Contact[]>([
+  //   { 
+  //     id: 1, 
+  //     name: 'Hello 1', 
+  //     status: 'online',
+  //     lastMessage: "Hey, how are you doing?",
+  //     time: "09:34",
+  //     unread: 2,
+  //     isTyping: true,
+  //     messages: [
+  //       { id: 1, text: "Hey, how are you doing?", sender: 'other', time: "09:34" },
+  //       { id: 2, text: "I'm good, thanks! How about you?", sender: 'me', time: "09:35" }
+  //     ]
+  //   },
+  //   { 
+  //     id: 2, 
+  //     name: 'Hello 2', 
+  //     status: 'offline',
+  //     lastMessage: "See you tomorrow!",
+  //     time: "Yesterday",
+  //     messages: [
+  //       { id: 1, text: "See you tomorrow!", sender: 'other', time: "Yesterday" }
+  //     ]
+  //   },
+  //   { 
+  //     id: 3, 
+  //     name: 'Hello 3', 
+  //     status: 'online',
+  //     lastMessage: "Meeting at 3 PM",
+  //     time: "08:15",
+  //     unread: 5,
+  //     messages: [
+  //       { id: 1, text: "Meeting at 3 PM", sender: 'other', time: "08:15" }
+  //     ]
+  //   },
+  // ]);
 
   const theme = {
     bg: isDarkMode ? '#171717' : '#ffffff',
