@@ -67,6 +67,13 @@ public class MessageService {
     }
 
     /**
+     * Reccuperer un bloc de messages dans une conversation
+     */
+    public List<Message> findMessagesByConversation(UUID conversationUuid) {
+        return messageRepository.findMessageByConversation(conversationUuid);
+    }
+
+    /**
      * Recuperer les messages non lus d'une conversation
      */
     public List<Message> findUnreadMessages(UUID conversationUuid, UUID user) {

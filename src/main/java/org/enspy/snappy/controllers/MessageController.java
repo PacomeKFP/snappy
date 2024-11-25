@@ -27,6 +27,11 @@ public class MessageController {
         return messageService.findMessagesForConversation(conversationUuid, fromMessage, limit);
     }
 
+    @GetMapping("/conversation")
+    public List<Message> getAllMessages(@RequestParam(required = true) UUID conversationUuid) {
+        return messageService.findMessagesByConversation(conversationUuid);
+    }
+
     @GetMapping("/unread")
     public List<Message> getUnreadMessages(
             @RequestParam(required = true) UUID conversationUuid,

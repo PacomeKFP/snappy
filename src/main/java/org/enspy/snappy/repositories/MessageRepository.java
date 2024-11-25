@@ -18,6 +18,8 @@ public interface MessageRepository extends CassandraRepository<Message, UUID> {
     @Query("SELECT * FROM message WHERE conversation = ?0  AND isRead = false ALLOW FILTERING")
     List<Message> findUnreadMessages(UUID conversationUuid);
 
+    List<Message> findMessageByConversation(UUID conversationUuid);
+
     @Query("UPDATE message SET isRead = true WHERE uuid = ?0 IF EXISTS")
     Optional<Message> markMessageAsRead(UUID uuid);
 }
