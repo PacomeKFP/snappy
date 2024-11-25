@@ -30,3 +30,5 @@ public class Conversation {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 }
+
+

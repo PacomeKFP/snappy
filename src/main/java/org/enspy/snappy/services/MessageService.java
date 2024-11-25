@@ -26,14 +26,12 @@ public class MessageService {
     @Autowired
     private SocketIOServer socketServer;
 
-    @Autowired
-    private MessageService messageService;
 
     /**
      * [UserUUID]: [sessionId]
      */
     @Autowired
-    private Map<String, String> connectedUsers; // <session>: <User>
+    private Map<String, String> connectedUsers; // <User>: <session>
 
     public Message createMessage(CreateMessageDto messageDto) {
         Message message = new Message();
