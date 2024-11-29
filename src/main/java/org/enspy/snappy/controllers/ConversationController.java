@@ -1,11 +1,13 @@
 package org.enspy.snappy.controllers;
 
 import org.enspy.snappy.controllers.dto.CreateConversationDto;
+import org.enspy.snappy.helpers.ConversationStatus;
 import org.enspy.snappy.models.Conversation;
 import org.enspy.snappy.services.ConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,11 +16,21 @@ import java.util.UUID;
 public class ConversationController {
     @Autowired
     public ConversationService conversationService;
+    
+    @Autowired
+    public HashMap<String, HashMap<String, ConversationStatus>> conversationStatusStorage;
+
 
     @PostMapping
     public Conversation postMessage(@RequestBody CreateConversationDto conversationDto) {
         return conversationService.createConversation(conversationDto);
     }
+
+    @GetMapping("/states")
+    public HashMap<String, HashMap<String, ConversationStatus>>  status() {
+        return conversationStatusStorage;
+    }
+
 
     @PatchMapping("/{conversationUid}")
     public Integer switchSnappyStatus(@PathVariable UUID conversationUid, @RequestParam(required = true) UUID userUuid) {

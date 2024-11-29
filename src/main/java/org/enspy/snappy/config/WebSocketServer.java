@@ -36,6 +36,7 @@ public class WebSocketServer {
     /**
      * [UserUUID]: [sessionId]
      */
+    //TODO: deplacer cette variable et l'initialiserdans le store
     private HashMap<String, String> connectedUsers;
 
     @Autowired

@@ -1,16 +1,16 @@
 package org.enspy.snappy.repositories;
 
-import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.enspy.snappy.models.Conversation;
-import org.enspy.snappy.models.User;
 import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
 
 @Repository
 public interface ConversationRepository extends CassandraRepository<Conversation, UUID> {

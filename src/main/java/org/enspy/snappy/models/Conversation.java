@@ -24,6 +24,14 @@ public class Conversation {
     /**
      * -1: Off, 0: Listen, 1: On
      */
+    /*Ajouter une variable pour preciser le statut de la conversation */
+    /*vu que j'ai cree un helper qui contient les statuts, alors maintenant je dois venir injecter ce helper ici,  */
+    
+    
+
+
+
+
     @CassandraType(type = CassandraType.Name.MAP, typeArguments = {CassandraType.Name.UUID, CassandraType.Name.INT})
     private Map<UUID, Integer> states = new HashMap<>();
     private LocalDateTime createdAt = LocalDateTime.now();
