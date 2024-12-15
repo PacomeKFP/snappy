@@ -180,8 +180,6 @@ pytest
 - [ ] Cache pour optimiser les performances
 - [ ] Support de fichiers attachés
 
-## Licence
-[Votre licence]
 
 ## Contribution
 Les contributions sont les bienvenues ! Voir `CONTRIBUTING.md` pour les détails.
