@@ -3,7 +3,6 @@ import React from "react";
 import { SettingsHeader } from "./SettingsHeader";
 import { SettingsNavigation } from "./SettingsNavigation";
 import { GeneralTab } from "./tabs/GeneralTab";
-import { NotificationsTab } from "./tabs/NotificationsTab";
 import SecurityTab from "@/components/pages/settings/tabs/SecurityTab";
 
 export const SettingsPage = () => {
@@ -14,24 +13,11 @@ export const SettingsPage = () => {
     monthly: true,
   });
 
-  const handleNotificationChange = (type: string) => {
-    setNotifications((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }));
-  };
-
   const renderActiveTab = () => {
     switch (activeTab) {
       case "general":
         return <GeneralTab />;
-      case "notifications":
-        return (
-          <NotificationsTab
-            notifications={notifications}
-            onNotificationChange={handleNotificationChange}
-          />
-        );
+
       case "security":
         return <SecurityTab />;
       default:
