@@ -14,7 +14,7 @@ const Settings = () => {
     <DefaultLayout>
       <div className="mx-auto w-full max-w-[1080px]">
         <Breadcrumb pageName="Alan" />
-        Paramètres d'Alan
+        Parametres d'Alan
         {/*<SettingBoxes />*/}
       </div>
     </DefaultLayout>

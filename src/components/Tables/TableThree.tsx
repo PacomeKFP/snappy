@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const TableThree = () => {
   const packageData = [
     {
@@ -75,7 +77,7 @@ const TableThree = () => {
                 className="border-b border-gray-100 last:border-b-0"
               >
                 <td className="px-4 py-4">
-                  <img
+                  <Image
                     src={packageItem.image}
                     alt={packageItem.name}
                     className="h-10 w-10"
