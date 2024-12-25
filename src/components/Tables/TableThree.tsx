@@ -81,6 +81,8 @@ const TableThree = () => {
                     src={packageItem.image}
                     alt={packageItem.name}
                     className="h-10 w-10"
+                    width={40}
+                    height={40}
                   />
                 </td>
                 <td className="px-4 py-4">
@@ -126,7 +128,6 @@ const TableThree = () => {
                         />
                       </svg>
                     </button>
-                    
                   </div>
                 </td>
               </tr>

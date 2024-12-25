@@ -1,3 +1,4 @@
+"use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableOne from "@/components/Tables/TableOne";
 import TableThree from "@/components/Tables/TableThree";
@@ -6,14 +7,17 @@ import { PlusCircle } from "lucide-react";
 
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
-
-export const metadata: Metadata = {
-  title: "Next.js Tables Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Tables page for NextAdmin Dashboard Kit",
-};
+import { MouseEventHandler, SyntheticEvent } from "react";
+//
+// export const metadata: Metadata = {
+//   title: "Next.js Tables Page | NextAdmin - Next.js Dashboard Kit",
+//   description: "This is Next.js Tables page for NextAdmin Dashboard Kit",
+// };
 
 const TablesPage = () => {
-  const handleAddUser = () => {
+  const handleAddUser: MouseEventHandler<HTMLButtonElement> = (
+    e: SyntheticEvent,
+  ) => {
     // Implement your add user logic here
     console.log("Add user clicked");
   };
