@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableOne from "@/components/Tables/TableOne";
 import TableThree from "@/components/Tables/TableThree";
 import TableTwo from "@/components/Tables/TableTwo";
+import { PlusCircle } from "lucide-react";
 
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
@@ -12,9 +13,23 @@ export const metadata: Metadata = {
 };
 
 const TablesPage = () => {
+  const handleAddUser = () => {
+    // Implement your add user logic here
+    console.log("Add user clicked");
+  };
+
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Users" />
+      <div className="mb-6 flex items-center justify-between">
+        <Breadcrumb pageName="Users" />
+        <button
+          onClick={handleAddUser}
+          className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+        >
+          <PlusCircle className="h-5 w-5" />
+          Add User
+        </button>
+      </div>
 
       <div className="flex flex-col gap-10">
         <TableThree />
