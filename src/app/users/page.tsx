@@ -24,17 +24,16 @@ const TablesPage = () => {
 
   return (
     <DefaultLayout>
-      <div className="mb-6 flex items-center justify-between">
-        <Breadcrumb pageName="Users" />
-        <button
-          onClick={handleAddUser}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90"
-        >
-          <PlusCircle className="h-5 w-5" />
-          Add User
-        </button>
-      </div>
-
+      {/*<div className="mb-6 flex items-center justify-between">*/}
+      <Breadcrumb pageName="Users" />
+      {/*</div>*/}
+      <button
+        onClick={handleAddUser}
+        className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+      >
+        <PlusCircle className="h-5 w-5" />
+        Add User
+      </button>
       <div className="flex flex-col gap-10">
         <TableThree />
       </div>
