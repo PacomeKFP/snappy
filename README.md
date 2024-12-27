@@ -1,0 +1,16 @@
+# Mises à jour futures:
+## HTTP
+- Authentification avec JWT 
+  - Erire les UseCase de Login pour Organization et User
+  - Rajouter La sécurité (SecurityConfig) pour proteger les endpoints
+- Gestion des modes de conversation:
+  - Rajouter un endpoint pout changer le mode d'une conversation
+  - Update le usecase d'envoie  de messages `@[SendMessageUseCase]` pour qu'il envoie le message à Alan selon le mode
+- Gestion des Media:
+  - Ecrire la feature pour uploader les media
+
+## Integration de Netty
+- Configuration du serveur WS
+- Gestion des connexion et deconnexions d'utilisateurs
+- Gestion de l'envoie des messages
+- 

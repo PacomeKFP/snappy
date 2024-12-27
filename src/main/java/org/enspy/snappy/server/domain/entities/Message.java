@@ -19,7 +19,7 @@ public class Message {
 
     private String projectId;
     private String body;
-    private boolean isWrittenByHuman;
+    private boolean isWrittenByHuman = false;
 
     @Enumerated(EnumType.STRING)
     private MessagingMode mode = MessagingMode.OFF;
@@ -41,10 +41,4 @@ public class Message {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public User getSender() {
-        return sender;
-    }
-    public User getReceiver() {
-        return receiver;
-    }
 }
