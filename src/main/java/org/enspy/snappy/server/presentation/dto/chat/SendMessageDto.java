@@ -1,18 +1,20 @@
 package org.enspy.snappy.server.presentation.dto.chat;
 
 import lombok.Data;
-import org.enspy.snappy.server.domain.entities.Message;
-import org.enspy.snappy.server.domain.entities.MessagingMode;
-import org.enspy.snappy.server.domain.usecases.UseCase;
-
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Data
-public class SendMessageDto  {
+public class SendMessageDto {
+    @NotNull
+    private String senderId;        // UUID of the sender
+
+    @NotNull
+    private String receiverId;      // UUID of the receiver
+
+    @NotBlank
+    private String body;            // The actual message content
+
+    @NotBlank
     private String projectId;
-    private String body;
-    private boolean isWrittenByHuman;
-    private MessagingMode mode;
-    private UUID author;
-    private UUID to;
 }

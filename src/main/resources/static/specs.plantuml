@@ -1,0 +1,339 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class AddContact {
+  + execute(String): List<User>
+}
+class AuthenticateOrganization {
+  + execute(Organization): String
+}
+class AuthenticateOrganizationDto {
+  - password: String
+  - email: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   email: String
+   password: String
+}
+class AuthenticateUser {
+  + execute(User): String
+}
+class AuthenticateUserDto {
+  - secret: String
+  - login: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   secret: String
+   login: String
+}
+class ChatDetailsResource {
+  - messages: List<Message>
+  - user: User
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   messages: List<Message>
+   user: User
+}
+class ChatResource {
+  - lastMessage: Message
+  - user: User
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   lastMessage: Message
+   user: User
+}
+class ConvertUserExternalIdToUUID {
+  + execute(String): UUID
+}
+class CreateOrganizationDto {
+  - name: String
+  - email: String
+  - password: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   name: String
+   email: String
+   password: String
+}
+class CreateOrganizationUseCase {
+  + execute(CreateOrganizationDto): Organization
+}
+class CreateUser {
+  + execute(Organization): Organization
+}
+class CreateUserDto {
+  - phoneNumber: String
+  - externalId: String
+  - secret: String
+  - customJson: Map<String, String>
+  - login: String
+  - displayName: String
+  - projectId: String
+  - avatar: String
+  - email: String
+  + hashCode(): int
+  + toString(): String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+   projectId: String
+   externalId: String
+   email: String
+   phoneNumber: String
+   customJson: Map<String, String>
+   avatar: String
+   secret: String
+   login: String
+   displayName: String
+}
+class DeleteOrganization {
+  + execute(String): Void
+}
+class DeleteUser {
+  + execute(String): Void
+}
+class FindAllUsers {
+  + execute(String): List<User>
+}
+class GetChatDetails {
+  + execute(GetChatDetailsDto): List<ChatDetailsResource>
+}
+class GetChatDetailsDto
+class GetOrganization {
+  + execute(String): Organization
+}
+class GetUserChats {
+  + execute(UUID): ChatResource
+}
+class GetUserContacts {
+  + execute(String): List<User>
+}
+class GetUserContacts {
+  + execute(String): List<User>
+}
+class HomeController {
+  + home(): String
+}
+class Message {
+  - updatedAt: LocalDateTime
+  - isWrittenByHuman: boolean
+  - uuid: String
+  - author: User
+  - projectId: String
+  - mode: MessagingMode
+  - medias: List<MessageMedia>
+  - body: String
+  - to: User
+  - createdAt: LocalDateTime
+  # canEqual(Object): boolean
+  + equals(Object): boolean
+  + toString(): String
+  + hashCode(): int
+   updatedAt: LocalDateTime
+   createdAt: LocalDateTime
+   mode: MessagingMode
+   projectId: String
+   isWrittenByHuman: boolean
+   uuid: String
+   medias: List<MessageMedia>
+   to: User
+   body: String
+   author: User
+}
+class MessageMedia {
+  - updatedAt: LocalDateTime
+  - data: String
+  - createdAt: LocalDateTime
+  - message: Message
+  - projectId: String
+  - mimetype: String
+  - uuid: String
+  - filename: String
+  - filesize: Long
+  + hashCode(): int
+  + toString(): String
+  # canEqual(Object): boolean
+  + equals(Object): boolean
+   updatedAt: LocalDateTime
+   createdAt: LocalDateTime
+   projectId: String
+   mimetype: String
+   uuid: String
+   message: Message
+   filename: String
+   filesize: Long
+   data: String
+}
+interface MessageMediaRepository << interface >>
+interface MessageRepository << interface >>
+enum MessagingMode << enumeration >> {
+  + values(): MessagingMode[]
+  + valueOf(String): MessagingMode
+}
+class Organization {
+  - privateKey: String
+  - name: String
+  - email: String
+  - updatedAt: LocalDateTime
+  - users: List<User>
+  - createdAt: LocalDateTime
+  - uuid: String
+  - password: String
+  - projectId: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   name: String
+   password: String
+   updatedAt: LocalDateTime
+   createdAt: LocalDateTime
+   projectId: String
+   email: String
+   uuid: String
+   users: List<User>
+   privateKey: String
+}
+class OrganizationController {
+  + create(CreateOrganizationDto): Organization
+}
+interface OrganizationRepository << interface >>
+class SendMessage {
+  + execute(Message): Message
+}
+class SendMessageDto {
+  - author: UUID
+  - body: String
+  - to: UUID
+  - projectId: String
+  - mode: MessagingMode
+  - isWrittenByHuman: boolean
+  + hashCode(): int
+  + toString(): String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+   to: UUID
+   mode: MessagingMode
+   projectId: String
+   isWrittenByHuman: boolean
+   body: String
+   author: UUID
+}
+class ServerApplication {
+  + main(String[]): void
+}
+class UpdateUser {
+  + execute(CreateUserDto): User
+}
+interface UseCase<D, P> << interface >> {
+  + execute(D): P
+}
+class User {
+  - email: String
+  - avatar: String
+  - updatedAt: LocalDateTime
+  - projectId: String
+  - contacts: List<User>
+  - organization: Organization
+  - login: String
+  - customJson: Map<String, String>
+  - createdAt: LocalDateTime
+  - displayName: String
+  - externalId: String
+  - receivedMessages: List<Message>
+  - phoneNumber: String
+  - isOnline: boolean
+  - uuid: String
+  - sentMessages: List<Message>
+  - secret: String
+  + hashCode(): int
+  + toString(): String
+  # canEqual(Object): boolean
+  + equals(Object): boolean
+   createdAt: LocalDateTime
+   sentMessages: List<Message>
+   customJson: Map<String, String>
+   avatar: String
+   isOnline: boolean
+   organization: Organization
+   receivedMessages: List<Message>
+   secret: String
+   contacts: List<User>
+   displayName: String
+   updatedAt: LocalDateTime
+   projectId: String
+   externalId: String
+   email: String
+   phoneNumber: String
+   uuid: String
+   login: String
+}
+interface UserRepository << interface >>
+
+AddContact                   -[#008200,dashed]-^  UseCase                     
+AddContact                   -[#595959,dashed]->  User                        
+AuthenticateOrganization     -[#595959,dashed]->  Organization                
+AuthenticateOrganization     -[#008200,dashed]-^  UseCase                     
+AuthenticateUser             -[#008200,dashed]-^  UseCase                     
+AuthenticateUser             -[#595959,dashed]->  User                        
+ChatDetailsResource         "1" *-[#595959,plain]-> "messages\n*" Message                     
+ChatDetailsResource         "1" *-[#595959,plain]-> "user\n1" User                        
+ChatResource                "1" *-[#595959,plain]-> "lastMessage\n1" Message                     
+ChatResource                "1" *-[#595959,plain]-> "user\n1" User                        
+ConvertUserExternalIdToUUID  -[#008200,dashed]-^  UseCase                     
+CreateOrganizationUseCase    -[#595959,dashed]->  CreateOrganizationDto       
+CreateOrganizationUseCase    -[#595959,dashed]->  Organization                : "«create»"
+CreateOrganizationUseCase   "1" *-[#595959,plain]-> "organizationRepository\n1" OrganizationRepository      
+CreateOrganizationUseCase    -[#008200,dashed]-^  UseCase                     
+CreateUser                   -[#595959,dashed]->  Organization                
+CreateUser                   -[#008200,dashed]-^  UseCase                     
+DeleteOrganization           -[#008200,dashed]-^  UseCase                     
+DeleteUser                   -[#008200,dashed]-^  UseCase                     
+FindAllUsers                 -[#008200,dashed]-^  UseCase                     
+FindAllUsers                 -[#595959,dashed]->  User                        
+GetChatDetails               -[#595959,dashed]->  ChatDetailsResource         
+GetChatDetails               -[#595959,dashed]->  GetChatDetailsDto           
+GetChatDetails               -[#008200,dashed]-^  UseCase                     
+GetOrganization              -[#595959,dashed]->  Organization                
+GetOrganization              -[#008200,dashed]-^  UseCase                     
+GetUserChats                 -[#595959,dashed]->  ChatResource                
+GetUserChats                 -[#008200,dashed]-^  UseCase                     
+GetUserContacts              -[#008200,dashed]-^  UseCase                     
+GetUserContacts              -[#008200,dashed]-^  UseCase                     
+GetUserContacts              -[#595959,dashed]->  User                        
+GetUserContacts              -[#595959,dashed]->  User                        
+Message                     "1" *-[#595959,plain]-> "medias\n*" MessageMedia                
+Message                     "1" *-[#595959,plain]-> "mode\n1" MessagingMode               
+Message                     "1" *-[#595959,plain]-> "author\n1" User                        
+MessageMedia                "1" *-[#595959,plain]-> "message\n1" Message                     
+MessageMediaRepository       -[#595959,dashed]->  MessageMedia                
+MessageRepository            -[#595959,dashed]->  Message                     
+Organization                "1" *-[#595959,plain]-> "users\n*" User                        
+OrganizationController       -[#595959,dashed]->  CreateOrganizationDto       
+OrganizationController      "1" *-[#595959,plain]-> "createOrganizationUseCase\n1" CreateOrganizationUseCase   
+OrganizationController       -[#595959,dashed]->  Organization                
+OrganizationRepository       -[#595959,dashed]->  Organization                
+SendMessage                  -[#595959,dashed]->  Message                     
+SendMessage                  -[#008200,dashed]-^  UseCase                     
+SendMessageDto              "1" *-[#595959,plain]-> "mode\n1" MessagingMode               
+ServerApplication            -[#595959,dashed]->  ServerApplication           
+UpdateUser                   -[#595959,dashed]->  CreateUserDto               
+UpdateUser                   -[#008200,dashed]-^  UseCase                     
+UpdateUser                   -[#595959,dashed]->  User                        
+User                        "1" *-[#595959,plain]-> "sentMessages\n*" Message                     
+User                        "1" *-[#595959,plain]-> "organization\n1" Organization                
+User                        "1" *-[#595959,plain]-> "contacts\n*" User                        
+UserRepository               -[#595959,dashed]->  User                        
+@enduml

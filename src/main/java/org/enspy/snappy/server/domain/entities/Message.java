@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.domain.entities;
 
+import lombok.Builder;
 import lombok.Data;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,28 +8,29 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String uuid;
+    private UUID id;
 
     private String projectId;
     private String body;
     private boolean isWrittenByHuman;
 
     @Enumerated(EnumType.STRING)
-    private MessagingMode mode;
+    private MessagingMode mode = MessagingMode.OFF;
 
     @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author;
+    @JoinColumn(name = "sender")
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "recipient_id")
-    private User to;
+    @JoinColumn(name = "receiver")
+    private User receiver;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<MessageMedia> medias;
@@ -38,4 +40,11 @@ public class Message {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public User getSender() {
+        return sender;
+    }
+    public User getReceiver() {
+        return receiver;
+    }
 }
