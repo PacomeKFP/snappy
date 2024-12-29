@@ -10,6 +10,7 @@
   - Ecrire la feature pour uploader les media
 
 ## Integration de Netty
+- [PENDING] Ranger les projets par namespace; un namespace par projet pour isoler les communications
 - [OK] Configuration du serveur WS
 - [OK] Gestion des connexion et deconnexions d'utilisateurs
 - [OK] Gestion de l'envoie des messages

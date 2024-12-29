@@ -31,12 +31,6 @@ public class WebSocketServer {
 
     private SocketIOServer server;
 
-    /**
-     * [UserUUID]: [sessionId]
-     */
-    @Autowired
-    HashMap<String, String> connectedUsers;
-
     @Autowired
     WebSocketAuthorizationListener webSocketAuthorizationListener;
 

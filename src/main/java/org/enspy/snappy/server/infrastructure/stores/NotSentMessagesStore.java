@@ -2,7 +2,6 @@ package org.enspy.snappy.server.infrastructure.stores;
 
 import lombok.Getter;
 import org.enspy.snappy.server.domain.entities.Message;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.HashMap;
 
 @Getter
 @Component
-public class UnreadMessagesStore {
+public class NotSentMessagesStore {
     /**
      * [UserExternalId]: [unreadMessages]
      * */

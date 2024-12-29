@@ -16,6 +16,8 @@ public class WebSocketHelper {
         String userExternalId = handshakeData.getSingleUrlParam("userExternalId");
         String projectId = handshakeData.getSingleUrlParam("projectId");
         // TODO: Quand l'authentification par JWT sera faite, modifier ceci
+        //   - l'utilisateur dvra etre automatiquement redirigé vers le bon namespace suivant le projet
+        //   - avec les données, on extrait l'ID de l'user
         return handshakeData.getSingleUrlParam("user");
     }
 
@@ -23,6 +25,10 @@ public class WebSocketHelper {
      * les points d'entrée des messages - les endpoints sur lesquels on reçoit les messages des utilisateurs
      */
     public static class InputEndpoints {
+        public static String NEW_USER_CONNECTION = "new-connection";
+        public static String NEW_USER_DISCONNECTION = "new-disconnection";
+
+
         public static String REVEICE_MESSAGE_FROM_USER = "message/send";
 
         // ACK
