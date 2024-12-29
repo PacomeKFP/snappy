@@ -2,10 +2,8 @@ package org.enspy.snappy.server.presentation.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
-import org.enspy.snappy.server.domain.exceptions.ProjectNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;

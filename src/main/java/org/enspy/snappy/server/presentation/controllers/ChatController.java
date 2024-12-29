@@ -1,14 +1,13 @@
 package org.enspy.snappy.server.presentation.controllers;
 
-import org.enspy.snappy.server.domain.usecases.chat.GetChatDetailsUseCase;
+import org.enspy.snappy.server.domain.usecases.chat.ChangeMessagingModeUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.GetChatDetailsUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.GetUserChatsUseCase;
-import org.enspy.snappy.server.domain.usecases.chat.GetUserChatsUseCase;
-import org.enspy.snappy.server.domain.usecases.chat.SendMessageUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.SendMessageUseCase;
 import org.enspy.snappy.server.presentation.dto.chat.GetChatDetailsDto;
 import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
+import org.enspy.snappy.server.presentation.dto.chat.ChangeMessagingModeDto;
 import org.enspy.snappy.server.presentation.resources.ChatDetailsResource;
 import org.enspy.snappy.server.presentation.resources.ChatResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/chat")
@@ -33,6 +31,9 @@ public class ChatController {
 
     @Autowired
     private SendMessageUseCase sendMessageUseCase;
+
+    @Autowired
+    private ChangeMessagingModeUseCase changeMessagingModeUseCase;
 
     /**
      * Retrieve detailed chat between two users.
@@ -59,6 +60,15 @@ public class ChatController {
     @PostMapping("/send")
     public ResponseEntity<Void> sendMessage(@Valid @RequestBody SendMessageDto dto) {
         sendMessageUseCase.execute(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Change the messaging mode of a conversation
+     */
+    @PostMapping("/changeMode")
+    public ResponseEntity<Void> changeMessagingMode(@Valid @RequestBody ChangeMessagingModeDto dto) {
+        changeMessagingModeUseCase.execute(dto);
         return ResponseEntity.ok().build();
     }
 }
