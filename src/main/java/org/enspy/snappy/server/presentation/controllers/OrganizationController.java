@@ -6,11 +6,14 @@ import org.enspy.snappy.server.domain.exceptions.EntityAlreadyExistsException;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.domain.usecases.organization.CreateOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.DeleteOrganizationUseCase;
+import org.enspy.snappy.server.domain.usecases.organization.GetAllOrganizationsUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetOrganizationUseCase;
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController("/organizations")
 public class OrganizationController {
@@ -18,9 +21,10 @@ public class OrganizationController {
     private CreateOrganizationUseCase createOrganizationUseCase;
     @Autowired
     private GetOrganizationUseCase getOrganizationUseCase;
-
     @Autowired
     private DeleteOrganizationUseCase deleteOrganizationUseCase;
+    @Autowired
+    private GetAllOrganizationsUseCase getAllOrganizationsUseCase;
 
     @PostMapping
     public ResponseEntity<Organization> create(@RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
@@ -34,6 +38,12 @@ public class OrganizationController {
         }
 
 
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Organization>> getAllOrganizations() {
+        List<Organization> organizations = getAllOrganizationsUseCase.execute(true); // Aucun paramètre
+        return ResponseEntity.ok(organizations);
     }
 
     @GetMapping("/{id}")

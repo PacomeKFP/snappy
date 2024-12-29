@@ -10,6 +10,7 @@ import java.util.UUID;
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, UUID> {
 
+    Optional<Organization> findByEmail(String email);
     Optional<Organization> findByProjectId(String projectId);
 
 }
