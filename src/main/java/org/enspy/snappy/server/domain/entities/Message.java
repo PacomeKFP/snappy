@@ -24,6 +24,9 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessagingMode mode = MessagingMode.OFF;
 
+    @Enumerated(EnumType.STRING)
+    private MessageAck ack = MessageAck.SENT;
+
     @ManyToOne
     @JoinColumn(name = "sender")
     private User sender;

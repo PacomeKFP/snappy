@@ -10,7 +10,9 @@
   - Ecrire la feature pour uploader les media
 
 ## Integration de Netty
-- Configuration du serveur WS
-- Gestion des connexion et deconnexions d'utilisateurs
-- Gestion de l'envoie des messages
-- 
+- [OK] Configuration du serveur WS
+- [OK] Gestion des connexion et deconnexions d'utilisateurs
+- [OK] Gestion de l'envoie des messages
+- [PENDING] Accusé de reception de message
+- [PENDING] Accusé de lecture de message
+
