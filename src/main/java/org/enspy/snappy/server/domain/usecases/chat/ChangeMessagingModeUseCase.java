@@ -31,7 +31,7 @@ public class ChangeMessagingModeUseCase implements UseCase<ChangeMessagingModeDt
                 .orElseThrow(() -> new IllegalArgumentException("Interlocutor not found"));
 
          // TODO:  Save the messaging mode
-         // ISSUE: Etant donné qu'il n'y a plus l'entité conversation,
+         // ISSUE: Etant donné qu'il n'y a plus l'entité conversation(Utiliser les storage--> front),
          // alors le stockage des etats de conversation devient compliqué
 
         return null;

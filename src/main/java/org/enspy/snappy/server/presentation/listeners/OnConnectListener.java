@@ -35,10 +35,10 @@ public class OnConnectListener implements ConnectListener {
             namespaceClient.sendEvent("new-connection?user=" + userId);
         });
 
-        /**POur Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
-        List<Message> notSentUserMessages = notSentMessagesStore.getUnreadMessagesForUser(userId);
+        /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
+        List<Message> notSentUserMessages = notSentMessagesStore.getNotSentMessagesForUser(userId);
         if (!notSentUserMessages.isEmpty()) {
-            for (Message message : notSentMessagesStore.getUnreadMessagesForUser(userId)) {
+            for (Message message : notSentMessagesStore.getNotSentMessagesForUser(userId)) {
                 client.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
                 notSentMessagesStore.removeUnreadMessageForUser(userId, message);
             }

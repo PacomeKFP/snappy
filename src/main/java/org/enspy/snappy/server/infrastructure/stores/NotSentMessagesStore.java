@@ -11,31 +11,33 @@ import java.util.HashMap;
 @Component
 public class NotSentMessagesStore {
     /**
-     * [UserExternalId]: [unreadMessages]
+     * [UserExternalId]: [notSentMessages]
      * */
-    private final HashMap<String, ArrayList<Message>> unreadMessages = new HashMap<>();
+    private final HashMap<String, ArrayList<Message>> notSentMessages = new HashMap<>();
 
     public void addUnreadMessageForUser(String userId, Message message) {
-        if (unreadMessages.containsKey(userId)) {
-            unreadMessages.get(userId).add(message);
+        if (notSentMessages.containsKey(userId)) {
+            notSentMessages.get(userId).add(message);
         } else {
-            unreadMessages.put(userId, new ArrayList<>());
-            unreadMessages.get(userId).add(message);
+            notSentMessages.put(userId, new ArrayList<>());
+            notSentMessages.get(userId).add(message);
         }
     }
     public void removeUnreadMessageForUser(String userId, Message message) {
-        if (unreadMessages.containsKey(userId)) {
-            unreadMessages.get(userId).remove(message);
+        if (notSentMessages.containsKey(userId)) {
+            notSentMessages.get(userId).remove(message);
         }
     }
-    public void clearUnreadMessagesForUser(String userId) {
-        unreadMessages.remove(userId);
+    public void clearNotSentMessagesForUser(String userId) {
+        notSentMessages.remove(userId);
     }
-    public ArrayList<Message> getUnreadMessagesForUser(String userId) {
-        if (unreadMessages.containsKey(userId)) {
-            return unreadMessages.get(userId);
+    public ArrayList<Message> getNotSentMessagesForUser(String userId) {
+        if (notSentMessages.containsKey(userId)) {
+            return notSentMessages.get(userId);
         } else {
             return new ArrayList<>();
         }
     }
 }
+
+// Stockage des messages non recu par un utilisateur

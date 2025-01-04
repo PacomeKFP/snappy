@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
+public class  SendMessageUseCase implements UseCase<SendMessageDto, Void> {
 
     @Autowired
     private UserRepository userRepository;

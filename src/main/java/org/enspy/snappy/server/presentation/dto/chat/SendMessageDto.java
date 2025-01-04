@@ -7,13 +7,12 @@ import jakarta.validation.constraints.NotNull;
 @Data
 public class SendMessageDto {
     @NotNull
-    private String senderId;        // UUID of the sender
+    private String senderId;        
 
     @NotNull
-    private String receiverId;      // UUID of the receiver
-
+    private String receiverId;      
     @NotBlank
-    private String body;            // The actual message content
+    private String body;             
 
     @NotBlank
     private String projectId;

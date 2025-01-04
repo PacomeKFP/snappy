@@ -12,6 +12,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
 public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, String> {
@@ -50,8 +51,13 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
         }
 
         // Génération et retour du JWT
+        // ecrire une ressource pour ceci,
         return Jwts.builder()
                 .setSubject(organization.getEmail())
+//                .setClaims(
+
+                        //Ici add toutes les infos de l'utilisateur
+//                )
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

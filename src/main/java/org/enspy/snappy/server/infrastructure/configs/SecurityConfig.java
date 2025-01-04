@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig { //Faire des recherches sur @Secured, ich...
 
     /**
      * Définit un bean PasswordEncoder pour l'application.

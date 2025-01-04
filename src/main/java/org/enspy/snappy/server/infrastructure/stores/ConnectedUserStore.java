@@ -47,3 +47,4 @@ public class ConnectedUserStore {
     }
 
 }
+//TODO : stocker pour chaque conversation l'etat dans lequel il se trouve -> mode de messagerie(ecout..)
