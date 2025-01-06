@@ -24,6 +24,7 @@ public class Organization {
     private String name;
     private String email;
     private String password;
+    @Getter
     private String projectId;
     private String privateKey;
 
@@ -36,7 +37,6 @@ public class Organization {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 
     public Organization(String name, String email, String password) {
         this.name = name;
