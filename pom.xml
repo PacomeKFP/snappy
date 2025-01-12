@@ -94,11 +94,14 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-root</artifactId>
-            <version>0.12.5</version>
-        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-root -->
+         <dependency>
+             <groupId>io.jsonwebtoken</groupId>
+             <artifactId>jjwt-root</artifactId>
+             <version>0.12.5</version>
+             <type>pom</type>
+         </dependency>
+
     </dependencies>
 
     <build>
