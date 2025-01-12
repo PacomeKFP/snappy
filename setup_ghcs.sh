@@ -32,8 +32,8 @@ sudo service mysql start
 
 # Définir les variables MySQL
 DB_NAME="snappy"
-DB_USER="snappy_user"
-DB_PASS="password123"
+DB_USER="root"
+DB_PASS="root_password"
 
 # Exécuter les commandes MySQL
 echo -e "${GREEN}Création de la base de données et de l'utilisateur...${NC}"
