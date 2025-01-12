@@ -21,9 +21,7 @@ public class ConnectedUserStore {
     }
 
     public void removeConnectedUserWithSessionId(String sessionId) {
-        connectedUsers.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(sessionId))
-                .forEach(entry -> connectedUsers.remove(entry.getKey()));
+        connectedUsers.entrySet().removeIf(entry -> entry.getValue().equals(sessionId));
     }
 
     public String getConnectedUserId(String sessionId) {

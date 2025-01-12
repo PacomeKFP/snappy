@@ -15,7 +15,7 @@ public class NotSentMessagesStore {
      * */
     private final HashMap<String, ArrayList<Message>> notSentMessages = new HashMap<>();
 
-    public void addUnreadMessageForUser(String userId, Message message) {
+    public void addNotSentMessageForUser(String userId, Message message) {
         if (notSentMessages.containsKey(userId)) {
             notSentMessages.get(userId).add(message);
         } else {
@@ -23,7 +23,7 @@ public class NotSentMessagesStore {
             notSentMessages.get(userId).add(message);
         }
     }
-    public void removeUnreadMessageForUser(String userId, Message message) {
+    public void removeNotSentMessageForUser(String userId, Message message) {
         if (notSentMessages.containsKey(userId)) {
             notSentMessages.get(userId).remove(message);
         }

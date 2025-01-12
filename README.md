@@ -12,7 +12,7 @@
 ## Integration de Netty
 - [PENDING] Ranger les projets par namespace; un namespace par projet pour isoler les communications
 - [OK] Configuration du serveur WS
-- [OK] Gestion des connexion et deconnexions d'utilisateurs
+- [OK][PATCHED] Gestion des connexion et deconnexions d'utilisateurs
 - [OK] Gestion de l'envoie des messages
 - [PENDING] Accusé de reception de message
 - [PENDING] Accusé de lecture de message

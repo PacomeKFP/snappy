@@ -11,13 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.ConnectListener;
-import com.corundumstudio.socketio.listener.DisconnectListener;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 
 @Component
 @Log4j2
@@ -46,6 +42,9 @@ public class WebSocketServer {
         config.setAuthorizationListener(webSocketAuthorizationListener);
         config.setHostname(SOCKETHOST);
         config.setPort(SOCKETPORT);
+        config.setAllowCustomRequests(true);
+        config.setUpgradeTimeout(10000);
+        config.setPingTimeout(60000);
         server = new SocketIOServer(config);
         server.start();
         server.addConnectListener(onConnectListener);

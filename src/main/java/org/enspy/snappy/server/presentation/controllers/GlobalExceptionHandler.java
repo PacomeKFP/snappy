@@ -1,6 +1,7 @@
 package org.enspy.snappy.server.presentation.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,12 +20,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneralException(Exception ex) {
-        ex.printStackTrace();
         return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex) {
         return ResponseEntity.status(404).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<?> handleAuthenticationFailedException(EntityNotFoundException ex) {
+        return ResponseEntity.status(403).body(Map.of("error", ex.getMessage()));
     }
 }

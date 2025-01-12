@@ -9,6 +9,7 @@ import org.enspy.snappy.server.domain.usecases.organization.DeleteOrganizationUs
 import org.enspy.snappy.server.domain.usecases.organization.GetAllOrganizationsUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetOrganizationUseCase;
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
+import org.enspy.snappy.server.presentation.resources.AuthenticateOrganizationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,17 +28,9 @@ public class OrganizationController {
     private GetAllOrganizationsUseCase getAllOrganizationsUseCase;
 
     @PostMapping
-    public ResponseEntity<Organization> create(@RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
-        try {
-            Organization organization = createOrganizationUseCase.execute(createOrganizationDto);
-            return ResponseEntity.status(201).body(organization);
-        } catch (EntityAlreadyExistsException e) {
-            return ResponseEntity.status(401).body(null); // Retourne un code 401 si l'organisation n'existe pas
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(null); // Retourne un code 400 pour un UUID invalide
-        }
-
-
+    public ResponseEntity<AuthenticateOrganizationResource> create(@RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
+        AuthenticateOrganizationResource organization = createOrganizationUseCase.execute(createOrganizationDto);
+        return ResponseEntity.status(201).body(organization);
     }
 
     @GetMapping("/getAll")

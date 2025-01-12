@@ -1,7 +1,12 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
+import com.corundumstudio.socketio.AckCallback;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
+import org.enspy.snappy.server.domain.callbacks.SendMessageCallback;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -11,6 +16,7 @@ import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
 import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +24,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class  SendMessageUseCase implements UseCase<SendMessageDto, Void> {
+@Log4j2
+public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,19 +44,22 @@ public class  SendMessageUseCase implements UseCase<SendMessageDto, Void> {
 
     @Override
     public Void execute(SendMessageDto userId) {
-        // Validate sender
+        log.info("Starting message sending process for project: {}", userId.getProjectId());
+
         Optional<User> sender = userRepository.findByExternalIdAndProjectId(userId.getSenderId(), userId.getProjectId());
         if (sender.isEmpty()) {
+            log.error("Sender not found - senderId: {}, projectId: {}", userId.getSenderId(), userId.getProjectId());
             throw new IllegalArgumentException("Sender not found");
         }
+        log.debug("Sender found: {}", sender.get().getId());
 
-        // Validate receiver
         Optional<User> receiver = userRepository.findByExternalIdAndProjectId(userId.getReceiverId(), userId.getProjectId());
         if (receiver.isEmpty()) {
+            log.error("Receiver not found - receiverId: {}, projectId: {}", userId.getReceiverId(), userId.getProjectId());
             throw new IllegalArgumentException("Receiver not found");
         }
+        log.debug("Receiver found: {}", receiver.get().getId());
 
-        // Create and save the message
         Message message = new Message();
         message.setSender(sender.get());
         message.setReceiver(receiver.get());
@@ -57,29 +67,49 @@ public class  SendMessageUseCase implements UseCase<SendMessageDto, Void> {
         message.setProjectId(userId.getProjectId());
 
         message = messageRepository.save(message);
-        sendMessageToReceiver(message);
-        sendMessageToSender(message);
+        log.info("Message saved with id: {}", message.getId());
 
+        try {
+            this.sendMessageToReceiver(message);
+            this.sendMessageToSender(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        log.info("Message sending process completed");
         return null;
     }
 
-    public void sendMessageToReceiver(Message message) {
-        String receiverSession = connectedUserStore.getConnectedUserId(message.getReceiver().getId().toString());
-        // s'il est connecté
+    public void sendMessageToReceiver(@org.jetbrains.annotations.NotNull Message message) throws JsonProcessingException {
+        String receiverId = message.getReceiver().getId().toString();
+        String receiverSession = connectedUserStore.getConnectedUserSessionId(receiverId);
+
         if (receiverSession != null) {
+            log.warn("Receiver is connected. Session: {}", receiverSession);
             SocketIOClient receiver = socketIOServer.getClient(UUID.fromString(receiverSession));
-            receiver.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString((Object) message);
+            receiver.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER + "?data=" + json);
+            log.info("Message sent to receiver. UserId: {}", receiverId);
+        } else {
+            log.warn("Receiver is offline. Adding to unread messages. UserId: {}", receiverId);
+            notSentMessagesStore.addNotSentMessageForUser(receiverId, message);
         }
-        // S'il n'est pas connecté, on ajoute à la liste des messages qu'il n'a pas lu
-        else
-            notSentMessagesStore.addUnreadMessageForUser(message.getReceiver().getId().toString(), message);
     }
 
-    public void sendMessageToSender(Message message) {
-        String senderSession = connectedUserStore.getConnectedUserId(message.getSender().getId().toString());
+    public void sendMessageToSender(@NotNull Message message) throws JsonProcessingException {
+        String senderId = message.getSender().getId().toString();
+        String senderSession = connectedUserStore.getConnectedUserSessionId(senderId);
+
         if (senderSession != null) {
+            log.debug("Sender is connected. Session: {}", senderSession);
             SocketIOClient sender = socketIOServer.getClient(UUID.fromString(senderSession));
-            sender.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString((Object) message);
+            sender.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER + "?data=" + json);
+            log.info("Message sent to sender. UserId: {}", senderId);
+        } else {
+            log.warn("Sender is offline. UserId: {}", senderId);
         }
     }
 }

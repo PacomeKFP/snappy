@@ -4,6 +4,7 @@ import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
+import org.enspy.snappy.server.presentation.resources.AuthenticateOrganizationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +16,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
-public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, String> {
+public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, AuthenticateOrganizationResource> {
 
     @Autowired
     private final OrganizationRepository organizationRepository;
@@ -35,7 +36,7 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
     }
 
     @Override
-    public String execute(AuthenticateOrganizationDto dto) {
+    public AuthenticateOrganizationResource execute(AuthenticateOrganizationDto dto) {
 
         // Validation robuste des données
         if (dto == null || dto.getEmail() == null || dto.getPassword() == null) {
@@ -52,7 +53,7 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
 
         // Génération et retour du JWT
         // ecrire une ressource pour ceci,
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(organization.getEmail())
 //                .setClaims(
 
@@ -62,5 +63,7 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
+
+        return  new AuthenticateOrganizationResource(organization, token);
     }
 }
