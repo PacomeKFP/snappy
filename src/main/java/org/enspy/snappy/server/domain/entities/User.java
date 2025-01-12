@@ -2,6 +2,10 @@ package org.enspy.snappy.server.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import lombok.Data;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,6 +32,7 @@ public class User {
     private String email;
     private String phoneNumber;
     private String login;
+    @JsonIgnore
     private String secret;
     private boolean isOnline;
 
@@ -49,7 +54,6 @@ public class User {
     private Organization organization;
 
 
-
     @OneToMany(mappedBy = "sender")
     @JsonIgnore
     private List<Message> sentMessages;
@@ -59,8 +63,12 @@ public class User {
     private List<Message> receivedMessages;
 
     @CreationTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
 }

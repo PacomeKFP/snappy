@@ -1,7 +1,11 @@
 package org.enspy.snappy.server.domain.entities;
 
-import lombok.Data;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -28,9 +32,13 @@ public class MessageMedia {
     private Message message;
 
     @CreationTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
 }
 

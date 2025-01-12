@@ -14,6 +14,8 @@ import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -48,7 +50,8 @@ public class OnConnectListener implements ConnectListener {
         /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
         List<Message> notSentUserMessages = notSentMessagesStore.getNotSentMessagesForUser(userId);
         if (!notSentUserMessages.isEmpty()) {
-            for (Message message : notSentUserMessages) {
+            List<Message> messagesToProcess = new ArrayList<>(notSentUserMessages);
+            for (Message message : messagesToProcess) {
                 client.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
                 notSentMessagesStore.removeNotSentMessageForUser(userId, message);
             }

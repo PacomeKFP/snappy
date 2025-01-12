@@ -1,6 +1,5 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import com.corundumstudio.socketio.AckCallback;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -69,27 +68,21 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
         message = messageRepository.save(message);
         log.info("Message saved with id: {}", message.getId());
 
-        try {
-            this.sendMessageToReceiver(message);
-            this.sendMessageToSender(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.sendMessageToReceiver(message);
+        this.sendMessageToSender(message);
 
         log.info("Message sending process completed");
         return null;
     }
 
-    public void sendMessageToReceiver(@org.jetbrains.annotations.NotNull Message message) throws JsonProcessingException {
+    public void sendMessageToReceiver(@NotNull Message message) {
         String receiverId = message.getReceiver().getId().toString();
         String receiverSession = connectedUserStore.getConnectedUserSessionId(receiverId);
 
         if (receiverSession != null) {
             log.warn("Receiver is connected. Session: {}", receiverSession);
             SocketIOClient receiver = socketIOServer.getClient(UUID.fromString(receiverSession));
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString((Object) message);
-            receiver.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER + "?data=" + json);
+            receiver.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, new SendMessageCallback(), message);
             log.info("Message sent to receiver. UserId: {}", receiverId);
         } else {
             log.warn("Receiver is offline. Adding to unread messages. UserId: {}", receiverId);
@@ -97,16 +90,14 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
         }
     }
 
-    public void sendMessageToSender(@NotNull Message message) throws JsonProcessingException {
+    public void sendMessageToSender(@NotNull Message message) {
         String senderId = message.getSender().getId().toString();
         String senderSession = connectedUserStore.getConnectedUserSessionId(senderId);
 
         if (senderSession != null) {
             log.debug("Sender is connected. Session: {}", senderSession);
             SocketIOClient sender = socketIOServer.getClient(UUID.fromString(senderSession));
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString((Object) message);
-            sender.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER + "?data=" + json);
+            sender.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, new SendMessageCallback(), message);
             log.info("Message sent to sender. UserId: {}", senderId);
         } else {
             log.warn("Sender is offline. UserId: {}", senderId);

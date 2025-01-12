@@ -1,8 +1,12 @@
 package org.enspy.snappy.server.domain.entities;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -19,7 +23,7 @@ public class Message {
 
     private String projectId;
     private String body;
-    private boolean isWrittenByHuman = false;
+    private boolean isWrittenByHuman = true;
 
     @Enumerated(EnumType.STRING)
     private MessagingMode mode = MessagingMode.OFF;
@@ -29,19 +33,26 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "sender")
+    @JsonIgnoreProperties({"organization", "contacts", "customJson"})
     private User sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver")
+    @JsonIgnoreProperties({"organization", "contacts", "customJson"})
     private User receiver;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("message")
     private List<MessageMedia> medias;
 
     @CreationTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
 
 }

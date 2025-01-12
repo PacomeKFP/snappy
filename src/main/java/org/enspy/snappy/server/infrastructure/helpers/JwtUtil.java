@@ -1,4 +1,4 @@
-package org.enspy.snappy.server.domain.usecases.chat;
+package org.enspy.snappy.server.infrastructure.helpers;
 
 
 import org.enspy.snappy.server.domain.entities.Organization;

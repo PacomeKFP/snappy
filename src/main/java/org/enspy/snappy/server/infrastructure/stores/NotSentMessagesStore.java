@@ -39,5 +39,3 @@ public class NotSentMessagesStore {
         }
     }
 }
-
-// Stockage des messages non recu par un utilisateur
