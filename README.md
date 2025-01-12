@@ -1,7 +1,7 @@
 # Mises à jour futures:
 ## HTTP
 - Authentification avec JWT 
-  - Erire les UseCase de Login pour Organization et User
+  - [ONGOING] Erire les UseCase de Login pour Organization et User
   - Rajouter La sécurité (SecurityConfig) pour proteger les endpoints
 - Gestion des modes de conversation:
   - [BLOCKED] Rajouter un endpoint pout changer le mode d'une conversation

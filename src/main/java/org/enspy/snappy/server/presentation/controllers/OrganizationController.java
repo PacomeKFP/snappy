@@ -2,14 +2,13 @@ package org.enspy.snappy.server.presentation.controllers;
 
 import jakarta.validation.Valid;
 import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.domain.exceptions.EntityAlreadyExistsException;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.domain.usecases.organization.CreateOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.DeleteOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetAllOrganizationsUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetOrganizationUseCase;
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
-import org.enspy.snappy.server.presentation.resources.AuthenticateOrganizationResource;
+import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +27,9 @@ public class OrganizationController {
     private GetAllOrganizationsUseCase getAllOrganizationsUseCase;
 
     @PostMapping
-    public ResponseEntity<AuthenticateOrganizationResource> create(@RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
-        AuthenticateOrganizationResource organization = createOrganizationUseCase.execute(createOrganizationDto);
-        return ResponseEntity.status(201).body(organization);
+    public ResponseEntity<AuthenticationResource<Organization>> create(@RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
+        AuthenticationResource<Organization> authenticationResource = createOrganizationUseCase.execute(createOrganizationDto);
+        return ResponseEntity.status(201).body(authenticationResource);
     }
 
     @GetMapping("/getAll")

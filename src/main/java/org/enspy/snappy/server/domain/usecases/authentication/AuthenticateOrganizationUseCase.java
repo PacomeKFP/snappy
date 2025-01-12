@@ -4,7 +4,7 @@ import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
-import org.enspy.snappy.server.presentation.resources.AuthenticateOrganizationResource;
+import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,12 +16,9 @@ import java.util.Date;
 
 
 @Service
-public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, AuthenticateOrganizationResource> {
+public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, AuthenticationResource<Organization>> {
 
-    @Autowired
     private final OrganizationRepository organizationRepository;
-
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.secret}")
@@ -36,7 +33,7 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
     }
 
     @Override
-    public AuthenticateOrganizationResource execute(AuthenticateOrganizationDto dto) {
+    public AuthenticationResource<Organization> execute(AuthenticateOrganizationDto dto) {
 
         // Validation robuste des données
         if (dto == null || dto.getEmail() == null || dto.getPassword() == null) {
@@ -57,6 +54,6 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
 
-        return  new AuthenticateOrganizationResource(organization, token);
+        return  new AuthenticationResource<Organization>(organization, token);
     }
 }

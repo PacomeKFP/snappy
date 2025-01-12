@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationFailedException.class)
     public ResponseEntity<?> handleAuthenticationFailedException(AuthenticationFailedException ex) {
-        return ResponseEntity.status(403).body(Map.of("error", ex.getMessage()));
+        return ResponseEntity.status(401).body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalStateTransitionException.class)

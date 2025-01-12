@@ -6,9 +6,8 @@ import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateOrganizationUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
-import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
-import org.enspy.snappy.server.presentation.resources.AuthenticateOrganizationResource;
+import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class CreateOrganizationUseCase implements UseCase<CreateOrganizationDto, AuthenticateOrganizationResource> {
+public class CreateOrganizationUseCase implements UseCase<CreateOrganizationDto, AuthenticationResource<Organization>> {
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -27,7 +26,7 @@ public class CreateOrganizationUseCase implements UseCase<CreateOrganizationDto,
     @Autowired
     private AuthenticateOrganizationUseCase authenticateOrganizationUseCase;
     @Override
-    public AuthenticateOrganizationResource execute(CreateOrganizationDto createOrganizationDto) {
+    public AuthenticationResource<Organization> execute(CreateOrganizationDto createOrganizationDto) {
         // Vérification si une organisation avec l'email existe déjà
         if (organizationRepository.findAll()
                 .stream()
@@ -47,7 +46,7 @@ public class CreateOrganizationUseCase implements UseCase<CreateOrganizationDto,
         organizationRepository.save(org);
         return this.authenticateOrganization(createOrganizationDto.getEmail(), createOrganizationDto.getPassword());
     }
-    private AuthenticateOrganizationResource authenticateOrganization(String email, String password) {
+    private AuthenticationResource<Organization> authenticateOrganization(String email, String password) {
         AuthenticateOrganizationDto authenticateOrganizationDto = new AuthenticateOrganizationDto();
         authenticateOrganizationDto.setEmail(email);
         authenticateOrganizationDto.setPassword(password);
