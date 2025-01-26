@@ -4,9 +4,10 @@ import { SettingsHeader } from "./SettingsHeader";
 import { SettingsNavigation } from "./SettingsNavigation";
 import { GeneralTab } from "./tabs/GeneralTab";
 import SecurityTab from "@/components/pages/settings/tabs/SecurityTab";
+import AlanTab from "@/components/pages/settings/tabs/AlanTab";
 
 export const SettingsPage = () => {
-  const [activeTab, setActiveTab] = React.useState("general");
+  const [activeTab, setActiveTab] = React.useState("security");
   const [notifications, setNotifications] = React.useState({
     email: true,
     push: false,
@@ -17,9 +18,10 @@ export const SettingsPage = () => {
     switch (activeTab) {
       case "general":
         return <GeneralTab />;
-
       case "security":
         return <SecurityTab />;
+      case "alan":
+        return <AlanTab />;
       default:
         return null;
     }

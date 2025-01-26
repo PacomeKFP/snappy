@@ -7,7 +7,7 @@ export const SettingsNavigation: React.FC<SettingsNavigationProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const tabs = ["General", "Notifications", "Security", "Billing"];
+  const tabs = [ "Security", "Alan"];
 
   return (
     <div className="border-b border-gray-200">

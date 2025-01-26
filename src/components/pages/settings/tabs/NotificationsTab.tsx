@@ -1,9 +1,9 @@
-interface NotificationsTabProps {
+interface AlanTabProps {
   notifications: Record<string, boolean>;
   onNotificationChange: (type: string) => void;
 }
 
-export const NotificationsTab: React.FC<NotificationsTabProps> = ({
+export const AlanTab: React.FC<AlanTabProps> = ({
   notifications,
   onNotificationChange,
 }) => (
