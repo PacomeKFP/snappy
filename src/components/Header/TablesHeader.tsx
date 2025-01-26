@@ -10,14 +10,14 @@ const TablesHeader = () => {
     role: ''
   });
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setSearchTerm(e.target.value);
   };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
     const { name, value } = e.target;
     setNewUser(prev => ({
       ...prev,
@@ -25,7 +25,7 @@ const TablesHeader = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     
     // Basic validation
@@ -115,7 +115,7 @@ const TablesHeader = () => {
                   type="text"
                   id="phone number"
                   name="phone number"
-                  value={newUser.phonenumber}
+                 // value={newUser.phonenumber}
                   onChange={handleInputChange}
                   placeholder="Entrez le numero de telephone"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

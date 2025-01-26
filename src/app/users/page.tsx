@@ -17,9 +17,9 @@ const TablesPage = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Users" />
-      <TablesHeader onAddUser={handleAddUser} />
+      <TablesHeader  />
       <div className="flex flex-col gap-10 mt-6">
-        <TableThree users={users} />
+        <TableThree  />
       </div>
     </DefaultLayout>
   );
