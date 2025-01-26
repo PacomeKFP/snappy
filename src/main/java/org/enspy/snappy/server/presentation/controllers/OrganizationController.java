@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.presentation.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController("/organizations")
+@SecurityRequirement(name = "bearerAuth")
 public class OrganizationController {
     @Autowired
     private CreateOrganizationUseCase createOrganizationUseCase;

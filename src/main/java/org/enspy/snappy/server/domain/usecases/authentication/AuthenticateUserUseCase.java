@@ -41,7 +41,7 @@ public class AuthenticateUserUseCase implements UseCase<AuthenticateUserDto, Aut
             throw new AuthenticationFailedException("Mot de passe incorrect !");
 
         String token = Jwts.builder()
-                .setSubject(user.getLogin()).setIssuedAt(new Date())
+                .setSubject(user.getLogin() + ";" + user.getProjectId()).setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();

@@ -10,9 +10,11 @@ import lombok.Data;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +26,7 @@ import java.util.UUID;
         @UniqueConstraint(columnNames = {"projectId", "login"},
                 name = "uk_project_login")
 })
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -75,4 +77,28 @@ public class User {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
+
+    /**
+     * @return
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getPassword() {
+        return this.secret;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getUsername() {
+        return this.login;
+    }
 }

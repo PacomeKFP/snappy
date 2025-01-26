@@ -12,8 +12,11 @@ import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +24,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organization {
+public class Organization implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -34,7 +37,7 @@ public class Organization {
     private String privateKey;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("organization")
+    @JsonIgnoreProperties({"organization", "secret"})
     private List<User> users;
 
     @CreationTimestamp
@@ -52,4 +55,29 @@ public class Organization {
         this.email = email;
         this.password = password;
     }
+
+    /**
+     * @return 
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    /**
+     * @return 
+     */
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
 }
