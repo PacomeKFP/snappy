@@ -5,6 +5,7 @@ import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
+import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +18,15 @@ public class AuthenticateSocketRequest implements UseCase<HandshakeData, User> {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtService jwtService;
+
     @Override
     public User execute(HandshakeData handshakeData) {
         String userExternalId = handshakeData.getSingleUrlParam("user");
         String projectId = handshakeData.getSingleUrlParam("projectId");
 
+        // extraire les claims du token jwt, et retourner les infos de l'user
 
         Optional<User> user = userRepository.findByExternalIdAndProjectId(userExternalId, projectId);
 

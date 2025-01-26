@@ -4,6 +4,7 @@ import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.user.*;
 import org.enspy.snappy.server.presentation.dto.user.AddContactDto;
 import org.enspy.snappy.server.presentation.dto.user.CreateUserDto;
+import org.enspy.snappy.server.presentation.dto.user.FindUserByDisplayNameDto;
 import org.enspy.snappy.server.presentation.dto.user.GetUserContactsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -25,14 +27,16 @@ public class UserController {
     private CreateUserUseCase createUserUseCase;
 
     @Autowired
-    private FindAllUsers findAllUsersUseCase;
+    private FindAllUsersUseCase findAllUsersUseCase;
 
     @Autowired
-    private DeleteUser deleteUserUseCase;
+    private DeleteUserUseCase deleteUserUseCase;
 
     @Autowired
     private GetUserContactsUseCase getUserContactsUseCase;
 
+    @Autowired
+    private FindUserByDisplayNameUseCase findUserByDisplayNameUseCase;
 
 
     /**
@@ -59,6 +63,12 @@ public class UserController {
     @GetMapping("/find-all")
     public ResponseEntity<List<User>> findAllUsers(@RequestParam String projectId) {
         List<User> users = findAllUsersUseCase.execute(projectId);
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/filter/display-name")
+    public ResponseEntity<List<User>> filterUser(@Valid @RequestBody FindUserByDisplayNameDto dto) {
+        List<User> users = findUserByDisplayNameUseCase.execute(dto);
         return ResponseEntity.ok(users);
     }
 

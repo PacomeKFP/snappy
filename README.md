@@ -6,9 +6,9 @@
   - [PENDING] Rajouter La sécurité pour securiser la partie Websocket
 - Gestion des modes de conversation:
   - [BLOCKED] Rajouter un endpoint pout changer le mode d'une conversation
-  - Update le usecase d'envoie  de messages `@[SendMessageUseCase]` pour qu'il envoie le message à Alan selon le mode
+  - [PENDING] Update le usecase d'envoie  de messages `@[SendMessageUseCase]` pour qu'il envoie le message à Alan selon le mode
 - Gestion des Media:
-  - Ecrire la feature pour uploader les media
+  - [PENDING] Ecrire la feature pour uploader les media
 
 ## Integration de Netty
 - [PENDING] Ranger les projets par namespace; un namespace par projet pour isoler les communications

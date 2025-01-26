@@ -3,6 +3,7 @@ package org.enspy.snappy.server.domain.usecases.authentication;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
     @Value("${jwt.expiration}")
     private long jwtExpirationMs; // 1 heure d'expiration
 
+    @Autowired
+    private JwtService jwtService;
+
     public AuthenticateOrganizationUseCase(OrganizationRepository organizationRepository,
                                            PasswordEncoder passwordEncoder) {
         this.organizationRepository = organizationRepository;
@@ -48,12 +52,6 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
             throw new IllegalArgumentException("Mot de passe incorrect !");
         }
 
-             String token = Jwts.builder()
-                .setSubject(organization.getEmail()).setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
-
-        return  new AuthenticationResource<Organization>(organization, token);
+        return new AuthenticationResource<Organization>(organization, jwtService.generateToken(organization));
     }
 }

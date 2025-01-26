@@ -8,14 +8,12 @@ import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateSocketRequest;
 import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
-import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
 import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -30,8 +28,6 @@ public class OnConnectListener implements ConnectListener {
 
     @Autowired
     private AuthenticateSocketRequest authenticateSocketRequest;
-    @Autowired
-    private UserRepository userRepository;
 
     @Override
     public void onConnect(SocketIOClient client) {

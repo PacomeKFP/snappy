@@ -6,6 +6,7 @@ import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
+import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateUserDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,8 @@ public class AuthenticateUserUseCase implements UseCase<AuthenticateUserDto, Aut
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret; // Remplacez par une vraie clé secrète pour plus de sécurité
-    @Value("${jwt.expiration}")
-    private long jwtExpirationMs; // 1 heure d'expiration
+    @Autowired
+    private JwtService jwtService;
 
     @Override
     public AuthenticationResource<User> execute(AuthenticateUserDto authenticateUserDto) {
@@ -39,13 +38,8 @@ public class AuthenticateUserUseCase implements UseCase<AuthenticateUserDto, Aut
 
         if (!passwordEncoder.matches(authenticateUserDto.getSecret(), user.getSecret()))
             throw new AuthenticationFailedException("Mot de passe incorrect !");
+        Map<String, Object> claims = Map.of("userId", user.getId(), "externalId", user.getExternalId(), "projectId", user.getProjectId());
 
-        String token = Jwts.builder()
-                .setSubject(user.getLogin() + ";" + user.getProjectId()).setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
-
-        return new AuthenticationResource<User>(user, token);
+        return new AuthenticationResource<User>(user, jwtService.generateToken(claims, user));
     }
 }

@@ -1,8 +1,5 @@
 package org.enspy.snappy.server.infrastructure.configs;
 
-import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
-import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
-import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

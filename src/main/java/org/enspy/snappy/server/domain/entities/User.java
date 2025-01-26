@@ -99,6 +99,6 @@ public class User implements UserDetails {
      */
     @Override
     public String getUsername() {
-        return this.login;
+        return this.login + ";" + this.projectId;
     }
 }

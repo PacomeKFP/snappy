@@ -3,14 +3,13 @@ package org.enspy.snappy.server.domain.usecases.user;
 import  org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
-import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class FindAllUsers implements UseCase<String, List<User>> {
+public class FindAllUsersUseCase implements UseCase<String, List<User>> {
 
     @Autowired
     private UserRepository userRepository;

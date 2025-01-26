@@ -1,11 +1,10 @@
-package org.enspy.snappy.server.infrastructure.configs;
+package org.enspy.snappy.server.infrastructure.services;
 
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
