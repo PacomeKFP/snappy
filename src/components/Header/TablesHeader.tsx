@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { PlusCircle, Search, X } from 'lucide-react';
 
-const TablesHeader = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newUser, setNewUser] = useState({
+interface User {
+  name: string;
+  email: string;
+  role: string;
+  phoneNumber?: string;
+}
+
+const TablesHeader: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [newUser, setNewUser] = useState<User>({
     name: '',
     email: '',
     role: ''
   });
 
-  const handleSearch = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
     setSearchTerm(e.target.value);
   };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setNewUser(prev => ({
       ...prev,
@@ -25,26 +29,21 @@ const TablesHeader = () => {
     }));
   };
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     
-    // Basic validation
     if (!newUser.name || !newUser.email) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
-    // You would typically send this data to your backend or parent component
     console.log('Nouvel utilisateur :', newUser);
-
-    // Reset form and close modal
     setNewUser({ name: '', email: '', role: '' });
-    closeModal();
+    setIsModalOpen(false);
   };
 
   return (
     <div className="flex justify-between items-center mb-6">
-      {/* Barre de recherche */}
       <div className="relative flex-grow max-w-md mr-4">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-gray-400" />
@@ -58,21 +57,19 @@ const TablesHeader = () => {
         />
       </div>
 
-      {/* Bouton Ajouter un utilisateur */}
       <button
-        onClick={openModal}
+        onClick={() => setIsModalOpen(true)}
         className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
       >
         <PlusCircle className="h-5 w-5 mr-2" />
         Add User
       </button>
 
-      {/* Modal Ajouter un utilisateur */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
             <button 
-              onClick={closeModal} 
+              onClick={() => setIsModalOpen(false)} 
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               <X className="h-6 w-6" />
@@ -110,12 +107,12 @@ const TablesHeader = () => {
               </div>
               
               <div>
-                <label htmlFor="phone number" className="block mb-2 text-sm font-medium">Phone number</label>
+                <label htmlFor="phoneNumber" className="block mb-2 text-sm font-medium">Phone number</label>
                 <input
-                  type="text"
-                  id="phone number"
-                  name="phone number"
-                 // value={newUser.phonenumber}
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={newUser.phoneNumber || ''}
                   onChange={handleInputChange}
                   placeholder="Entrez le numero de telephone"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -125,7 +122,7 @@ const TablesHeader = () => {
               <div className="flex justify-end space-x-2 mt-4">
                 <button 
                   type="button" 
-                  onClick={closeModal}
+                  onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   Annuler
