@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.presentation.controllers;
 
+import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.usecases.chat.ChangeMessagingModeUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.GetChatDetailsUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.GetUserChatsUseCase;
@@ -58,9 +59,9 @@ public class ChatController {
      * Send a message from one user to another.
      */
     @PostMapping("/send")
-    public ResponseEntity<Void> sendMessage(@Valid @RequestBody SendMessageDto dto) {
-        sendMessageUseCase.execute(dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Message> sendMessage(@Valid @RequestBody SendMessageDto dto) {
+
+        return ResponseEntity.ok(sendMessageUseCase.execute(dto));
     }
 
     /**

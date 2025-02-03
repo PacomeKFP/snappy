@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @Service
 @Log4j2
-public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
+public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
 
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +42,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
     private ConnectedUserStore connectedUserStore;
 
     @Override
-    public Void execute(SendMessageDto userId) {
+    public Message execute(SendMessageDto userId) {
         log.info("Starting message sending process for project: {}", userId.getProjectId());
 
         Optional<User> sender = userRepository.findByExternalIdAndProjectId(userId.getSenderId(), userId.getProjectId());
@@ -72,7 +72,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Void> {
         this.sendMessageToSender(message);
 
         log.info("Message sending process completed");
-        return null;
+        return message;
     }
 
     public void sendMessageToReceiver(@NotNull Message message) {
