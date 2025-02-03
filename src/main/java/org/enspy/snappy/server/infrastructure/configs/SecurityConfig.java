@@ -26,7 +26,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig  {
 
     /**
      * Définit un bean PasswordEncoder pour l'application.
@@ -49,18 +49,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/static/**", "/resources/**", "/doc","/auth/**", "/api-docs/**", "/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated() // Protect all other endpoints
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authenticationProvider(authenticationProvider()) // Custom authentication provider
-                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
-
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -78,7 +77,6 @@ public class SecurityConfig {
     }
 
 
-
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -86,6 +84,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000", "http://localhost:3001", "http://localhost:3002"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
