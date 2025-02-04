@@ -1,20 +1,26 @@
+"use client";
 import ECommerce from "@/components/Dashboard/E-commerce";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
-import React from "react";
-
-export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Home page for NextAdmin Dashboard Kit",
-};
+import axiosInstance from "@/lib/axios";
+import React, { useEffect } from "react";
 
 export default function Home() {
-  return (
-    <>
-      <DefaultLayout>
-        <ECommerce />
-      </DefaultLayout>
-    </>
-  );
+ useEffect(() => {
+   const fetchData = async () => {
+     try {
+       const response = await axiosInstance.get("http://localhost:8001/");
+       console.log("Données récupérées :", response.data); // Utilisez .data avec Axios
+     } catch (error) {
+       console.error("Erreur de requête :", error);
+     }
+   };
+
+   fetchData();
+ }, []); 
+
+ return (
+   <DefaultLayout>
+     <ECommerce />
+   </DefaultLayout>
+ );
 }
