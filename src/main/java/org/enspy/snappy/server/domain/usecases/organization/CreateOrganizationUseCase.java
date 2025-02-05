@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.domain.usecases.organization;
 
+import java.util.UUID;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.exceptions.EntityAlreadyExistsException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -11,8 +12,6 @@ import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class CreateOrganizationUseCase implements UseCase<CreateOrganizationDto, AuthenticationResource<Organization>> {

@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 public class FindUserByDisplayNameDto {
-    private String displayName;
-    @NotNull
-    @NotBlank
-    private String projectId;
+  private String displayName;
+  @NotNull @NotBlank private String projectId;
 }

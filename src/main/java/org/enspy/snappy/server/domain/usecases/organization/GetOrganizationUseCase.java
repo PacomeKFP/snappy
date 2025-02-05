@@ -1,14 +1,12 @@
 package org.enspy.snappy.server.domain.usecases.organization;
 
+import java.util.UUID;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
-import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class GetOrganizationUseCase implements UseCase<String, Organization> {

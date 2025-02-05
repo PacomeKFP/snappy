@@ -1,5 +1,10 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.server.domain.entities.Attachement;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -9,13 +14,6 @@ import org.enspy.snappy.server.presentation.dto.chat.SaveAttachementDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Log4j2
@@ -38,7 +36,7 @@ public class SaveAttachementUseCase implements UseCase<SaveAttachementDto, List<
         List<Attachement> savedAttachements = new ArrayList<>();
 
         for (MultipartFile file : dto.getAttachements()) {
-            String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             String absolutePath = uploadDir + File.separator + uniqueFileName;
             // Construire l'URL accessible publiquement
             String publicPath = uploadProperties.getBaseUrl() + "/" + uniqueFileName;

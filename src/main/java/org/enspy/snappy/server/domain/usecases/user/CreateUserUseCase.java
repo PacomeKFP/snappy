@@ -1,21 +1,19 @@
 package org.enspy.snappy.server.domain.usecases.user;
 
+import java.util.Optional;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.exceptions.ProjectNotFoundException;
 import org.enspy.snappy.server.domain.exceptions.UserAlreadyExistsException;
+import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
-import org.enspy.snappy.server.domain.usecases.UseCase;
-import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.dto.user.CreateUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class CreateUserUseCase implements UseCase<CreateUserDto, User> {

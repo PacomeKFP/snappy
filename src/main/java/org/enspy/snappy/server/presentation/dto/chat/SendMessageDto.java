@@ -1,12 +1,11 @@
 package org.enspy.snappy.server.presentation.dto.chat;
 
 import jakarta.annotation.Nullable;
-import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
+import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class SendMessageDto {

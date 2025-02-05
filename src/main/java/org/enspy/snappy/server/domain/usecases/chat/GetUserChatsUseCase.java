@@ -1,5 +1,7 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -9,9 +11,6 @@ import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.resources.ChatResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class GetUserChatsUseCase implements UseCase<GetUserChatsDto, List<ChatResource>> {

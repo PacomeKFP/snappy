@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class GetUserChatsDto {
-    String externalUserId;
-    String projectId;
+  String externalUserId;
+  String projectId;
 }

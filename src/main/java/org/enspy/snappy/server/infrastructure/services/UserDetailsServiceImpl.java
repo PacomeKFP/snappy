@@ -13,34 +13,34 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("UserDetailsServiceImpl")
 public class UserDetailsServiceImpl implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+  @Autowired private OrganizationRepository organizationRepository;
 
-    /**
-     * @param username
-     * @return
-     * @throws UsernameNotFoundException
-     */
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (username.contains("@") && username.contains(".")) {
-            return organizationRepository.findByEmail(username)
-                    .orElseThrow(() -> new EntityNotFoundException("Organization not found"));
-        }
-
-        String[] parts = username.split(";");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid username format. Expected format: login;projectId");
-        }
-
-        String login = parts[0];
-        String projectId = parts[1];
-
-        return userRepository.findByLoginAndProjectId(login, projectId).orElseThrow(
-                () -> new EntityNotFoundException("User not found"));
-
+  /**
+   * @param username
+   * @return
+   * @throws UsernameNotFoundException
+   */
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    if (username.contains("@") && username.contains(".")) {
+      return organizationRepository
+          .findByEmail(username)
+          .orElseThrow(() -> new EntityNotFoundException("Organization not found"));
     }
+
+    String[] parts = username.split(";");
+    if (parts.length != 2) {
+      throw new IllegalArgumentException(
+          "Invalid username format. Expected format: login;projectId");
+    }
+
+    String login = parts[0];
+    String projectId = parts[1];
+
+    return userRepository
+        .findByLoginAndProjectId(login, projectId)
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+  }
 }

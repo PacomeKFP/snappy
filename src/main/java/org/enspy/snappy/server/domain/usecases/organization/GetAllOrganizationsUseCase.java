@@ -1,12 +1,11 @@
 package org.enspy.snappy.server.domain.usecases.organization;
 
+import java.util.List;
 import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class GetAllOrganizationsUseCase implements UseCase<Boolean, List<Organization>> {

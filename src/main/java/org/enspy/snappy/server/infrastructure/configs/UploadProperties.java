@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "app.upload")
 @Data
 public class UploadProperties {
-    private String dir = "uploads"; // valeur par défaut
-    private String baseUrl = "/uploads"; // URL de base pour accéder aux fichiers
-    private long maxFileSize = 10485760L; // 10MB par défaut
+  private String dir = "uploads"; // valeur par défaut
+  private String baseUrl = "/uploads"; // URL de base pour accéder aux fichiers
+  private long maxFileSize = 10485760L; // 10MB par défaut
 }

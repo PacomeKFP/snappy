@@ -6,6 +6,6 @@ import org.enspy.snappy.server.domain.entities.User;
 
 @Data
 public class ChatResource {
-    private User user;
-    private Message lastMessage;
+  private User user;
+  private Message lastMessage;
 }

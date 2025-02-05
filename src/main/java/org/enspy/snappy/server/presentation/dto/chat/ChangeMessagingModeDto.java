@@ -7,15 +7,11 @@ import org.enspy.snappy.server.domain.entities.MessagingMode;
 @Data
 public class ChangeMessagingModeDto {
 
-    @NotBlank
-    private String requesterId; // The user adding the contact
+  @NotBlank private String requesterId; // The user adding the contact
 
-    @NotBlank
-    private String interlocutorId; // The target contact to be added
+  @NotBlank private String interlocutorId; // The target contact to be added
 
-    @NotBlank
-    private MessagingMode targetMode; // The target contact to be added
+  @NotBlank private MessagingMode targetMode; // The target contact to be added
 
-    @NotBlank
-    private String projectId; // The target contact to be added
+  @NotBlank private String projectId; // The target contact to be added
 }

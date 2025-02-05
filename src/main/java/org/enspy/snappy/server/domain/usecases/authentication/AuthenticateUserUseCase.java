@@ -1,7 +1,6 @@
 package org.enspy.snappy.server.domain.usecases.authentication;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Map;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -10,13 +9,8 @@ import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateUserDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AuthenticateUserUseCase implements UseCase<AuthenticateUserDto, AuthenticationResource<User>> {

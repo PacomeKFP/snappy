@@ -1,7 +1,7 @@
 package org.enspy.snappy.server.presentation.dto.user;
 
-import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
 public class AddContactDto {

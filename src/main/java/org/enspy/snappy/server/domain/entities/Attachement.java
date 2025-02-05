@@ -17,35 +17,33 @@ import java.util.UUID;
 @Entity
 @Data
 public class Attachement {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    private String mimetype;
+  private String mimetype;
 
-    private String filename;
-    @JsonIgnore
-    private String path;
-    private Long filesize;
+  private String filename;
+  @JsonIgnore private String path;
+  private Long filesize;
 
-    @ManyToOne
-    @JoinColumn(name = "message_id")
-    private Message message;
+  @ManyToOne
+  @JoinColumn(name = "message_id")
+  private Message message;
 
-    @CreationTimestamp
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime updatedAt;
 
-    @JsonProperty("path")
-    public String getPath() {
-        // TODO j'aimerais que ceci retoure le path précédé de l'url du serveur courant
-        return path;
-    }
+  @JsonProperty("path")
+  public String getPath() {
+    // TODO j'aimerais que ceci retoure le path précédé de l'url du serveur courant
+    return path;
+  }
 }
-

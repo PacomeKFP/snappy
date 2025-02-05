@@ -13,15 +13,17 @@ import java.time.LocalDateTime;
 
 public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
 
-    /**
-     * @param jsonParser
-     * @param deserializationContext
-     * @return
-     * @throws IOException
-     * @throws JacksonException
-     */
-    @Override
-    public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-       return LocalDateTime.parse(jsonParser.getValueAsString());
-    }
+  /**
+   * @param jsonParser
+   * @param deserializationContext
+   * @return
+   * @throws IOException
+   * @throws JacksonException
+   */
+  @Override
+  public LocalDateTime deserialize(
+      JsonParser jsonParser, DeserializationContext deserializationContext)
+      throws IOException, JacksonException {
+    return LocalDateTime.parse(jsonParser.getValueAsString());
+  }
 }

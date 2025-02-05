@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class GetUserFromExternalIdAndProjectIdDto {
-    private String userExternalId;
-    private String projectId;
+  private String userExternalId;
+  private String projectId;
 }

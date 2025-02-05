@@ -1,20 +1,15 @@
 package org.enspy.snappy.server.domain.usecases.authentication;
 
 import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-
 
 @Service
 public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrganizationDto, AuthenticationResource<Organization>> {

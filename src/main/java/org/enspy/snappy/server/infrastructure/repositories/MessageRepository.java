@@ -10,9 +10,10 @@ import java.util.UUID;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    // Custom query to fetch messages between two users
-    List<Message> findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(UUID senderId1, UUID receiverId1, UUID senderId2, UUID receiverId2);
+  // Custom query to fetch messages between two users
+  List<Message> findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
+      UUID senderId1, UUID receiverId1, UUID senderId2, UUID receiverId2);
 
-    // Find all messages where the user is either the sender or receiver
-    List<Message> findBySenderIdOrReceiverId(UUID senderId, UUID receiverId);
+  // Find all messages where the user is either the sender or receiver
+  List<Message> findBySenderIdOrReceiverId(UUID senderId, UUID receiverId);
 }

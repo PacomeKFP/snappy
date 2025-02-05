@@ -1,9 +1,10 @@
 package org.enspy.snappy.server.presentation.listeners;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import lombok.extern.log4j.Log4j2;
 import com.corundumstudio.socketio.listener.ConnectListener;
-
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateSocketRequest;
@@ -12,9 +13,6 @@ import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
 import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Log4j2

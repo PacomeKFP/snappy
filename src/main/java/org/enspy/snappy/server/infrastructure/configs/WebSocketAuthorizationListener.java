@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebSocketAuthorizationListener implements AuthorizationListener {
 
-    @Override
-    public AuthorizationResult getAuthorizationResult(HandshakeData handshakeData) {
-        Object token =  handshakeData.getAuthToken();
-        log.info("Authorization token: " + handshakeData.getHttpHeaders().toString());
-        return AuthorizationResult.SUCCESSFUL_AUTHORIZATION;
-    }
+  @Override
+  public AuthorizationResult getAuthorizationResult(HandshakeData handshakeData) {
+    Object token = handshakeData.getAuthToken();
+    log.info("Authorization token: " + handshakeData.getHttpHeaders().toString());
+    return AuthorizationResult.SUCCESSFUL_AUTHORIZATION;
+  }
 }

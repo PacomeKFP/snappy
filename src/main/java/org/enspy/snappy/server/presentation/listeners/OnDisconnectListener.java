@@ -2,6 +2,8 @@ package org.enspy.snappy.server.presentation.listeners;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import java.util.Optional;
+import java.util.UUID;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
@@ -9,9 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class OnDisconnectListener implements DisconnectListener {

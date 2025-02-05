@@ -1,11 +1,9 @@
 package org.enspy.snappy.server.infrastructure.stores;
 
-import lombok.Getter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Getter
 @Component

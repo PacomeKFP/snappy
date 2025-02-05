@@ -2,6 +2,8 @@ package org.enspy.snappy.server.presentation.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Objects;
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.domain.usecases.organization.CreateOrganizationUseCase;
@@ -12,12 +14,8 @@ import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationD
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/organizations")

@@ -1,14 +1,13 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import org.enspy.snappy.server.domain.usecases.UseCase;
-import org.enspy.snappy.server.presentation.dto.chat.UploadMediaDto;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.presentation.dto.chat.UploadMediaDto;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class UploadMediaUseCase implements UseCase<UploadMediaDto, List<String>> {

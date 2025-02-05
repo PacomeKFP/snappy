@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationResource<T> {
-    private T data;
-    private String token;
+  private T data;
+  private String token;
 }

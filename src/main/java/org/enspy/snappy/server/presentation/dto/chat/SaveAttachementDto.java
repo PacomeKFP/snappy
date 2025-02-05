@@ -1,12 +1,11 @@
 package org.enspy.snappy.server.presentation.dto.chat;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor

@@ -1,11 +1,10 @@
 package org.enspy.snappy.server.infrastructure.stores;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import lombok.Getter;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @Getter
 @Component

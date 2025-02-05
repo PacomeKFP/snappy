@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.infrastructure.configs;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -20,14 +21,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter authenticationFilter;
+    @Autowired
+    @Qualifier("UserDetailsServiceImpl")
+    private UserDetailsService userDetailsService;
 
     /**
      * Définit un bean PasswordEncoder pour l'application.
@@ -39,13 +42,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Autowired
-    private JwtAuthenticationFilter authenticationFilter;
-
-    @Autowired
-    @Qualifier("UserDetailsServiceImpl")
-    private UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

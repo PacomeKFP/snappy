@@ -3,12 +3,8 @@ package org.enspy.snappy.server.presentation.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.domain.entities.User;
-import org.enspy.snappy.server.domain.usecases.UseCase;
-
 import java.util.Map;
+import lombok.Data;
 
 @Data
 public class CreateUserDto {

@@ -2,9 +2,9 @@ package org.enspy.snappy.server.presentation.controllers;
 
 import org.enspy.snappy.server.domain.entities.Organization;
 import org.enspy.snappy.server.domain.entities.User;
+import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateUserUseCase;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
-import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateOrganizationUseCase;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateUserDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.http.ResponseEntity;

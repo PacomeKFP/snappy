@@ -1,6 +1,7 @@
 package org.enspy.snappy.server.domain.usecases.authentication;
 
 import com.corundumstudio.socketio.HandshakeData;
+import java.util.Optional;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
@@ -8,9 +9,6 @@ import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
 
 @Component
 public class AuthenticateSocketRequest implements UseCase<HandshakeData, User> {

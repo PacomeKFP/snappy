@@ -1,14 +1,12 @@
 package org.enspy.snappy.server.domain.usecases.user;
 
+import java.util.List;
 import org.enspy.snappy.server.domain.entities.User;
-import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.domain.usecases.UseCase;
-import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
+import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.user.GetUserContactsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class GetUserContactsUseCase implements UseCase<GetUserContactsDto, List<User>> {
