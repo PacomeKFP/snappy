@@ -28,9 +28,6 @@ public class Message {
     private boolean isWrittenByHuman = true;
 
     @Enumerated(EnumType.STRING)
-    private MessagingMode mode = MessagingMode.OFF;
-
-    @Enumerated(EnumType.STRING)
     private MessageAck ack = MessageAck.SENT;
 
     @ManyToOne

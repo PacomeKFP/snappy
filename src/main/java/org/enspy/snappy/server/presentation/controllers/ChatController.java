@@ -1,5 +1,6 @@
 package org.enspy.snappy.server.presentation.controllers;
 
+import org.enspy.snappy.server.domain.entities.Chat;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.usecases.chat.ChangeMessagingModeUseCase;
 import org.enspy.snappy.server.domain.usecases.chat.GetChatDetailsUseCase;
@@ -18,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -52,14 +54,13 @@ public class ChatController {
     @GetMapping("/{userId}/chats")
     public ResponseEntity<List<ChatResource>> getUserChats(@PathVariable String userId, @RequestParam String projectId) {
         GetUserChatsDto dto = new GetUserChatsDto(userId, projectId);
-        List<ChatResource> chats = getUserChats.execute(dto);
-        return ResponseEntity.ok(chats);
+        return ResponseEntity.ok(getUserChats.execute(dto));
     }
 
     /**
      * Send a message from one user to another.
      */
-    @PostMapping(path="/send", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(path = "/send", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Message> sendMessage(@Valid @ModelAttribute SendMessageDto dto) {
 
         return ResponseEntity.ok(sendMessageUseCase.execute(dto));
@@ -68,9 +69,8 @@ public class ChatController {
     /**
      * Change the messaging mode of a conversation
      */
-    @PostMapping("/changeMode")
-    public ResponseEntity<Void> changeMessagingMode(@Valid @RequestBody ChangeMessagingModeDto dto) {
-        changeMessagingModeUseCase.execute(dto);
-        return ResponseEntity.ok().build();
+    @PutMapping("/changeMode")
+    public ResponseEntity<Chat> changeMessagingMode(@Valid @RequestBody ChangeMessagingModeDto dto) {
+        return ResponseEntity.ok(changeMessagingModeUseCase.execute(dto));
     }
 }
