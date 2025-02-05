@@ -2,7 +2,7 @@ FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-#RUN mvn package -Dmaven.test.skip
+RUN mvn package -Dmaven.test.skip
 
 # Copy the JAR file
 COPY target/*.jar app.jar
