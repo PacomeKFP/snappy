@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 # Construire l'application Java
-RUN mvn package -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip
 
 # Image finale avec OpenJDK 21
 FROM openjdk:21-jdk-slim
