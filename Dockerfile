@@ -1,16 +1,26 @@
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+
+WORKDIR /app
+
+# Copier les fichiers du projet
+COPY . .
+
+# Construire l'application Java
+RUN mvn package -Dmaven.test.skip=true
+
+# Image finale avec OpenJDK 21
 FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-# Copy the JAR file
-COPY target/*.jar app.jar
+# Copier le JAR depuis l'étape de construction
+COPY --from=builder /app/target/*.jar app.jar
 
-# Copy the uploads directory if it exists
+# Copier le répertoire uploads si présent
 COPY uploads/ /app/uploads/
 
-# Expose ports
-EXPOSE 8001
-EXPOSE 3305
+# Exposer les ports nécessaires
+EXPOSE 8001 3305
 
-# Run the application
+# Lancer l'application
 ENTRYPOINT ["java", "-jar", "app.jar"]
