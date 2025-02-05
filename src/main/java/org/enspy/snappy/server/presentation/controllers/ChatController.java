@@ -12,6 +12,7 @@ import org.enspy.snappy.server.presentation.dto.chat.ChangeMessagingModeDto;
 import org.enspy.snappy.server.presentation.resources.ChatDetailsResource;
 import org.enspy.snappy.server.presentation.resources.ChatResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/chat")
 @Validated
+@RequestMapping("/chat")
 public class ChatController {
 
     @Autowired
@@ -58,8 +59,8 @@ public class ChatController {
     /**
      * Send a message from one user to another.
      */
-    @PostMapping("/send")
-    public ResponseEntity<Message> sendMessage(@Valid @RequestBody SendMessageDto dto) {
+    @PostMapping(path="/send", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Message> sendMessage(@Valid @ModelAttribute SendMessageDto dto) {
 
         return ResponseEntity.ok(sendMessageUseCase.execute(dto));
     }

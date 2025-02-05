@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,7 +27,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig  {
+public class SecurityConfig {
 
     /**
      * Définit un bean PasswordEncoder pour l'application.
@@ -44,15 +45,23 @@ public class SecurityConfig  {
 
     @Autowired
     @Qualifier("UserDetailsServiceImpl")
-    private UserDetailsService userDetailsService ;
+    private UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/static/**", "/resources/**", "/doc","/auth/**", "/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/",
+                                "/uploads/**",
+                                "/doc",
+                                "/auth/**",
+                                "/api-docs/**",
+                                "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/organizations").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/organizations").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import lombok.Data;
@@ -81,14 +82,14 @@ public class User implements UserDetails {
     /**
      * @return
      */
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
-    /**
-     * @return
-     */
+
+    @JsonIgnore
     @Override
     public String getPassword() {
         return this.secret;

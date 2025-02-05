@@ -11,13 +11,16 @@ import org.enspy.snappy.server.domain.usecases.organization.GetOrganizationUseCa
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
-@RestController("/organizations")
-@SecurityRequirement(name = "bearerAuth")
+@RestController
+@RequestMapping("/organizations")
 public class OrganizationController {
     @Autowired
     private CreateOrganizationUseCase createOrganizationUseCase;
@@ -34,8 +37,10 @@ public class OrganizationController {
         return ResponseEntity.status(201).body(authenticationResource);
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<Organization>> getAllOrganizations() {
+    @GetMapping("/getAll/{key}")
+    public ResponseEntity<List<Organization>> getAllOrganizations(@PathVariable String key) {
+        if (!Objects.equals(key, "password"))
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of());
         List<Organization> organizations = getAllOrganizationsUseCase.execute(true); // Aucun paramètre
         return ResponseEntity.ok(organizations);
     }
@@ -53,6 +58,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
         try {
             deleteOrganizationUseCase.execute(id); // Appelle le UseCase pour la suppression

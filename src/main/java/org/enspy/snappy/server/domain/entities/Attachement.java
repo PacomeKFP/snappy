@@ -1,5 +1,7 @@
 package org.enspy.snappy.server.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
@@ -14,17 +16,16 @@ import java.util.UUID;
 
 @Entity
 @Data
-public class MessageMedia {
+public class Attachement {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String projectId;
     private String mimetype;
 
-    @Lob
-    private String data;
     private String filename;
+    @JsonIgnore
+    private String path;
     private Long filesize;
 
     @ManyToOne
@@ -40,5 +41,11 @@ public class MessageMedia {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
+
+    @JsonProperty("path")
+    public String getPath() {
+        // TODO j'aimerais que ceci retoure le path précédé de l'url du serveur courant
+        return path;
+    }
 }
 

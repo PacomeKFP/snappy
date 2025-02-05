@@ -45,7 +45,7 @@ public class Message {
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("message")
-    private List<MessageMedia> medias;
+    private List<Attachement> attachements;
 
     @CreationTimestamp
     @JsonSerialize(using = LocalDateTimeSerializer.class)
