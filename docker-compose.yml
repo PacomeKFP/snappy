@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql
     container_name: snappy-mysql
     environment:
       MYSQL_ROOT_PASSWORD: root_password
@@ -20,14 +20,26 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8001:8001"
       - "3305:3305"
+      - "8001:8001"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/snappy?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root_password
     volumes:
       - uploads_data:/app/uploads
+    networks:
+      - snappy-network
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: snappy-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
     networks:
       - snappy-network
 
