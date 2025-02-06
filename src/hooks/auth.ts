@@ -1,6 +1,5 @@
-import useSWR from 'swr'
 import axios from '@/lib/axios'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface UseAuthProps {
@@ -14,102 +13,91 @@ interface AuthErrors {
 
 
 export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthProps = {}) => {
-    const router = useRouter()
-
-    const { data: user, error, mutate } = useSWR('/auth/user', () =>
-        axios
-            .post('/')
-            .then(res => res.data)
-            .catch(error => {
-                if (error.response.status !== 409) throw error
-                router.push('/verify-email')
-            }),
-    )
-
-    const registerUser = async ({ setErrors, ...props }: { setErrors: (errors: AuthErrors) => void } & CreateUserDto) => {
-        setErrors({})
-
-        axios
-            .post('/user/create', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-                setErrors(error.response.data.errors)
-            })
-    }
-
-    const loginUser = async ({ setErrors, setStatus, ...props }: {
-        setErrors: (errors: AuthErrors) => void
-        setStatus: (status: string | null) => void
-    } & AuthenticateUserDto) => {
-        setErrors({})
-        setStatus(null)
-
-        axios
-            .post('/auth/user', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-                setErrors(error.response.data.errors)
-            })
-    }
+    const router = useRouter();
+    const [organization, setOrganization] = useState<Organization | null>(() => {
+        const storedOrganization = localStorage.getItem('organization');
+        return storedOrganization ? JSON.parse(storedOrganization) : null;
+    });
+    const [token, setToken] = useState<string | null>(() => {
+        const storedToken = localStorage.getItem('token');
+        return storedToken ? JSON.parse(storedToken) : null;
+    });
+    const [error, setError] = useState<string | null>(null);
 
     const loginOrganization = async ({ setErrors, setStatus, ...props }: {
-        setErrors: (errors: AuthErrors) => void
-        setStatus: (status: string | null) => void
+        setErrors: (errors: AuthErrors) => void;
+        setStatus: (status: string | null) => void;
     } & AuthenticateOrganizationDto) => {
-        setErrors({})
-        setStatus(null)
+        setErrors({});
+        setStatus(null);
 
-        axios
-            .post('/auth/organization', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-                setErrors(error.response.data.errors)
-            })
-    }
+        try {
+            const response = await axios.post('/auth/organization', props);
+            localStorage.setItem('organization', JSON.stringify(response.data.data));
+            localStorage.setItem('token', JSON.stringify(response.data.token));
+            setOrganization(response.data);
+            setToken(response.data.token);
+            router.push('/dashboard');
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            } else {
+                setError('An unexpected error occurred.');
+                throw error;
+            }
+        }
+    };
 
     const registerOrganization = async ({ setErrors, ...props }: {
-        setErrors: (errors: AuthErrors) => void
+        setErrors: (errors: AuthErrors) => void;
     } & CreateOrganizationDto) => {
-        setErrors({})
+        setErrors({});
 
-        axios
-            .post('/', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-                setErrors(error.response.data.errors)
-            })
-    }
+        try {
+            const response = await axios.post('/organizations', props);
+            localStorage.setItem('organization', JSON.stringify(response.data.data));
+            localStorage.setItem('token', JSON.stringify(response.data.token));
+            setOrganization(response.data);
+            setToken(response.data.token);
+            router.push('/dashboard');
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            } else {
+                setError('An unexpected error occurred.');
+                throw error;
+            }
+        }
+    };
 
     const logout = async () => {
-        if (!error) {
-            // Since there's no explicit logout endpoint in the API, 
-            // we'll just clear the local state
-            await mutate(null)
-        }
-
-        window.location.pathname = '/login'
-    }
+        localStorage.removeItem('organization');
+        localStorage.removeItem('token');
+        setOrganization(null);
+        setToken(null);
+        router.push('/');
+    };
 
     useEffect(() => {
-        if (middleware === 'guest' && redirectIfAuthenticated && user) {
-            router.push(redirectIfAuthenticated)
-        }
 
-        if (middleware === 'auth' && error) {
-            logout()
-        }
-    }, [user, error])
+       if (middleware === 'guest' && redirectIfAuthenticated && organization && token) {
+        router.push(redirectIfAuthenticated);
+    }
+
+    if (middleware === 'auth' && (!organization || !token)) {
+        router.push('/signin');
+    }
+
+    if (middleware === 'auth' && error) {
+        logout();
+    }
+    }, [ error, middleware, redirectIfAuthenticated, router]);
 
     return {
-        user,
-        registerUser,
-        loginUser,
         loginOrganization,
         registerOrganization,
+        token,
+        organization,
         logout,
-    }
-}
+    };
+};

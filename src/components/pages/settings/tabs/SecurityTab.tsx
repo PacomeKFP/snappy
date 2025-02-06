@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/auth";
 
 export const SecurityTab: React.FC = () => {
   // Generate mock UUIDs (in a real app, these would come from your backend)
-  const [projectId] = useState("550e8400-e29b-41d4-a716-446655440000");
-  const [privateKey, setPrivateKey] = useState(
-    "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  );
+  // const [projectId] = useState("550e8400-e29b-41d4-a716-446655440000");
+  const {organization} = useAuth({middleware: 'auth'});
+  // const [privateKey, setPrivateKey] = useState(
+  //   "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  // );
   const [isPrivateKeyVisible, setIsPrivateKeyVisible] = useState(false);
 
   const copyToClipboard = (text: string) => {
@@ -36,10 +38,10 @@ export const SecurityTab: React.FC = () => {
           </label>
           <div className="flex items-center">
             <div className="mr-2 flex-grow truncate rounded-md bg-gray-100 px-3 py-2">
-              {projectId}
+              {organization?.projectId}
             </div>
             <button
-              onClick={() => copyToClipboard(projectId)}
+              onClick={() => organization && copyToClipboard(organization.projectId || '')}
               className="rounded-md bg-purple-50 p-2 text-purple-600 transition-colors hover:bg-purple-100"
               aria-label="Copy Project ID"
             >
@@ -55,7 +57,7 @@ export const SecurityTab: React.FC = () => {
           </label>
           <div className="flex items-center">
             <div className="mr-2 flex-grow truncate rounded-md bg-gray-100 px-3 py-2">
-              {isPrivateKeyVisible ? privateKey : "*".repeat(privateKey.length)}
+              {organization && (isPrivateKeyVisible ? organization.privateKey : "*".repeat(organization.privateKey.length))}
             </div>
             <div className="flex space-x-2">
               <button
@@ -66,7 +68,7 @@ export const SecurityTab: React.FC = () => {
                 {isPrivateKeyVisible ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
               <button
-                onClick={() => copyToClipboard(privateKey)}
+                onClick={() => organization && copyToClipboard(organization.privateKey)}
                 className="rounded-md bg-purple-50 p-2 text-purple-600 transition-colors hover:bg-purple-100"
                 aria-label="Copy Private Key"
               >

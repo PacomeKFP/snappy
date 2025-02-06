@@ -3,23 +3,44 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableThree from "@/components/Tables/TableThree";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import TablesHeader from "@/components/Header/TablesHeader"
-import { useState } from "react";
+import { useState , useEffect} from "react";
+import { useAuth } from "@/hooks/auth";
+import { useManageUser } from "@/hooks/manageUser";
+
 
 const TablesPage = () => {
-  const [users, setUsers] = useState([]);
+  const { organization, token } = useAuth({ middleware: 'auth' });
+  const { getAllUsers } = useManageUser({ organizationToken: token || '' });
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const handleAddUser = () => {
-    
-    console.log("Add user clicked");
-
+  const fetchUsers = async () => {
+    try {
+      if (organization) {
+        const users = await getAllUsers(organization.projectId);
+        setUsers(users);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, [organization]);
+  if (loading) {
+    return <p>Loading...</p>;
+    
+  }
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Users" />
       <TablesHeader  />
       <div className="flex flex-col gap-10 mt-6">
-        <TableThree  />
+        <TableThree users={users}  />
       </div>
     </DefaultLayout>
   );

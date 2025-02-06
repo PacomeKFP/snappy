@@ -6,18 +6,13 @@ import {
   ChevronRight, 
   ChevronsLeft, 
   ChevronsRight,
-  X 
+  X, 
 } from 'lucide-react';
+import { useManageUser } from '@/hooks/manageUser';
+import { useAuth } from '@/hooks/auth';
+import Image from 'next/image';
 
-interface User {
-  id: string;
-  displayName: string;
-  email: string;
-  phoneNumber: string;
-  createdAt: string;
-  online: boolean;
-  avatar: string;
-}
+
 
 interface SortConfig {
   key: keyof User;
@@ -29,84 +24,20 @@ interface UserDetailsModalProps {
   onClose: () => void;
 }
 
-const mockUsers: User[] = [
-  {
-    id: "45b120c1-6d58-496c-bb5f-295ca3e324c7",
-    displayName: "Anne Rosalie",
-    email: "annerosa@example.com",
-    phoneNumber: "692397042",
-    createdAt: "2025-01-07T16:16:52.116815",
-    online: false,
-    avatar: "https://ui-avatars.com/api/?name=Anne Rosalie"
-  },
-].concat(Array(15).fill(null).map((_, i) => ({
-  id: `mock-user-${i}`,
-  displayName: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  phoneNumber: `69239704${i}`,
-  createdAt: "2025-01-07T16:16:52.116815",
-  online: Math.random() > 0.5,
-  avatar: `https://ui-avatars.com/api/?name=User+${i + 1}`
-})));
-
-const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) => {
-  if (!user) return null;
+interface tableThreeProps {
+  users: User[];
+}
 
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-96 relative">
-        <button 
-          onClick={onClose} 
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <X size={24} />
-        </button>
-        <div className="flex flex-col items-center mb-4">
-          <img 
-            src={user.avatar} 
-            alt={user.displayName} 
-            className="w-24 h-24 rounded-full mb-4"
-          />
-          <h2 className="text-xl font-semibold">{user.displayName}</h2>
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium">Email:</span>
-            <span>{user.email}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium">Phone:</span>
-            <span>{user.phoneNumber}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium">Created At:</span>
-            <span>{new Date(user.createdAt).toLocaleDateString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-medium">Status:</span>
-            <span 
-              className={`px-2 py-1 rounded-full text-xs ${
-                user.online ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              {user.online ? 'Online' : 'Offline'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const TableThree: React.FC = () => {
+const TableThree: React.FC<tableThreeProps> = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'displayName', direction: 'asc' });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const itemsPerPage = 10;
 
+
   const sortedUsers = useMemo(() => {
-    let sortableUsers = [...mockUsers];
+    let sortableUsers = [...users];
     sortableUsers.sort((a: User, b: User) => {
       if (a[sortConfig.key] < b[sortConfig.key]) {
         return sortConfig.direction === 'asc' ? -1 : 1;
@@ -140,8 +71,7 @@ const TableThree: React.FC = () => {
     console.log(`Deleting user with ID: ${userId}`);
   };
 
-  const totalPages = Math.ceil(mockUsers.length / itemsPerPage);
-
+  const totalPages = Math.ceil(users.length / itemsPerPage);
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -170,7 +100,7 @@ const TableThree: React.FC = () => {
               {paginatedUsers.map(user => (
                 <tr key={user.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 flex items-center">
-                    <img 
+                    <Image 
                       src={user.avatar} 
                       alt={user.displayName} 
                       className="w-10 h-10 rounded-full mr-3"
@@ -256,5 +186,53 @@ const TableThree: React.FC = () => {
     </>
   );
 };
+const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) => {
+  if (!user) return null;
 
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-96 relative">
+        <button 
+          onClick={onClose} 
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+        <div className="flex flex-col items-center mb-4">
+          <Image 
+            src={user.avatar} 
+            alt={user.displayName} 
+            className="w-24 h-24 rounded-full mb-4"
+          />
+          <h2 className="text-xl font-semibold">{user.displayName}</h2>
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between border-b pb-2">
+            <span className="font-medium">Email:</span>
+            <span>{user.email}</span>
+          </div>
+          <div className="flex justify-between border-b pb-2">
+            <span className="font-medium">Phone:</span>
+            <span>{user.phoneNumber}</span>
+          </div>
+          <div className="flex justify-between border-b pb-2">
+            <span className="font-medium">Created At:</span>
+            <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Status:</span>
+            <span 
+              className={`px-2 py-1 rounded-full text-xs ${
+                user.online ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              }`}
+            >
+              {user.online ? 'Online' : 'Offline'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 export default TableThree;

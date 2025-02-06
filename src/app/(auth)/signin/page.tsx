@@ -1,15 +1,46 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { OrganizationAuth } from "@/components/Auth/OrganizationAuth";
+import { useAuth } from '@/hooks/auth';
+import { useState } from 'react';
 
-export const metadata: Metadata = {
-  title: "Organization Authentication",
-  description: "Sign in or register your organization",
-};
-
+// export const metadata: Metadata = {
+//   title: "Organization Authentication",
+//   description: "Sign in or register your organization",
+// };
 const SignIn: React.FC = () => {
+
+    const [isLogin, setIsLogin] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+    const [status, setStatus] = useState<string | null>(null);
+    const { loginOrganization, registerOrganization } = useAuth();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      console.log(isLogin);
+      e.preventDefault();
+      if (isLogin) {
+        await loginOrganization({
+          email,
+          password,
+          setErrors,
+          setStatus,
+        });
+      } else {
+        await registerOrganization({
+          name,
+          email,
+          password,
+          setErrors,
+        });
+      }
+    };
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-boxdark-2">
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -17,7 +48,88 @@ const SignIn: React.FC = () => {
           <div className="flex flex-wrap items-center">
             <div className="w-full xl:w-1/2">
               <div className="w-full p-4 sm:p-12.5 xl:p-15">
-                <OrganizationAuth />
+                {/* <OrganizationAuth /> */}
+                <div className="w-full">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-black dark:text-white">
+          {isLogin ? 'Sign In' : 'Register'} to Organization Portal
+        </h2>
+        <p className="mt-2 text-base text-gray-600 dark:text-gray-400">
+          {isLogin 
+            ? "Don't have an organization account yet? "
+            : "Already have an organization account? "}
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-primary hover:underline"
+          >
+            {isLogin ? 'Register' : 'Sign In'}
+          </button>
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {!isLogin && (
+          <div className="mb-4">
+            <label className="mb-2.5 block font-medium text-black dark:text-white">
+              Organization Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your organization name"
+              className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+            />
+            {errors.name && (
+              <div className="mt-1 text-red-500">{errors.name.join(', ')}</div>
+            )}
+          </div>
+        )}
+
+        <div className="mb-4">
+          <label className="mb-2.5 block font-medium text-black dark:text-white">
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+          />
+          {errors.email && (
+            <div className="mt-1 text-red-500">{errors.email.join(', ')}</div>
+          )}
+        </div>
+
+        <div className="mb-6">
+          <label className="mb-2.5 block font-medium text-black dark:text-white">
+            Password
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+          />
+          {errors.password && (
+            <div className="mt-1 text-red-500">{errors.password.join(', ')}</div>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+        >
+          {isLogin ? 'Sign In' : 'Register'}
+        </button>
+
+        {status && (
+          <div className="mt-4 text-center text-green-500">{status}</div>
+        )}
+      </form>
+    </div>
               </div>
             </div>
 

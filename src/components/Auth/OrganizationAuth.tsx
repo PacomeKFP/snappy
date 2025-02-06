@@ -1,21 +1,22 @@
 "use client";
 import { useState } from 'react';
-import Link from 'next/link';
 import { useAuth } from '@/hooks/auth';
 
 export const OrganizationAuth: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
   const [status, setStatus] = useState<string | null>(null);
 
-  const { loginOrganization, registerOrganization } = useAuth();
+  const { loginOrganization, registerOrganization } = useAuth({
+    middleware: 'guest',
+    redirectIfAuthenticated: '/',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (isLogin) {
       await loginOrganization({
         email,
@@ -32,7 +33,6 @@ export const OrganizationAuth: React.FC = () => {
       });
     }
   };
-
   return (
     <div className="w-full">
       <div className="mb-8">
