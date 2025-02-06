@@ -6,16 +6,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: snappy
-      # Add commands to create user and grant privileges
-      MYSQL_USER: snappy_user
-      MYSQL_PASSWORD: snappy_password
-      # Initialize the database with proper permissions
+      # Add these environment variables to allow connections from any host
       MYSQL_ROOT_HOST: '%'
+    # Add initialization scripts
     command: --default-authentication-plugin=mysql_native_password
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      # Add initialization script
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
     networks:
       - snappy-network
 
