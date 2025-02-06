@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   mysql:
     image: mysql
@@ -7,6 +6,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: snappy
+      # Add commands to create user and grant privileges
+      MYSQL_USER: snappy_user
+      MYSQL_PASSWORD: snappy_password
+      # Initialize the database with proper permissions
+      MYSQL_ROOT_HOST: '%'
+    command: --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
     volumes:
@@ -23,7 +28,7 @@ services:
       - "3305:3305"
       - "8001:8001"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/snappy?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/snappy?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root_password
     volumes:
