@@ -31,37 +31,36 @@ interface tableThreeProps {
 
 const TableThree: React.FC<tableThreeProps> = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'displayName', direction: 'asc' });
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const itemsPerPage = 10;
+const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'displayName', direction: 'asc' });
+const [selectedUser, setSelectedUser] = useState<User | null>(null);
+const itemsPerPage = 10;
 
+const sortedUsers = useMemo(() => {
+  let sortableUsers = [...users];
+  sortableUsers.sort((a: User, b: User) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+  return sortableUsers;
+}, [users, sortConfig]); // Ajoutez `users` ici
 
-  const sortedUsers = useMemo(() => {
-    let sortableUsers = [...users];
-    sortableUsers.sort((a: User, b: User) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-    return sortableUsers;
-  }, [sortConfig]);
+const paginatedUsers = useMemo(() => {
+  const firstPageIndex = (currentPage - 1) * itemsPerPage;
+  const lastPageIndex = firstPageIndex + itemsPerPage;
+  return sortedUsers.slice(firstPageIndex, lastPageIndex);
+}, [currentPage, sortedUsers]);
 
-  const paginatedUsers = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * itemsPerPage;
-    const lastPageIndex = firstPageIndex + itemsPerPage;
-    return sortedUsers.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, sortedUsers]);
-
-  const handleSort = (key: keyof User) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
+const handleSort = (key: keyof User) => {
+  setSortConfig(prev => ({
+    key,
+    direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+  }));
+};
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user);

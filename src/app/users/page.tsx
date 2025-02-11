@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import TableThree from "@/components/Tables/TableThree";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import TablesHeader from "@/components/Header/TablesHeader"
-import { useState , useEffect} from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/auth";
 import { useManageUser } from "@/hooks/manageUser";
 
@@ -14,7 +14,10 @@ const TablesPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const fetchUsers = async () => {
+
+
+
+  const fetchUsers = useCallback(async () => {
     try {
       if (organization) {
         const users = await getAllUsers(organization.projectId);
@@ -26,11 +29,11 @@ const TablesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [organization, getAllUsers]);
+  
   useEffect(() => {
     fetchUsers();
-  }, [organization]);
+  }, [fetchUsers]);
   if (loading) {
     return <p>Loading...</p>;
     

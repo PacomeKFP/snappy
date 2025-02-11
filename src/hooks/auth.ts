@@ -1,16 +1,15 @@
-import axios from '@/lib/axios'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import axios from '@/lib/axios';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface UseAuthProps {
-    middleware?: 'auth' | 'guest'
-    redirectIfAuthenticated?: string
+    middleware?: 'auth' | 'guest';
+    redirectIfAuthenticated?: string;
 }
 
 interface AuthErrors {
-    [key: string]: string[]
+    [key: string]: string[];
 }
-
 
 export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthProps = {}) => {
     const router = useRouter();
@@ -70,28 +69,27 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthProps = 
         }
     };
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         localStorage.removeItem('organization');
         localStorage.removeItem('token');
         setOrganization(null);
         setToken(null);
         router.push('/');
-    };
+    }, [router]);
 
     useEffect(() => {
+        if (middleware === 'guest' && redirectIfAuthenticated && organization && token) {
+            router.push(redirectIfAuthenticated);
+        }
 
-       if (middleware === 'guest' && redirectIfAuthenticated && organization && token) {
-        router.push(redirectIfAuthenticated);
-    }
+        if (middleware === 'auth' && (!organization || !token)) {
+            router.push('/signin');
+        }
 
-    if (middleware === 'auth' && (!organization || !token)) {
-        router.push('/signin');
-    }
-
-    if (middleware === 'auth' && error) {
-        logout();
-    }
-    }, [ error, middleware, redirectIfAuthenticated, router]);
+        if (middleware === 'auth' && error) {
+            logout();
+        }
+    }, [error, middleware, redirectIfAuthenticated, router, logout, organization, token]);
 
     return {
         loginOrganization,
