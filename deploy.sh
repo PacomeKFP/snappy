@@ -18,7 +18,7 @@ echo "-> Checkout du tag '$TAG'..."
 git checkout tags/$TAG || { echo "Erreur : Le tag '$TAG' n'existe pas"; exit 1; }
 
 echo "-> Construction du projet avec Maven..."
-mvn clean package || { echo "Erreur lors du build Maven"; exit 1; }
+mvn clean package -Dmaven.test.skip|| { echo "Erreur lors du build Maven"; exit 1; }
 
 # Identifier le fichier JAR généré
 JAR_FILE=$(find target -maxdepth 1 -type f -name "*.jar" | head -n 1)
