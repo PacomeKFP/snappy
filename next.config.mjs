@@ -1,5 +1,13 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://13.61.100.122:8001/:path*', // Votre backend en HTTP
+      },
+    ];
+  },
   images: {
     domains: ["localhost"],
     remotePatterns: [
