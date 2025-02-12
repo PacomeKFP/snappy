@@ -2,12 +2,18 @@
 import React, { useState, ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/auth";
 
-export default function DefaultLayout({
-  children,
-}: {
+interface DefaultLayoutProps {
   children: React.ReactNode;
-}) {
+  organization?:Organization
+}
+export default function DefaultLayout({ children, organization }: DefaultLayoutProps) {
+
+  const { organization : org, token } = useAuth({ middleware: 'auth' });
+  if (org) {
+    organization = org
+  }
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
@@ -20,7 +26,7 @@ export default function DefaultLayout({
         {/* <!-- ===== Content Area Star ===== --> */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           {/* <!-- ===== Header Star ===== --> */}
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          <Header organization={organization} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           {/* <!-- ===== Header End ===== --> */}
 
           {/* <!-- ===== Main Content Star ===== --> */}
