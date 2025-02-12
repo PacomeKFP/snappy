@@ -18,7 +18,7 @@ const SignIn: React.FC = () => {
     const [name, setName] = useState('');
     const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
     const [status, setStatus] = useState<string | null>(null);
-    const { loginOrganization, registerOrganization } = useAuth();
+    const { loginOrganization, registerOrganization } = useAuth({middleware: 'guest', redirectIfAuthenticated: '/dashboard'});
 
     const handleSubmit = async (e: React.FormEvent) => {
       console.log(isLogin);

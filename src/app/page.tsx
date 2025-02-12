@@ -34,10 +34,17 @@ const LandingPage: React.FC = () => {
                         <a href="#testimonials" className="mx-2 hover:text-blue-200 transition-colors duration-300">Témoignages</a>
                         <a href="#pricing" className="mx-2 hover:text-blue-200 transition-colors duration-300">Prix</a>
                     </nav>
+                 {             
+                 localStorage.getItem('token') ? (
                     <div className="space-x-4">
+                    <a href="/dashboard" className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-all duration-300 hover:scale-105">Dashboard</a>
+                </div>  
+                    ) : (
+                        <div className="space-x-4">
                         <a href="/signin" className="hover:text-blue-200 transition-colors duration-300">Connexion</a>
                         <a href="/signin" className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-all duration-300 hover:scale-105">S'inscrire</a>
-                    </div>
+                    </div>  
+                    )}
                 </div>
             </header>
 
