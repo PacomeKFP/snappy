@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaveAttachementDto {
+public class SaveMessageAttachementDto {
     private Message message;
     private List<MultipartFile> attachements;
 }

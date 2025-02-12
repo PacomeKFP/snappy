@@ -26,7 +26,7 @@
 ## Service de chatbot
 - [SPRING] Ecrire la gestion des chatbot avec sprinboot
   - [TODO] Ecrire une route qui retourne la liste des llm disponibles demarrer avec 2versions de Gemini
-  - [TODO] ecrire le schema d'un chatbot (llm, prompt, {attachement, comment}[], accessKey, )
+  - [TODO] ecrire le schema d'un chatbot (llm, prompt, {messageAttachement, comment}[], accessKey, )
   - [TODO] Gerer la creation de chatbot (ceci envoie un init sur le service python)
   - [AFTER] Gerer la mise à jour du llm d'un chatbot (ceci envoie un update sur le service python)
 - [PYTHON] Ecrire le service Python de chatbot (/init, /create, /infer ) 

@@ -38,6 +38,11 @@ public class Organization implements UserDetails {
   @JsonIgnoreProperties({"organization", "secret"})
   private List<User> users;
 
+  @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
+  @JsonIgnoreProperties({"organization"})
+  private List<Chatbot> chatbots;
+
+
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)

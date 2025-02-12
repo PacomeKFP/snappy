@@ -13,7 +13,7 @@ import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
 import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
-import org.enspy.snappy.server.presentation.dto.chat.SaveAttachementDto;
+import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
 
   @Autowired private ConnectedUserStore connectedUserStore;
 
-  @Autowired private SaveAttachementUseCase saveAttachementUseCase;
+  @Autowired private SaveMessageAttachementUseCase saveMessageAttachementUseCase;
 
   @Override
   public Message execute(SendMessageDto dto) {
@@ -102,9 +102,9 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
 
   private void saveMessageAttachements(SendMessageDto dto, Message message) {
     if (dto.getAttachements() != null && !dto.getAttachements().isEmpty()) {
-      List<Attachement> attachements =
-          saveAttachementUseCase.execute(new SaveAttachementDto(message, dto.getAttachements()));
-      message.setAttachements(attachements);
+      List<MessageAttachement> messageAttachements =
+          saveMessageAttachementUseCase.execute(new SaveMessageAttachementDto(message, dto.getAttachements()));
+      message.setMessageAttachements(messageAttachements);
     }
   }
 

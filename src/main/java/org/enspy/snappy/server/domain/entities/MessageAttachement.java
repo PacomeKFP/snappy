@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-public class Attachement {
+public class MessageAttachement {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -43,7 +43,6 @@ public class Attachement {
 
   @JsonProperty("path")
   public String getPath() {
-    // TODO j'aimerais que ceci retoure le path précédé de l'url du serveur courant
     return path;
   }
 }
