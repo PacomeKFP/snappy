@@ -2,12 +2,18 @@
 import React, { useState, ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/auth";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
   organization?:Organization
 }
 export default function DefaultLayout({ children, organization }: DefaultLayoutProps) {
+
+  const { organization : org, token } = useAuth({ middleware: 'auth' });
+  if (org) {
+    organization = org
+  }
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
