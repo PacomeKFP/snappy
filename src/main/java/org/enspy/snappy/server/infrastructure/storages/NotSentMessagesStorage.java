@@ -1,14 +1,12 @@
-package org.enspy.snappy.server.infrastructure.stores;
+package org.enspy.snappy.server.infrastructure.storages;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import lombok.Getter;
 import org.enspy.snappy.server.domain.entities.Message;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Getter
-@Component
-public class NotSentMessagesStore {
+@Repository
+public class NotSentMessagesStorage {
     /**
      * [UserExternalId]: [notSentMessages]
      * */

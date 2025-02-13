@@ -11,8 +11,8 @@ import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
 import org.enspy.snappy.server.infrastructure.repositories.ChatRepository;
 import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
-import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
-import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
+import org.enspy.snappy.server.infrastructure.storages.ConnectedUserStorage;
+import org.enspy.snappy.server.infrastructure.storages.NotSentMessagesStorage;
 import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +26,8 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
   private final ChatRepository chatRepository;
   private final SocketIOServer socketIOServer;
   private final MessageRepository messageRepository;
-  private final ConnectedUserStore connectedUserStore;
-  private final NotSentMessagesStore notSentMessagesStore;
+  private final ConnectedUserStorage connectedUserStorage;
+  private final NotSentMessagesStorage notSentMessagesStorage;
   private final SaveMessageAttachementUseCase saveMessageAttachementUseCase;
 
   public SendMessageUseCase(
@@ -35,15 +35,15 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
       ChatRepository chatRepository,
       SocketIOServer socketIOServer,
       MessageRepository messageRepository,
-      ConnectedUserStore connectedUserStore,
-      NotSentMessagesStore notSentMessagesStore,
+      ConnectedUserStorage connectedUserStorage,
+      NotSentMessagesStorage notSentMessagesStorage,
       SaveMessageAttachementUseCase saveMessageAttachementUseCase) {
     this.userRepository = userRepository;
     this.chatRepository = chatRepository;
     this.socketIOServer = socketIOServer;
     this.messageRepository = messageRepository;
-    this.connectedUserStore = connectedUserStore;
-    this.notSentMessagesStore = notSentMessagesStore;
+    this.connectedUserStorage = connectedUserStorage;
+    this.notSentMessagesStorage = notSentMessagesStorage;
     this.saveMessageAttachementUseCase = saveMessageAttachementUseCase;
   }
 
@@ -121,7 +121,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
 
   public void sendMessageToReceiver(@NotNull Message message) {
     String receiverId = message.getReceiver().getId().toString();
-    String receiverSession = connectedUserStore.getConnectedUserSessionId(receiverId);
+    String receiverSession = connectedUserStorage.getConnectedUserSessionId(receiverId);
 
     if (receiverSession != null) {
       log.warn("Receiver is connected. Session: {}", receiverSession);
@@ -131,13 +131,13 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
       log.info("Message sent to receiver. UserId: {}", receiverId);
     } else {
       log.warn("Receiver is offline. Adding to unread messages. UserId: {}", receiverId);
-      notSentMessagesStore.addNotSentMessageForUser(receiverId, message);
+      notSentMessagesStorage.addNotSentMessageForUser(receiverId, message);
     }
   }
 
   public void sendMessageToSender(@NotNull Message message) {
     String senderId = message.getSender().getId().toString();
-    String senderSession = connectedUserStore.getConnectedUserSessionId(senderId);
+    String senderSession = connectedUserStorage.getConnectedUserSessionId(senderId);
 
     if (senderSession != null) {
       log.debug("Sender is connected. Session: {}", senderSession);

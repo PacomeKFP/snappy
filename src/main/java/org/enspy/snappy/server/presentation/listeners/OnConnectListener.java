@@ -9,21 +9,21 @@ import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateSocketRequest;
 import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
-import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
-import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
+import org.enspy.snappy.server.infrastructure.storages.ConnectedUserStorage;
+import org.enspy.snappy.server.infrastructure.storages.NotSentMessagesStorage;
 import org.springframework.stereotype.Component;
 
 @Component
 @Log4j2
 public class OnConnectListener implements ConnectListener {
 
-    private final ConnectedUserStore connectedUserStore;
-    private final NotSentMessagesStore notSentMessagesStore;
+    private final ConnectedUserStorage connectedUserStorage;
+    private final NotSentMessagesStorage notSentMessagesStorage;
     private final AuthenticateSocketRequest authenticateSocketRequest;
 
-    public OnConnectListener(ConnectedUserStore connectedUserStore, NotSentMessagesStore notSentMessagesStore, AuthenticateSocketRequest authenticateSocketRequest) {
-        this.connectedUserStore = connectedUserStore;
-        this.notSentMessagesStore = notSentMessagesStore;
+    public OnConnectListener(ConnectedUserStorage connectedUserStorage, NotSentMessagesStorage notSentMessagesStorage, AuthenticateSocketRequest authenticateSocketRequest) {
+        this.connectedUserStorage = connectedUserStorage;
+        this.notSentMessagesStorage = notSentMessagesStorage;
         this.authenticateSocketRequest = authenticateSocketRequest;
     }
 
@@ -34,7 +34,7 @@ public class OnConnectListener implements ConnectListener {
         User user = authenticateSocketRequest.execute(client.getHandshakeData());
         String userExternalId = user.getExternalId();
         String userId = user.getId().toString();
-        connectedUserStore.addConnectedUser(userId, sessionId);
+        connectedUserStorage.addConnectedUser(userId, sessionId);
 
         // alerter tous les autres utilisateurs
         client.getNamespace().getAllClients().forEach(namespaceClient -> {
@@ -42,12 +42,12 @@ public class OnConnectListener implements ConnectListener {
         });
 
         /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
-        List<Message> notSentUserMessages = notSentMessagesStore.getNotSentMessagesForUser(userId);
+        List<Message> notSentUserMessages = notSentMessagesStorage.getNotSentMessagesForUser(userId);
         if (!notSentUserMessages.isEmpty()) {
             List<Message> messagesToProcess = new ArrayList<>(notSentUserMessages);
             for (Message message : messagesToProcess) {
                 client.sendEvent(WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, message);
-                notSentMessagesStore.removeNotSentMessageForUser(userId, message);
+                notSentMessagesStorage.removeNotSentMessageForUser(userId, message);
             }
         }
     }

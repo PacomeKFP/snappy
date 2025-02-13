@@ -1,13 +1,11 @@
-package org.enspy.snappy.server.infrastructure.stores;
+package org.enspy.snappy.server.infrastructure.storages;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Getter
-@Component
-public class ConnectedUserStore {
+@Repository
+public class ConnectedUserStorage {
     private final HashMap<String, String> connectedUsers = new HashMap<>();
 
     public void addConnectedUser(String userId, String sessionId) {

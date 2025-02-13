@@ -1,12 +1,9 @@
 package org.enspy.snappy.server.infrastructure.helpers;
 
 import com.corundumstudio.socketio.HandshakeData;
-import org.enspy.snappy.server.presentation.dto.user.GetUserFromExternalIdAndProjectIdDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 public class WebSocketHelper {
-  /** Obtenir Utilisateur qui derriere à une requette on prendra le UUID et pas l'external */
+
   public static String getUserFromHandShake(HandshakeData handshakeData) {
     String userExternalId = handshakeData.getSingleUrlParam("user");
     String projectId = handshakeData.getSingleUrlParam("projectId");
@@ -16,10 +13,7 @@ public class WebSocketHelper {
     return handshakeData.getSingleUrlParam("user");
   }
 
-  /**
-   * les points d'entrée des messages - les endpoints sur lesquels on reçoit les messages des
-   * utilisateurs
-   */
+
   public static class InputEndpoints {
     public static String NEW_USER_CONNECTION = "new-connection";
     public static String NEW_USER_DISCONNECTION = "new-disconnection";
@@ -31,10 +25,6 @@ public class WebSocketHelper {
     public static String MESSAGE_READ_BY_USER = "message/ack/read";
   }
 
-  /**
-   * Les points de sortie des messages - les endpoints sur lesquels on envoie les messages aux
-   * utilisateurs
-   */
   public static class OutputEndpoints {
     public static String SEND_MESSAGE_TO_USER = "message-send";
 
