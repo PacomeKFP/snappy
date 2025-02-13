@@ -5,14 +5,16 @@ import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.user.AddContactDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AddContactUseCase implements UseCase<AddContactDto, List<User>> {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public AddContactUseCase(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<User> execute(AddContactDto userId) {

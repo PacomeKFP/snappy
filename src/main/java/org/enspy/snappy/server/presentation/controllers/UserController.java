@@ -1,36 +1,38 @@
 package org.enspy.snappy.server.presentation.controllers;
 
+import jakarta.validation.Valid;
+import java.util.List;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.domain.usecases.user.*;
 import org.enspy.snappy.server.presentation.dto.user.AddContactDto;
 import org.enspy.snappy.server.presentation.dto.user.CreateUserDto;
 import org.enspy.snappy.server.presentation.dto.user.FindUserByDisplayNameDto;
 import org.enspy.snappy.server.presentation.dto.user.GetUserContactsDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
-
-import java.util.List;
 
 @RestController
 @Validated
 @RequestMapping("/users")
 public class UserController {
 
-  @Autowired private AddContactUseCase addContactUseCase;
+  private final AddContactUseCase addContactUseCase;
+  private final CreateUserUseCase createUserUseCase;
+  private final DeleteUserUseCase deleteUserUseCase;
+  private final FindAllUsersUseCase findAllUsersUseCase;
+  private final GetUserContactsUseCase getUserContactsUseCase;
+  private final FindUserByDisplayNameUseCase findUserByDisplayNameUseCase;
 
-  @Autowired private CreateUserUseCase createUserUseCase;
+  public UserController(AddContactUseCase addContactUseCase, CreateUserUseCase createUserUseCase, DeleteUserUseCase deleteUserUseCase, FindAllUsersUseCase findAllUsersUseCase, GetUserContactsUseCase getUserContactsUseCase, FindUserByDisplayNameUseCase findUserByDisplayNameUseCase) {
+    this.addContactUseCase = addContactUseCase;
+    this.createUserUseCase = createUserUseCase;
+    this.deleteUserUseCase = deleteUserUseCase;
+    this.findAllUsersUseCase = findAllUsersUseCase;
+    this.getUserContactsUseCase = getUserContactsUseCase;
+    this.findUserByDisplayNameUseCase = findUserByDisplayNameUseCase;
+  }
 
-  @Autowired private FindAllUsersUseCase findAllUsersUseCase;
-
-  @Autowired private DeleteUserUseCase deleteUserUseCase;
-
-  @Autowired private GetUserContactsUseCase getUserContactsUseCase;
-
-  @Autowired private FindUserByDisplayNameUseCase findUserByDisplayNameUseCase;
 
   /** Add a contact to the user's contact list. */
   @PostMapping("/add-contact")

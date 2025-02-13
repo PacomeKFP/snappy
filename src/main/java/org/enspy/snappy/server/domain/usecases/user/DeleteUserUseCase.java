@@ -3,14 +3,16 @@ package org.enspy.snappy.server.domain.usecases.user;
 import java.util.UUID;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeleteUserUseCase implements UseCase<String, Void> {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public DeleteUserUseCase(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Void execute(String userId) {

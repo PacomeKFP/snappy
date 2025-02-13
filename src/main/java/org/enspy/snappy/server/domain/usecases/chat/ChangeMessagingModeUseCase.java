@@ -6,15 +6,18 @@ import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.ChatRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.chat.ChangeMessagingModeDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChangeMessagingModeUseCase implements UseCase<ChangeMessagingModeDto, Chat> {
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final ChatRepository chatRepository;
 
-  @Autowired private ChatRepository chatRepository;
+  public ChangeMessagingModeUseCase(UserRepository userRepository, ChatRepository chatRepository) {
+    this.userRepository = userRepository;
+    this.chatRepository = chatRepository;
+  }
 
   @Override
   public Chat execute(ChangeMessagingModeDto dto) {

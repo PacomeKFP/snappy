@@ -7,20 +7,18 @@ import java.util.UUID;
 import org.enspy.snappy.server.domain.entities.User;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OnDisconnectListener implements DisconnectListener {
 
-    private static final Logger log = LoggerFactory.getLogger(OnDisconnectListener.class);
-    @Autowired
-    private ConnectedUserStore connectedUserStore;
+    private final UserRepository userRepository;
+    private final ConnectedUserStore connectedUserStore;
 
-    @Autowired
-    private UserRepository userRepository;
+    public OnDisconnectListener(UserRepository userRepository, ConnectedUserStore connectedUserStore) {
+        this.userRepository = userRepository;
+        this.connectedUserStore = connectedUserStore;
+    }
 
 
     @Override

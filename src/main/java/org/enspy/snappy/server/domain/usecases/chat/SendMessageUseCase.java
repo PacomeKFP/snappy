@@ -16,26 +16,36 @@ import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
 import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
 public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final ChatRepository chatRepository;
+  private final SocketIOServer socketIOServer;
+  private final MessageRepository messageRepository;
+  private final ConnectedUserStore connectedUserStore;
+  private final NotSentMessagesStore notSentMessagesStore;
+  private final SaveMessageAttachementUseCase saveMessageAttachementUseCase;
 
-  @Autowired private MessageRepository messageRepository;
-
-  @Autowired private ChatRepository chatRepository;
-
-  @Autowired private SocketIOServer socketIOServer;
-
-  @Autowired private NotSentMessagesStore notSentMessagesStore;
-
-  @Autowired private ConnectedUserStore connectedUserStore;
-
-  @Autowired private SaveMessageAttachementUseCase saveMessageAttachementUseCase;
+  public SendMessageUseCase(
+      UserRepository userRepository,
+      ChatRepository chatRepository,
+      SocketIOServer socketIOServer,
+      MessageRepository messageRepository,
+      ConnectedUserStore connectedUserStore,
+      NotSentMessagesStore notSentMessagesStore,
+      SaveMessageAttachementUseCase saveMessageAttachementUseCase) {
+    this.userRepository = userRepository;
+    this.chatRepository = chatRepository;
+    this.socketIOServer = socketIOServer;
+    this.messageRepository = messageRepository;
+    this.connectedUserStore = connectedUserStore;
+    this.notSentMessagesStore = notSentMessagesStore;
+    this.saveMessageAttachementUseCase = saveMessageAttachementUseCase;
+  }
 
   @Override
   public Message execute(SendMessageDto dto) {
@@ -103,7 +113,8 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
   private void saveMessageAttachements(SendMessageDto dto, Message message) {
     if (dto.getAttachements() != null && !dto.getAttachements().isEmpty()) {
       List<MessageAttachement> messageAttachements =
-          saveMessageAttachementUseCase.execute(new SaveMessageAttachementDto(message, dto.getAttachements()));
+          saveMessageAttachementUseCase.execute(
+              new SaveMessageAttachementDto(message, dto.getAttachements()));
       message.setMessageAttachements(messageAttachements);
     }
   }

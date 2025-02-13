@@ -6,7 +6,6 @@ import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepositor
 import org.enspy.snappy.server.infrastructure.services.JwtService;
 import org.enspy.snappy.server.presentation.dto.authentication.AuthenticateOrganizationDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,13 +21,13 @@ public class AuthenticateOrganizationUseCase implements UseCase<AuthenticateOrga
     @Value("${jwt.expiration}")
     private long jwtExpirationMs; // 1 heure d'expiration
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     public AuthenticateOrganizationUseCase(OrganizationRepository organizationRepository,
-                                           PasswordEncoder passwordEncoder) {
+                                           PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.organizationRepository = organizationRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override

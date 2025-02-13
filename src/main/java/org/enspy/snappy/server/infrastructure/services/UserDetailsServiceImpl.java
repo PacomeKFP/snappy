@@ -3,7 +3,6 @@ package org.enspy.snappy.server.infrastructure.services;
 import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,15 +12,15 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("UserDetailsServiceImpl")
 public class UserDetailsServiceImpl implements UserDetailsService {
-  @Autowired private UserRepository userRepository;
 
-  @Autowired private OrganizationRepository organizationRepository;
+  private final UserRepository userRepository;
+  private final OrganizationRepository organizationRepository;
 
-  /**
-   * @param username
-   * @return
-   * @throws UsernameNotFoundException
-   */
+  public UserDetailsServiceImpl(UserRepository userRepository, OrganizationRepository organizationRepository) {
+    this.userRepository = userRepository;
+    this.organizationRepository = organizationRepository;
+  }
+
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     if (username.contains("@") && username.contains(".")) {

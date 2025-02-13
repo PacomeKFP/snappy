@@ -14,7 +14,6 @@ import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.enspy.snappy.server.presentation.resources.ChatDetailsResource;
 import org.enspy.snappy.server.presentation.resources.ChatResource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,13 +24,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/chat")
 public class ChatController {
 
-  @Autowired private GetChatDetailsUseCase getChatDetails;
+  private final GetUserChatsUseCase getUserChats;
+  private final GetChatDetailsUseCase getChatDetails;
+  private final SendMessageUseCase sendMessageUseCase;
+  private final ChangeMessagingModeUseCase changeMessagingModeUseCase;
 
-  @Autowired private GetUserChatsUseCase getUserChats;
+  public ChatController(GetUserChatsUseCase getUserChats, GetChatDetailsUseCase getChatDetails, SendMessageUseCase sendMessageUseCase, ChangeMessagingModeUseCase changeMessagingModeUseCase) {
+    this.getUserChats = getUserChats;
+    this.getChatDetails = getChatDetails;
+    this.sendMessageUseCase = sendMessageUseCase;
+    this.changeMessagingModeUseCase = changeMessagingModeUseCase;
+  }
 
-  @Autowired private SendMessageUseCase sendMessageUseCase;
-
-  @Autowired private ChangeMessagingModeUseCase changeMessagingModeUseCase;
 
   /** Retrieve detailed chat between two users. */
   @PostMapping("/details")

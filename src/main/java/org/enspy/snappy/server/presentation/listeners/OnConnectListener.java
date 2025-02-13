@@ -11,21 +11,21 @@ import org.enspy.snappy.server.domain.usecases.authentication.AuthenticateSocket
 import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
 import org.enspy.snappy.server.infrastructure.stores.ConnectedUserStore;
 import org.enspy.snappy.server.infrastructure.stores.NotSentMessagesStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Log4j2
 public class OnConnectListener implements ConnectListener {
 
-    @Autowired
-    private ConnectedUserStore connectedUserStore;
+    private final ConnectedUserStore connectedUserStore;
+    private final NotSentMessagesStore notSentMessagesStore;
+    private final AuthenticateSocketRequest authenticateSocketRequest;
 
-    @Autowired
-    private NotSentMessagesStore notSentMessagesStore;
-
-    @Autowired
-    private AuthenticateSocketRequest authenticateSocketRequest;
+    public OnConnectListener(ConnectedUserStore connectedUserStore, NotSentMessagesStore notSentMessagesStore, AuthenticateSocketRequest authenticateSocketRequest) {
+        this.connectedUserStore = connectedUserStore;
+        this.notSentMessagesStore = notSentMessagesStore;
+        this.authenticateSocketRequest = authenticateSocketRequest;
+    }
 
     @Override
     public void onConnect(SocketIOClient client) {

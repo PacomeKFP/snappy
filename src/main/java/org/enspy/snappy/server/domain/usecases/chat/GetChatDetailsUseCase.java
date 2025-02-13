@@ -10,17 +10,18 @@ import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.chat.GetChatDetailsDto;
 import org.enspy.snappy.server.presentation.resources.ChatDetailsResource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDetailsResource> {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
-    @Autowired
-    private MessageRepository messageRepository;
+    public GetChatDetailsUseCase(UserRepository userRepository, MessageRepository messageRepository) {
+        this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+    }
 
     @Override
     public ChatDetailsResource execute(GetChatDetailsDto userId) {

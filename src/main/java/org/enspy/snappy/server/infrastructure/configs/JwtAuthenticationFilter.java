@@ -8,7 +8,6 @@ import java.io.IOException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.server.infrastructure.services.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +21,16 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Component
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private HandlerExceptionResolver handlerExceptionResolver;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private UserDetailsService userDetailsService;
+
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
+
+    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(

@@ -7,17 +7,19 @@ import org.enspy.snappy.server.domain.exceptions.AuthenticationFailedException;
 import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.services.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthenticateSocketRequest implements UseCase<HandshakeData, User> {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
+    public AuthenticateSocketRequest(JwtService jwtService, UserRepository userRepository) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+    }
+
 
     @Override
     public User execute(HandshakeData handshakeData) {
