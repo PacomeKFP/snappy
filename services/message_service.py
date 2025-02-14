@@ -4,38 +4,47 @@ from repositories.message_repository import create_message, get_last_messages
 from services.gemini_service import generate_answer
 
 def process_message(request_data, db: Session):
-    # Création et sauvegarde du message en base
-    new_message = create_message(db, request_data)
+    # Vérification du mode dans le dictionnaire
+    mode = request_data.get("mode")
+    
+    if mode == "on":
+        # Logique pour le mode "on"
+        sender = request_data.get("sender")
+        receiver = request_data.get("receiver")
+        body = request_data.get("body")
+        projectId = request_data.get("projectId")
+        
+        # Créer et sauvegarder le message
+        new_message = create_message(db, request_data)
 
-    # Si le mode est "on", générer une réponse de l'IA
-    if request_data.mode == "on":
         # Marquer comme écrit par un humain
         new_message.isWrittenByHuman = True
         db.commit()
 
         # Récupérer les 10 derniers messages
-        recent_messages = get_last_messages(db, request_data.sender)
+        recent_messages = get_last_messages(db, sender)
         conversation_context = "\n".join([msg.body for msg in reversed(recent_messages)])
-        
+
         # Construire le prompt
-        prompt = f"Réponds comme si tu imitais l'utilisateur : {conversation_context}\n\nQuestion : {request_data.body}"
-        
+        prompt = f"Réponds au message (en au plus 30 mots): {conversation_context}\n\nQuestion : {body}"
+
         # Générer la réponse avec Gemini
         answer = generate_answer(prompt)
-        
+
         # Sauvegarder la réponse de l'IA
         ai_response = Message(
             sender="AI",
-            receiver=request_data.sender,
+            receiver=sender,
             body=answer,
-            projectId=request_data.projectId,
+            projectId=projectId,
             isWrittenByHuman=False,
-            mode="listen",
+            mode="listen",  # Le mode ici reste "listen" même après la réponse de l'IA
         )
         db.add(ai_response)
         db.commit()
         db.refresh(ai_response)
 
-        return ai_response # Retourne la réponse générée
+        return ai_response  # Retourne la réponse générée
 
-    return None  # Mode "listen", aucun traitement IA
+    # Si le mode est "listen", aucun traitement IA
+    return None

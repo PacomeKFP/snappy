@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from models.message_model import Message
 
 def create_message(db: Session, message_data):
-    new_message = Message(**message_data.dict())
+    new_message = Message(**message_data)
     db.add(new_message)
     db.commit()
     db.refresh(new_message)

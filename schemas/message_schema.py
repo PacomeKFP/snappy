@@ -1,26 +1,33 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, UUID4
 from datetime import datetime
-from enum import Enum
+from typing import List, Optional
 
-class MessagingMode(str, Enum):
-    LISTEN = "listen"
-    ON = "on"
-
-class MessageRequest(BaseModel):
-    sender: str
-    receiver: str
-    body: str
-    projectId: str
-    mode: MessagingMode
-
-class MessageResponse(BaseModel):
-    id: str
-    sender: str
-    receiver: str
-    body: str
-    projectId: str
-    isWrittenByHuman: bool
-    mode: MessagingMode
+class MessageAttachment(BaseModel):
+    id: UUID4
+    mimetype: str
+    filename: str
+    filesize: int
     createdAt: datetime
     updatedAt: datetime
+    path: str
+
+class MessageRequest(BaseModel):
+    id: UUID4
+    projectId: str
+    body: str
+    ack: str
+    sender: str
+    receiver: str
+    messageAttachements: List[MessageAttachment]
+    createdAt: datetime
+    updatedAt: datetime
+    writtenByHuman: bool
+
+
+
+# class MessageRequest(BaseModel):
+#     sender: str
+#     receiver: str
+#     body: str
+#     projectId: str
+#     mode: MessagingMode

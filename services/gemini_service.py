@@ -1,9 +1,9 @@
 import google.generativeai as genai
 from config.config import Config
-from mistralai import Mistral
+#from mistralai import Mistral
 
 #configuration Mistral Api
-client = Mistral(api_key=Config.MISTRAL_API_KEY)
+#client = Mistral(api_key=Config.MISTRAL_API_KEY)
 
 
 # Configuration de l'API Gemini
