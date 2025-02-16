@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
-import org.enspy.snappy.server.domain.projections.UserProjection;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
 import org.hibernate.annotations.CreationTimestamp;
@@ -55,13 +54,13 @@ public class Message {
 
   // Projection sur le sender pour JSON
   @JsonProperty("sender")
-  public UserProjection getSenderProjection() {
-    return sender != null ? new UserProjection(sender) : null;
+  public String getSenderProjection() {
+    return sender != null ? sender.getExternalId() : null;
   }
 
   // Projection sur le receiver pour JSON
   @JsonProperty("receiver")
-  public UserProjection getReceiverProjection() {
-    return receiver != null ? new UserProjection(receiver) : null;
+  public String getReceiverProjection() {
+    return receiver != null ? receiver.getExternalId() : null;
   }
 }

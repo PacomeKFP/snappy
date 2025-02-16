@@ -18,12 +18,6 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
   }
 
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<?> handleGeneralException(Exception ex) {
-    ex.printStackTrace();
-    return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
-  }
-
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex) {
     return ResponseEntity.status(404).body(Map.of("error", ex.getMessage()));
@@ -37,5 +31,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalStateTransitionException.class)
   public ResponseEntity<?> handleIllegalStateTransitionException(AuthenticationFailedException ex) {
     return ResponseEntity.status(409).body(Map.of("error", ex.getMessage()));
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<?> handleGeneralException(Exception ex) {
+    ex.printStackTrace();
+    return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
   }
 }

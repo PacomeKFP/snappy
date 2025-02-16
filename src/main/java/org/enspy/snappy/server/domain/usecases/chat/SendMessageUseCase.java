@@ -17,6 +17,7 @@ import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
@@ -92,8 +93,14 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
     MessagingMode receiversMessagingMode = chat.get().getMode();
     if (receiversMessagingMode == MessagingMode.OFF) return;
 
-    // TODO envoyer le message à Alan par http à l'adresse stockée dans le application.properties
-    log.error("Il faut envoyer le message à Alan !");
+    int mode = 0;
+    if (receiversMessagingMode == MessagingMode.ON) mode = 1;
+
+    // Envoi de la requête HTTP POST
+    String url = "http://localhost:8002?mode=" + mode;
+    RestTemplate restTemplate = new RestTemplate();
+    Object response = restTemplate.postForObject(url, message, Object.class);
+    log.info("the response is here" + response);
   }
 
   private @NotNull Message persistMessage(

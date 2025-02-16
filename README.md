@@ -40,6 +40,22 @@
 - Attachement (id: uuid, path:str, mime:str, path: str)
 
 ### BD -- Python
-- Chatbot: (id: uuid, accesskey: uuid, llm:enum, prompt:str, vector: VectorId)
 - Vector --- la base de donnée vectorielle pour le RAG, 
-- Chat: (id: uuid, chatbot: Chatbot, body: str, from: USER | AGENT)
+- Chatbot: (id: uuid, accesskey: uuid, llm:enum, prompt:str, vector: VectorId)
+- Chat: (id: uuid, chatbot: Chatbot)
+- Message (id: uuid, chat: Chat, body: string; response: string;)
+
+```js
+interface Chat{
+    id: string;
+    chatbot: string;
+    messages: [
+      {
+          id: string;
+          body: string;
+          response: string;  
+      }
+    ]
+}
+
+```
