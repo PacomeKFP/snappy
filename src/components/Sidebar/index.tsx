@@ -70,7 +70,27 @@ const menuGroups = [
         label: "Users",
         route: `./users`,
       },
-     
+      {
+        icon: (
+          <svg
+            className="fill-current"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M11 2V4H13V2H11ZM7 6H17V8H7V6ZM12 10C8.686 10 6 12.686 6 16C6 19.314 8.686 22 12 22C15.314 22 18 19.314 18 16C18 12.686 15.314 10 12 10ZM7.5 16C7.5 13.514 9.514 11.5 12 11.5C14.486 11.5 16.5 13.514 16.5 16C16.5 18.486 14.486 20.5 12 20.5C9.514 20.5 7.5 18.486 7.5 16ZM3 14H5V18H3V14ZM19 14H21V18H19V14Z"
+              fill=""
+            />
+          </svg>
+        ),
+        label: "Bot",
+        route: `./bot`,
+      },
       {
         icon: (
           <svg

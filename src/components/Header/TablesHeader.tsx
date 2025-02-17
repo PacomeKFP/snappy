@@ -4,6 +4,10 @@ import { useManageUser } from '@/hooks/manageUser';
 import { useAuth } from '@/hooks/auth';
 import { v4 as uuidv4 } from "uuid";
 
+interface CreateTableProps {
+    name : string,
+
+}
 const TablesHeader: React.FC = () => {
     const { organization, token } = useAuth({ middleware: 'auth' });
     const { createUser } = useManageUser({ organizationToken: token || '' });

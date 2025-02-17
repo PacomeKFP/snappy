@@ -65,7 +65,7 @@ const LandingPage: React.FC = () => {
                         </a>
                     </div>
                     <div className="mt-12">
-                        <img src="/api/placeholder/800/400" alt="Interface de messagerie" className="rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-500" />
+                        <img src="/images/tests/image.jpg" alt="Interface de messagerie" className="rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-500" />
                     </div>
                 </div>
             </section>
@@ -80,19 +80,19 @@ const LandingPage: React.FC = () => {
                                 icon: <MessageSquare className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
                                 title: "Messages instantanés",
                                 description: "Échangez des messages en temps réel avec votre équipe.",
-                                image: "/public/images/task/task-01.jpg"
+                                image: "/images/tests/chat-conversation-communication-connection-concept.jpg"
                             },
                             {
                                 icon: <Users className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
                                 title: "Salons thématiques",
                                 description: "Créez des canaux dédiés pour chaque projet ou équipe.",
-                                image: "/api/placeholder/400/300"
+                                image: "/images/tests/image.jpg"
                             },
                             {
                                 icon: <Globe className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
                                 title: "Partage de fichiers",
                                 description: "Partagez facilement documents, images et fichiers.",
-                                image: "/api/placeholder/400/300"
+                                image: "/images/tests/2996467.jpg"
                             }
                         ].map((feature, index) => (
                             <div key={index} className="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-all duration-300">
@@ -111,7 +111,7 @@ const LandingPage: React.FC = () => {
                 <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">Découvrez notre interface</h2>
                     <div className="relative">
-                        <img src="/api/placeholder/1200/600" alt="Interface demo" className="rounded-lg shadow-2xl mx-auto" />
+                        <img src="/images/tests/image.png" alt="Interface demo" className="rounded-lg shadow-2xl mx-auto" />
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             <button className="bg-blue-600 text-white p-4 rounded-full hover:bg-blue-700 transition-colors duration-300">
                                 <Zap className="w-8 h-8" />
@@ -130,13 +130,13 @@ const LandingPage: React.FC = () => {
                             <Shield className="w-8 h-8 mb-4 text-blue-600 animate-pulse" />
                             <h3 className="text-xl font-bold mb-4">Chiffrement de bout en bout</h3>
                             <p className="mb-4">Vos messages sont protégés par un chiffrement avancé.</p>
-                            <img src="/api/placeholder/500/300" alt="Sécurité" className="rounded-lg w-full" />
+                            <img src="images/tests/57811.jpg" alt="Sécurité" className="rounded-lg w-full" />
                         </div>
                         <div className="bg-white p-6 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
                             <Users className="w-8 h-8 mb-4 text-blue-600 animate-pulse" />
                             <h3 className="text-xl font-bold mb-4">Contrôle d'accès</h3>
                             <p className="mb-4">Gérez finement les permissions de vos utilisateurs.</p>
-                            <img src="/api/placeholder/500/300" alt="Contrôle d'accès" className="rounded-lg w-full" />
+                            <img src="/images/tests/3949019.jpg" alt="Contrôle d'accès" className="rounded-lg w-full" />
                         </div>
                     </div>
                 </div>
