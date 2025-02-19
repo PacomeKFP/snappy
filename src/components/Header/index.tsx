@@ -5,11 +5,14 @@ import DropdownUser from "./DropdownUser";
 import Image from "next/image";
 import SearchForm from "@/components/Header/SearchForm";
 
+
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
+  organization?: Organization;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   return (
+    
     <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark">
       <div className="flex flex-grow items-center justify-between px-4 py-5 shadow-2 md:px-5 2xl:px-10">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
@@ -56,7 +59,7 @@ const Header = (props: {
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
 
-          <Link className="block flex-shrink-0 lg:hidden" href="/projects">
+          <Link className="block flex-shrink-0 lg:hidden" href="/dashboard">
             <Image
               width={32}
               height={32}
@@ -69,9 +72,9 @@ const Header = (props: {
         <div className="hidden xl:block">
           <div>
             <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
-              Messaging Application
+              {props.organization?.name}
             </h1>
-            {/*<p className="font-medium">Next.js Admin Dashboard Solution</p>*/}
+            <p className="font-medium">{props.organization?.id}</p>
           </div>
         </div>
 
