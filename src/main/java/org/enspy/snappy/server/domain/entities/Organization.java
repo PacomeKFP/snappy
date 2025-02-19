@@ -23,15 +23,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "organizations")
 public class Organization implements UserDetails {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
   private String name;
   private String email;
+
   @JsonIgnore private String password;
+
+  @Column(name = "project_id", unique = true, nullable = false)
   private String projectId;
+
+  @Column(name = "private_key")
   private String privateKey;
 
   @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
@@ -42,15 +50,16 @@ public class Organization implements UserDetails {
   @JsonIgnoreProperties({"organization"})
   private List<Chatbot> chatbots;
 
-
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 
   public Organization(String name, String email, String password) {
@@ -59,26 +68,17 @@ public class Organization implements UserDetails {
     this.password = password;
   }
 
-  /**
-   * @return
-   */
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of();
   }
 
-  /**
-   * @return
-   */
   @Override
   public String getUsername() {
     return this.email;
   }
 
-  /**
-   * @return
-   */
   @JsonIgnore
   @Override
   public String getPassword() {

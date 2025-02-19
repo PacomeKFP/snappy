@@ -16,12 +16,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Data
+@Table(name = "messages")
 public class Message {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
+  @Column(name = "project_id")
   private String projectId;
+
   private String body;
   private boolean isWrittenByHuman = true;
 
@@ -29,12 +34,12 @@ public class Message {
   private MessageAck ack = MessageAck.SENT;
 
   @ManyToOne
-  @JoinColumn(name = "sender")
+  @JoinColumn(name = "sender_id") // Optionnel : renommer pour respecter le snake_case
   @JsonIgnoreProperties({"organization", "contacts", "customJson"})
   private User sender;
 
   @ManyToOne
-  @JoinColumn(name = "receiver")
+  @JoinColumn(name = "receiver_id") // Optionnel : renommer pour respecter le snake_case
   @JsonIgnoreProperties({"organization", "contacts", "customJson"})
   private User receiver;
 
@@ -45,11 +50,13 @@ public class Message {
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 
   // Projection sur le sender pour JSON

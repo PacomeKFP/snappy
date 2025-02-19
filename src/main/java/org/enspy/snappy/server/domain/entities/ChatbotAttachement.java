@@ -15,16 +15,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Data
+@Table(name = "chatbot_attachements")
 public class ChatbotAttachement {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
   private Long filesize;
   private String mimetype;
   private String filename;
 
-  @JsonIgnore private String path;
+  @JsonIgnore
+  private String path;
 
   @ManyToOne
   @JoinColumn(name = "chatbot_id")
@@ -33,11 +37,13 @@ public class ChatbotAttachement {
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 
   @JsonProperty("path")

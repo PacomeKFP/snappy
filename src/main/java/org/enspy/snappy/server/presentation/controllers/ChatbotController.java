@@ -43,7 +43,7 @@ public class ChatbotController {
     return ResponseEntity.ok(getAvailableLanguageModelsUseCase.execute(null));
   }
 
-  @PostMapping("/create")
+  @PostMapping
   public ResponseEntity<Chatbot> createNewChatbot(@Valid @ModelAttribute CreateChatbotDto dto) {
     return ResponseEntity.ok(createChatbotUseCase.execute(dto));
   }
