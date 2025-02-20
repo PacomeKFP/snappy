@@ -21,27 +21,46 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Data
 @Table(
+    name = "users",
     uniqueConstraints = {
       @UniqueConstraint(
-          columnNames = {"projectId", "login"},
+          columnNames = {"project_id", "login"},
           name = "uk_project_login")
     })
 public class User implements UserDetails {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
+  @Column(name = "project_id")
   private String projectId;
+
+  @Column(name = "external_id")
   private String externalId;
+
   private String avatar;
+
+  @Column(name = "display_name")
   private String displayName;
+
   private String email;
+
+  @Column(name = "phone_number")
   private String phoneNumber;
+
   private String login;
+
   @JsonIgnore private String secret;
+
   private boolean isOnline;
 
-  @ElementCollection private Map<String, String> customJson;
+  @ElementCollection
+  @CollectionTable(name = "user_custom_json", joinColumns = @JoinColumn(name = "user_id"))
+  @MapKeyColumn(name = "json_key")
+  @Column(name = "json_value")
+  private Map<String, String> customJson;
 
   @ManyToMany
   @JoinTable(
@@ -67,16 +86,15 @@ public class User implements UserDetails {
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 
-  /**
-   * @return
-   */
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -89,9 +107,6 @@ public class User implements UserDetails {
     return this.secret;
   }
 
-  /**
-   * @return
-   */
   @Override
   public String getUsername() {
     return this.login + ";" + this.projectId;

@@ -20,15 +20,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "chatbots")
 public class Chatbot {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
   private String label;
   private String prompt;
   private String description;
+
+  @Column(name = "project_id")
   private String projectId;
+
+  @Enumerated(EnumType.STRING)
   private ChatbotLLM languageModel;
   @Column(unique = true, nullable = false)
   private String accessKey;
@@ -45,10 +52,12 @@ public class Chatbot {
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 }

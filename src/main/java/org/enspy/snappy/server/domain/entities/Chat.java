@@ -18,17 +18,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @Entity
 @Table(
+    name = "chats",
     uniqueConstraints = {
       @UniqueConstraint(
           name = "uk_chat_project_sender_receiver",
-          columnNames = {"projectId", "sender", "receiver"})
+          columnNames = {"project_id", "sender", "receiver"})
     })
 public class Chat {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "uuid")
   private UUID id;
 
-  @Column(nullable = false)
+  @Column(name = "project_id", nullable = false)
   private String projectId;
 
   @Column(nullable = false)
@@ -37,15 +40,18 @@ public class Chat {
   @Column(nullable = false)
   private String receiver;
 
+  @Enumerated(EnumType.STRING)
   private MessagingMode mode;
 
   @CreationTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime updatedAt;
 }
