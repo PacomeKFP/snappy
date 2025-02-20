@@ -16,12 +16,19 @@ import org.enspy.snappy.server.infrastructure.storages.NotSentMessagesStorage;
 import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 @Log4j2
 public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
+
+  @Value("${alan.baseurl}")
+  private String alanBaseUrl;
+
+  @Value("${alan.endpoint.send-message}")
+  private String alanEndpointSendMessage;
 
   private final UserRepository userRepository;
   private final ChatRepository chatRepository;
@@ -97,7 +104,8 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
     if (receiversMessagingMode == MessagingMode.ON) mode = 1;
 
     // Envoi de la requête HTTP POST
-    String url = "http://localhost:8002?mode=" + mode;
+    String url = alanBaseUrl + alanEndpointSendMessage + mode;
+    log.error("L'URL est " + url);
     RestTemplate restTemplate = new RestTemplate();
     Object response = restTemplate.postForObject(url, message, Object.class);
     log.info("the response is here" + response);

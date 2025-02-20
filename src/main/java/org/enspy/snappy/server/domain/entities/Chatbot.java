@@ -30,6 +30,8 @@ public class Chatbot {
   private String description;
   private String projectId;
   private ChatbotLLM languageModel;
+  @Column(unique = true, nullable = false)
+  private String accessKey;
 
   @OneToMany(mappedBy = "chatbot", cascade = CascadeType.ALL)
   @JsonIgnoreProperties("chatbot")

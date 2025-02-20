@@ -1,6 +1,7 @@
 package org.enspy.snappy.server.domain.usecases.chatbot;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.server.domain.entities.Chatbot;
 import org.enspy.snappy.server.domain.entities.ChatbotAttachement;
@@ -48,6 +49,7 @@ public class CreateChatbotUseCase implements UseCase<CreateChatbotDto, Chatbot> 
     chatbot.setProjectId(dto.getProjectId());
     chatbot.setDescription(dto.getDescription());
     chatbot.setLanguageModel(dto.getLanguageModel());
+    chatbot.setAccessKey(UUID.randomUUID().toString());
     return chatbotRepository.save(chatbot);
   }
 
