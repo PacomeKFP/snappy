@@ -33,18 +33,29 @@ def process_message(request_data, db: Session):
 
         # Sauvegarder la réponse de l'IA
         ai_response = Message(
-            sender="AI",
+            sender=receiver,
             receiver=sender,
             body=answer,
             projectId=projectId,
             isWrittenByHuman=False,
-            mode="listen",  # Le mode ici reste "listen" même après la réponse de l'IA
+            mode="listen",
         )
+
+        
+        ai_resp= {
+            "sender":receiver,
+            "receiver":sender,
+            "body":answer,
+            "projectId":projectId,
+            "writtenByHuman":False
+        }
+            
+        
         db.add(ai_response)
         db.commit()
         db.refresh(ai_response)
 
-        return ai_response  # Retourne la réponse générée
+        return ai_resp  # Retourne la réponse générée
 
     # Si le mode est "listen", aucun traitement IA
     return None

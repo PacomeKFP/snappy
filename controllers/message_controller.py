@@ -5,7 +5,7 @@ from database import SessionLocal
 from services.message_service import process_message
 from enum import Enum
 import traceback
-
+import requests
 
 router = APIRouter()
 
@@ -42,12 +42,12 @@ async def handle_message(
             "projectId": request.projectId,
             "mode": messaging_mode.value,
         }
-        print("message controller",processed_request)
         # Appeler le service pour traiter le message
         response = process_message(processed_request, db)
-
+        print("response",response)
         if response:
-            return {"response": response}
+            reponce = requests.post("http://13.61.100.122:8001/chat/send", data=response)
+            print("reponce",reponce)
         return {"message": "Message enregistré avec succès."}
 
     except Exception as e:
