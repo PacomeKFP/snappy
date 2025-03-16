@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+sqlalchemy
+spacy
+fr_core_news_sm
+pypdf2 
+sentence-transformers 
+faiss-cpu
+PyPDF2
+google-generativeai
+scikit-learn
