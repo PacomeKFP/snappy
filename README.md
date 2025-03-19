@@ -2,6 +2,7 @@
 
 - axios
 - sonner
+- socket.io-client
 
 ## Consignes
 1. Ouvrir la documentation http://16.171.151.193:8001/api-docs, http://16.171.151.193:8001/doc

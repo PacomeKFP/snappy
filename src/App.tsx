@@ -3,11 +3,13 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import {SnappyHTTPClient} from "./lib/SnappyHTTPClient.ts";
+import {SnappySocketClient} from "./lib/SnappySocketClient.ts";
 
 function App() {
     // const [count, setCount] = useState(0)
     const snappy = new SnappyHTTPClient("http://16.171.151.193:8001")
-    // snappy.home()
+    const snappySocket = new SnappySocketClient("http://16.171.151.193:3305", "f7cbddc0-1ec9-4c03-9722-7be546605919", "ext1")
+    snappySocket.test();
 
     return (
         <>
