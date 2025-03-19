@@ -6,6 +6,7 @@ from services.message_service import process_message
 from enum import Enum
 import traceback
 import requests
+import os
 
 router = APIRouter()
 
@@ -46,7 +47,12 @@ async def handle_message(
         response = process_message(processed_request, db)
         print("response",response)
         if response:
-            reponce = requests.post("http://13.61.100.122:8001/chat/send", data=response)
+            address_ip = os.getenv("ADDRESS_IP")
+            token = os.getenv("TOKEN_ORG_ALAN")
+            headers = {
+                "Authorization": f"Bearer {token}"
+            }
+            reponce = requests.post("http://{address_ip}:8001/chat/send", data=response, headers=headers)
             print("reponce",reponce)
         return {"message": "Message enregistré avec succès."}
 
