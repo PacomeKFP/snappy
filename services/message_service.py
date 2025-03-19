@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models.message_model import Message
+from models.message_model import Message , MessagingMode
 from repositories.message_repository import create_message, get_last_messages
 from services.gemini_service import generate_answer
 
@@ -38,7 +38,7 @@ def process_message(request_data, db: Session):
             body=answer,
             projectId=projectId,
             isWrittenByHuman=False,
-            mode="listen",
+            mode=MessagingMode.LISTEN,
         )
 
         
