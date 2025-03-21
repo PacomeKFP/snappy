@@ -8,10 +8,17 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
 
   const router = useRouter();
-
+  const handleLogin = () => {
+    // Simuler une connexion réussie 
+    if (username && password) {
+      router.push("/home"); // Redirection vers Home après connexion
+    } else {
+      alert("Veuillez remplir tous les champs.");
+    }
+  };
   return (
-    <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
-    <View style={styles.container}>
+    <View style={styles.background}>
+     <View style={styles.container}>
     <Image source={require("../assets/images/logo.png")} style={styles.logo} />
       <Text style={styles.title}>Connexion</Text>
       <TextInput
@@ -34,20 +41,21 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/confirm")}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
       <Text style={styles.buttonText} > se connecter</Text>
     </TouchableOpacity>
     <Link href="../signup" style={styles.linkText}>
         Vous n'avez pas de compte ? Inscrivez-vous
       </Link>
      </View>
-     </ImageBackground>
+     </View>
   );
 }
 
 const styles = StyleSheet.create({
     background: {
         flex: 1,
+        backgroundColor: "#7B52AB",
         resizeMode: "cover",
         justifyContent: "center",
         alignItems: "center",
@@ -79,7 +87,7 @@ const styles = StyleSheet.create({
   },
   button:{
     borderRadius: 60,
-    backgroundColor:"blue",
+    backgroundColor:"#7B52AB",
     margin: 10,
     padding: 10
   },
