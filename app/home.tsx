@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import { Text,View, TextInput, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ChatScreen from "./chat";
 import StatutScreen from "./status";
@@ -16,6 +16,7 @@ export default function Home() {
     <View style={styles.container}>
       {/* 🔍 Barre de recherche + Menu */}
       <View style={styles.header}>
+        <Text style={styles.title}>Yow Talk</Text>
         <TextInput
           style={styles.searchBar}
           placeholder="Rechercher..."
@@ -25,7 +26,7 @@ export default function Home() {
         <AppMenu /> {/* 3 points pour ouvrir le menu */}
       </View>
 
-      {/* 🔽 Navigation entre Chat, Statuts, Appels */}
+      {/*  Navigation entre Chat, Statuts, Appels */}
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: styles.tabBar,
@@ -57,6 +58,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: "#e0e0e0",
     marginRight: 10,
+  },
+  title:{
+    fontSize:20,
+    fontFamily: "sans-serif-medium",
+    fontWeight: "bold",
+    color:'white',
+    margin:5,
   },
   tabBar: {
     backgroundColor: "#7B52AB",
