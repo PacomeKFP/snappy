@@ -8,7 +8,7 @@ export default function AppMenu() {
   return (
     <Menu>
       <MenuTrigger>
-        <Ionicons name="ellipsis-vertical" size={24} color="white" />
+        <Ionicons name="ellipsis-vertical" size={24}  color="#7B52AB" />
       </MenuTrigger>
       <MenuOptions>
         <MenuOption onSelect={() => alert("Nouveau groupe")} text="Nouveau groupe" />

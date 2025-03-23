@@ -1,8 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "../app/home";
-import CallsScreen from "../app/call";
-import SettingsScreen from "../app/status";
+import StatusScreen from "../app/status";
 
 const Tab = createBottomTabNavigator();
 
@@ -21,16 +20,10 @@ export default function TabBar() {
           tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-outline" color={color} size={size} />,
         }}
       />
-      <Tab.Screen
-        name="Appels"
-        component={CallsScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="call-outline" color={color} size={size} />,
-        }}
-      />
+    
       <Tab.Screen
         name="Paramètres"
-        component={SettingsScreen}
+        component={StatusScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" color={color} size={size} />,
         }}

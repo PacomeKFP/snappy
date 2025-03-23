@@ -17,7 +17,7 @@ export default function LoginScreen() {
     }
   };
   return (
-    <View style={styles.background}>
+    <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
      <View style={styles.container}>
     <Image source={require("../assets/images/logo.png")} style={styles.logo} />
       <Text style={styles.title}>Connexion</Text>
@@ -44,21 +44,21 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
       <Text style={styles.buttonText} > se connecter</Text>
     </TouchableOpacity>
-    <Link href="../signup" style={styles.linkText}>
-        Vous n'avez pas de compte ? Inscrivez-vous
+    <Text > Vous n'avez pas de compte ?  <Link href="../signup" style={styles.linkText}>
+        Inscrivez-vous
       </Link>
+      </Text>
      </View>
-     </View>
+     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
     background: {
-        flex: 1,
-        backgroundColor: "#7B52AB",
-        resizeMode: "cover",
-        justifyContent: "center",
-        alignItems: "center",
+      flex: 1,
+      resizeMode: "cover",
+      justifyContent: "center",
+      alignItems: "center",
       },
   container: {
     width: "90%",
@@ -102,4 +102,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
   },
+  
 });
