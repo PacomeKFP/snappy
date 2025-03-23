@@ -32,7 +32,6 @@ export default function ChatRoom() {
 
   return (
     <View style={styles.container}>
-      {/* 🔥 Header style WhatsApp */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.push('/home')}>
           <Ionicons name="arrow-back" size={24} color="white" />
@@ -43,7 +42,6 @@ export default function ChatRoom() {
         <AppSetting/>
       </View>
 
-      {/* 🔥 Liste des messages */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
