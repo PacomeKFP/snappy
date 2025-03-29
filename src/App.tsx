@@ -4,12 +4,36 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import {SnappyHTTPClient} from "./lib/SnappyHTTPClient.ts";
 import {SnappySocketClient} from "./lib/SnappySocketClient.ts";
+import {ISnappySocketClient} from "./lib/ISnappySocketClient.ts";
+import {Message} from "./lib/models";
+
 
 function App() {
     // const [count, setCount] = useState(0)
     const snappy = new SnappyHTTPClient("http://16.171.151.193:8001")
-    const snappySocket = new SnappySocketClient("http://16.171.151.193:3305", "f7cbddc0-1ec9-4c03-9722-7be546605919", "ext1")
-    snappySocket.test();
+    const snappySocket = new SnappySocketClient("http://localhost:3308", "c9248b89-00b1-4c24-8678-c2ed923c83a1", "ext1")
+
+    const client: ISnappySocketClient = {
+        onConnect: () => {
+            // setCount(count + 1)
+            console.log("Connected")
+        },
+        newConnectionListener: (user: string) => {
+            console.log("new connection \nuser -> ", user)
+        },
+        newDisconnectionListener: (user: string) => {
+            console.log("new disconnection  \nuser -> ", user)
+        },
+        onDisconnect: () => {
+            // setCount(count - 1)
+        },
+        onMessageReceivedListener: (message: Message) => {
+            console.log("message received")
+            console.log(message)
+        }
+
+    }
+    snappySocket.initialize(client)
 
     return (
         <>
@@ -28,7 +52,7 @@ function App() {
                     "email": "string@string.com",
                     "password": "password"
                 }))}>
-                    count is {"count"}
+                    {/*count is {count}*/}
                 </button>
                 <p>
                     Edit <code>src/App.tsx</code> and save to test HMR

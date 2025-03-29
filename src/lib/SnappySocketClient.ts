@@ -1,69 +1,60 @@
 import {io, Socket} from "socket.io-client";
+import {Message} from "./models";
+import {ISnappySocketClient} from "./ISnappySocketClient.ts";
 
-export class SnappySocketClient {
+export class SnappySocketClient implements ISnappySocketClient {
     projectId: string
     user: string
     server: string
     baseUrl: string
-
     socket?: Socket
 
     constructor(server: string, projectId: string, user: string) {
+        this.user = user
         this.server = server
         this.projectId = projectId
-        this.user = user
-        this.baseUrl = `ws://16.171.151.193:3305/?projectId=f7cbddc0-1ec9-4c03-9722-7be546605919&user=ext2`
-
-        this.socket = this.setupSocket()
+        this.baseUrl = `${server}?projectId=${projectId}&user=${user}`
     }
 
-    setupSocket() {
-        const socket = io(this.baseUrl,  {
-            path:"/"
-        })
+    initialize(client: ISnappySocketClient = this, force: boolean = false) {
+        if (this.socket && !force) {
+            return
+        }
+        const socket = io(this.baseUrl)
 
-        socket.on("connect", this.connect)
-        socket.on("disconnect", this.disconnect)
-        socket.on("new-connection", this.newConnectionListener)
-        socket.on("new-disconnection", this.newDisconnectionListener)
+        socket.on("connect", () => client.onConnect())
+        socket.on("disconnect",() => client.onDisconnect())
 
-        socket.on('message-send', this.onMessageReceivedListener)
+        socket.on("new-connection", (data:string) =>client.newConnectionListener(data))
+        socket.on("new-disconnection", client.newDisconnectionListener)
 
-        socket.on('message-ack-read', this.onMessageReadAckListener)
-        socket.on('message-ack-received', this.onMessageReceivedAckListener)
+        socket.on('message-send', (message: Message, messageReceivedCallback: () => void) => {
+                client.onMessageReceivedListener(message);
+                messageReceivedCallback()
+            }
+        )
 
-        return socket;
+        this.socket = socket;
     }
 
-    connect() {
+    onConnect() {
         console.log("Connected")
     }
 
-    disconnect() {
+    onDisconnect() {
         console.log("Disconnected")
     }
 
-    test() {
-        console.log("test")
+    newConnectionListener(user: string) {
+        console.log("new connection \nuser -> ", user)
     }
 
-    newConnectionListener() {
-        console.log("new connection")
+    newDisconnectionListener(user: string) {
+        console.log("new disconnection  \nuser -> ", user)
     }
-    newDisconnectionListener() {
-        console.log("new disconnection")
-    }
-    onMessageReceivedListener() {
+
+    onMessageReceivedListener(message: Message) {
         console.log("message received")
+        console.log(message)
     }
-
-    onMessageReceivedAckListener() {
-        console.log("message received")
-    }
-
-    onMessageReadAckListener() {
-        console.log("message received")
-    }
-
-
 }
