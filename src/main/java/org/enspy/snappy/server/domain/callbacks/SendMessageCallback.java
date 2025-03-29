@@ -9,6 +9,7 @@ public class SendMessageCallback extends VoidAckCallback {
   @Override
   public void onSuccess() {
     log.warn("Message sent with sucess");
+    // TODO: implement the ack for received message
   }
 
   @Override

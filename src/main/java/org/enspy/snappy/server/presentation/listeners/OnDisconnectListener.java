@@ -4,11 +4,14 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.enspy.snappy.server.domain.entities.User;
+import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.infrastructure.storages.ConnectedUserStorage;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class OnDisconnectListener implements DisconnectListener {
 
@@ -25,6 +28,7 @@ public class OnDisconnectListener implements DisconnectListener {
     public void onDisconnect(SocketIOClient client) {
         String sessionId = client.getSessionId().toString();
         connectedUserStorage.removeConnectedUserWithSessionId(sessionId);
+        log.error("Disconnexion", client);
 
 
         // TODO: modifier ceci pour signaler uniquement à ses contacts
@@ -33,7 +37,8 @@ public class OnDisconnectListener implements DisconnectListener {
             return;
         Optional<User> user = userRepository.findById(UUID.fromString(userId));
         client.getNamespace().getAllClients().stream().forEach(namespaceClient -> {
-            user.ifPresent(value -> namespaceClient.sendEvent("new-disconnection?user=" + value.getExternalId()));
+            log.warn("Deconnexion de l'utilisateur {}", userId);
+            user.ifPresent(value -> namespaceClient.sendEvent(WebSocketHelper.OutputEndpoints.NEW_USER_DISCONNECTION, value.getExternalId()));
         });
 
     }

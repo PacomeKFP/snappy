@@ -38,7 +38,7 @@ public class OnConnectListener implements ConnectListener {
 
         // alerter tous les autres utilisateurs
         client.getNamespace().getAllClients().forEach(namespaceClient -> {
-            namespaceClient.sendEvent("new-connection?user=" + userExternalId);
+            namespaceClient.sendEvent(WebSocketHelper.OutputEndpoints.NEW_USER_CONNECTION, userExternalId);
         });
 
         /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/

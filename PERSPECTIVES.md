@@ -1,6 +1,6 @@
 # Axes d’Amélioration
 
-Ce document présente plusieurs axes d’amélioration concernant le développement logiciel, l’intelligence artificielle et la sécurisation des échanges. Les propositions restent alignées sur vos idées initiales, tout en apportant des précisions et des corrections pour faciliter leur compréhension et leur mise en œuvre.
+Ce document présente plusieurs axes d’amélioration concernant le développement logiciel, l’intelligence artificielle et la sécurisation des échanges. Les propositions restent alignées sur vos idées initiales, tout en apportant des précisions pour faciliter leur compréhension et leur mise en œuvre.
 
 ---
 
@@ -24,13 +24,35 @@ Fournir trois SDK destinés à simplifier l’intégration et l’interaction av
 - **Couche Conceptuelle :**
     - Fournit les primitives nécessaires pour interagir avec l’API.
     - Gère la connexion aux différents événements disponibles.
-
 - **Deux Couches Visuelles :**
     - Ces deux SDK se concentrent sur la présentation des interfaces.
     - Le premier est adapté à React, le second à React Native (RN).
     - Ils reposent sur la couche conceptuelle en exploitant ses primitives pour gérer les interactions tout en fournissant uniquement ce qui est nécessaire pour la partie visuelle.
 
+### 3. Optimisation du Broadcasting de Messages via Socket.IO
+
+**Problématique actuelle :**  
+Notifier l’ensemble des utilisateurs concernés par un événement peut être fastidieux et coûteux en ressources, soit à cause d’un coût computationnel élevé, soit par l’absence d’algorithmes adaptés.
+
+**Proposition :**
+- Développer une méthode optimisée pour le broadcasting de messages via Socket.IO.
+- Évaluer et mettre en œuvre des algorithmes qui minimisent le coût computationnel tout en assurant une diffusion rapide et efficace des notifications.
+
+### 4. Optimisation des Performances de l'API
+
+**Problématique actuelle :**  
+Les temps de réponse de l’API sont insuffisants et pourraient ne pas garantir de bonnes performances en cas de montée en charge.
+
+**Axes d'amélioration :**
+- **Mécanismes de Caching :**  
+  Mettre en place des caches pour réduire les temps de réponse et limiter les accès redondants aux données.
+- **Architecture Asynchrone :**  
+  Rendre l’API asynchrone afin d’augmenter le nombre de requêtes gérables simultanément et d’améliorer la réactivité.
+- **Utilisation de Schedulers :**  
+  Intégrer des planificateurs pour gérer les échanges avec des API externes de manière non bloquante, garantissant ainsi la fluidité des autres échanges au sein de l’application.
+
 ---
+
 
 ## Intelligence Artificielle (IA)
 
