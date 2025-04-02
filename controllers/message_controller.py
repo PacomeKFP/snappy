@@ -58,29 +58,41 @@ async def handle_message(
             print(f"Tentative d'envoi vers: {api_url}")
             
             try:
-                # Préparer les données au format attendu par l'API selon la documentation
-                current_time = datetime.now().isoformat()
-                api_payload = {
-                    "id": str(uuid.uuid4()),
-                    "projectId": response["projectId"],
+                # Récupérer les ID internes pour l'expéditeur et le destinataire
+                sender_id = request.receiver
+                receiver_id = request.sender
+                
+                # Vérifier si les ID sont valides
+                if not sender_id or not receiver_id:
+                    print(f"ATTENTION: Impossible de trouver les ID internes pour {response['sender']} ou {response['receiver']}")
+                    return {"message": "Message enregistré avec succès, mais impossible d'envoyer au service de chat."}
+                
+                # Préparer les données pour multipart/form-data avec les ID internes corrects
+                api_data = {
+                    "projectId": request.projectId,  # Utiliser le project ID correct
                     "body": response["body"],
-                    "ack": "SENT",
-                    "sender": response["sender"],
-                    "receiver": response["receiver"],
-                    "messageAttachements": [],
-                    "createdAt": current_time,
-                    "updatedAt": current_time,
-                    "writtenByHuman": False
+                    "senderId": sender_id,  # Utiliser l'ID interne de l'expéditeur
+                    "receiverId": receiver_id,  # Utiliser l'ID interne du destinataire
+                    "writtenByHuman": str(False).lower()
                 }
                 
                 headers = {
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    #"Content-type": "multipart/form-data"
                 }
                 
-                # Envoyer les données en JSON
-                response_api = requests.post(api_url, json=api_payload, headers=headers)
+                # Créer un dictionnaire pour les données de formulaire multipart
+                files = {}
+                for key, value in api_data.items():
+                    files[key] = (None, str(value))
+                
+                # Envoyer comme multipart/form-data
+                response_api = requests.post(api_url, files=files, headers=headers)
                 print(f"Réponse API: {response_api.status_code} {response_api.text if hasattr(response_api, 'text') else ''}")
+                
+                # Afficher les en-têtes et les données envoyées pour le débogage
+                print(f"En-têtes envoyés: {response_api.request.headers}")
+                print(f"Données envoyées: {api_data}")
                 
             except Exception as e:
                 print(f"Erreur lors de l'envoi à l'API: {str(e)}")
