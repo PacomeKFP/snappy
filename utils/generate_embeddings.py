@@ -2,7 +2,7 @@ import spacy
 from typing import List
 import numpy as np
 
-# Chargez le modèle spaCy
+# Charger le modèle spaCy
 nlp = spacy.load("fr_core_news_sm")
 
 def generate_embeddings(texts: List[str]) -> List[np.ndarray]:
@@ -11,13 +11,12 @@ def generate_embeddings(texts: List[str]) -> List[np.ndarray]:
     """
     embeddings = []
     for text in texts:
-        # Traitez le texte avec spaCy
+        # Traiter le texte avec spaCy
         doc = nlp(text)
-        # Récupérez le vecteur moyen du document
+        # Récupérer le vecteur moyen du document
         if doc.has_vector:
             embeddings.append(doc.vector)
         else:
-            # Si le texte est vide ou non vectorisable, retournez un vecteur nul
+            # Si le texte est vide ou non vectorisable, retourner un vecteur nul
             embeddings.append(np.zeros(nlp.vocab.vectors_length))
     return embeddings
-

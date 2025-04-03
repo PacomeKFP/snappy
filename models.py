@@ -1,15 +1,15 @@
-from pydantic import BaseModel,UUID4
-from typing import List , Optional
+from pydantic import BaseModel, UUID4
+from typing import List, Optional
 from datetime import datetime
 
-# Modèle pour les pièces jointes (simplifié)
+# Modèle pour les pièces jointes
 class ChatbotAttachment(BaseModel):
     filesize: int
     mimetype: str
     filename: str
     path: str
 
-# Modèle pour la requête /init (simplifié)
+# Requête d'initialisation
 class InitRequest(BaseModel):
     id: UUID4
     accesskeys: UUID4
@@ -17,42 +17,62 @@ class InitRequest(BaseModel):
     prompt: str
     description: str
     projectId: str
-    languageModel: str  # Ex: "MISTRAL"
+    languageModel: str
     chatbotAttachements: List[ChatbotAttachment]
 
-# Modèle pour la réponse /init (simplifié)
+# Réponse d'initialisation
 class InitResponse(BaseModel):
     status: str
     message: str
 
-
+# Requête de création de conversation
 class CreateRequest(BaseModel):
-    accesskeys: str  # Clé d'accès du chatbot
+    accesskeys: str
 
+# Réponse de création
 class CreateResponse(BaseModel):
-    idInstanceChat: str  # Identifiant unique de l'instance de conversation
+    idInstanceChat: str
 
-
+# Requête d'inférence
 class InferRequest(BaseModel):
-    idInstanceChat: str  # Identifiant de l'instance de conversation
-    message: str  # Message de l'utilisateur
-    attachment: Optional[str] = None  # Pièce jointe (optionnelle)
+    idInstanceChat: str
+    message: str
+    attachment: Optional[str] = None
 
+# Réponse d'inférence
 class InferResponse(BaseModel):
-    response: str  # Réponse générée par le chatbot
+    response: str
 
-
-# Nouveaux modèles pour l'historique des conversations
+# Requête d'historique
 class HistoryRequest(BaseModel):
-    idInstanceChat: str  # Identifiant de l'instance de conversation
+    idInstanceChat: str
 
+# Message d'historique
 class MessageHistory(BaseModel):
     id: str
     message: str
     response: str
     timestamp: Optional[datetime] = None
 
+# Réponse d'historique
 class HistoryResponse(BaseModel):
     idInstanceChat: str
     accesskeys: str
     messages: List[MessageHistory]
+
+
+# Modèles pour la réponse
+class InstanceInfo(BaseModel):
+    idInstanceChat: str
+    created_at: str
+    messages_count: int
+    index: int
+
+
+class ChatbotInfo(BaseModel):
+    label: str
+    description: str
+
+class InstancesResponse(BaseModel):
+    chatbotInfo: ChatbotInfo
+    instances: List[InstanceInfo]
