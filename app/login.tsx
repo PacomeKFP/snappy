@@ -1,6 +1,7 @@
 import { View, Text, TextInput, Button, StyleSheet,Image, TouchableOpacity, ImageBackground } from "react-native";
 import { useState } from "react";
 import { Link, useRouter } from "expo-router";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -8,28 +9,37 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
 
   const router = useRouter();
+  const validateEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
   const handleLogin = () => {
-    // Simuler une connexion réussie 
-    if (username && password) {
-      router.push("/home"); // Redirection vers Home après connexion
-    } else {
+    if (!username || !password || !email) {
       alert("Veuillez remplir tous les champs.");
+      return;
     }
+    if (!validateEmail(email)) {//verification de l'email
+      alert("Veuillez entrer une adresse email valide.");
+      return;
+    }
+    router.push("/home"); // Redirection vers Home après connexion
   };
   return (
     <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
      <View style={styles.container}>
     <Image source={require("../assets/images/logo.png")} style={styles.logo} />
-      <Text style={styles.title}>Connexion</Text>
+      <Text style={styles.title}>  <Icon name="login" size={20} color="purple" /> Connexion</Text>
       <TextInput
         style={styles.input}
         placeholder="Nom d'utilisateur"
+         placeholderTextColor='gray'
         value={username}
         onChangeText={setUsername}
       />
         <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor='gray'
         value={email} 
         onChangeText={setEmail}
         
@@ -37,6 +47,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Mot de passe"
+         placeholderTextColor='gray'
         secureTextEntry
         value={password}
         onChangeText={setPassword}

@@ -53,7 +53,8 @@ export default function ChatScreen() {
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-            <TouchableOpacity style={styles.fab} onPress={openNewChat}>
+     
+      <TouchableOpacity style={styles.fab} onPress={openNewChat}>
         <Ionicons name="chatbubble-ellipses" size={28} color="white" />
       </TouchableOpacity>
 
