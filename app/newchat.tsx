@@ -39,7 +39,6 @@ export default function NewChat() {
   );
 }
 
-// 🎨 Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white", padding: 15 },
   header: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },

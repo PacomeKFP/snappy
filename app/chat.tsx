@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
+import { ThemeText } from '@/components/ThemeText';
 
 
 
@@ -31,21 +32,20 @@ export default function ChatScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
         <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.name, item.avatar)}>
-            {/* 🔥 Avatar */}
+            
             <Image source={item.avatar} style={styles.avatar} />
 
-            {/* 🔥 Infos du chat */}
+            
             <View style={styles.textContainer}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</Text>
+              <ThemeText variant='titre'>{item.name}</ThemeText>
+              <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</ThemeText>
             </View>
 
-            {/* 🔥 Heure et badge de notification */}
             <View style={styles.rightContainer}>
-              <Text style={styles.time}>{item.time}</Text>
+              <ThemeText style={styles.time}>{item.time}</ThemeText>
               {item.unreadCount > 0 && (
                 <View style={styles.unreadBadge}>
-                  <Text style={styles.unreadText}>{item.unreadCount}</Text>
+                  <ThemeText style={styles.unreadThemeText}>{item.unreadCount}</ThemeText>
                 </View>
               )}
             </View>
@@ -53,7 +53,6 @@ export default function ChatScreen() {
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-            {/* 🔥 Bouton flottant pour ajouter une conversation */}
             <TouchableOpacity style={styles.fab} onPress={openNewChat}>
         <Ionicons name="chatbubble-ellipses" size={28} color="white" />
       </TouchableOpacity>
@@ -62,7 +61,6 @@ export default function ChatScreen() {
   );
 }
 
-// 🎨 Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,8 +72,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#4B0082',
   },
   avatar: {
     width: 50,
@@ -111,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  unreadText: {
+  unreadThemeText: {
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',

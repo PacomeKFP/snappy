@@ -3,11 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet } 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
+import {format} from 'date-fns';
 // Interface d'un message
 interface Message {
   id: string;
   text: string;
   sender: "me" | "other";
+  time:string;
 }
 
 // Écran de la conversation
@@ -16,8 +18,8 @@ export default function ChatRoom() {
   const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Récupérer les paramètres de navigation
   
   const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Salut ! Comment ça va ?", sender: "other" },
-    { id: "2", text: "Hey ! Ça va bien et toi ?", sender: "me" },
+    { id: "1", text: "Salut ! Comment ça va ?", sender: "other",time:'12h30' },
+    { id: "2", text: "Hey ! Ça va bien et toi ?", sender: "me", time:'12h35' },
   ]);
 
   const [newMessage, setNewMessage] = useState("");
@@ -25,7 +27,7 @@ export default function ChatRoom() {
   // Envoyer un message
   const sendMessage = () => {
     if (newMessage.trim() !== "") {
-      setMessages([...messages, { id: Date.now().toString(), text: newMessage, sender: "me" }]);
+      setMessages([...messages, { id: Date.now().toString(), text: newMessage, sender: "me",time:format(new Date(),'HH:mm') }]);
       setNewMessage("");
     }
   };
@@ -48,12 +50,12 @@ export default function ChatRoom() {
         renderItem={({ item }) => (
           <View style={[styles.messageContainer, item.sender === "me" ? styles.myMessage : styles.otherMessage]}>
             <Text style={styles.messageText}>{item.text}</Text>
+            <Text style= {styles.Time}>{item.time}</Text>
           </View>
         )}
         contentContainerStyle={styles.chatBody}
       />
 
-      {/* 🔥 Zone de saisie */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -69,7 +71,6 @@ export default function ChatRoom() {
   );
 }
 
-// 🎨 Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F3F3" },
   header: {
@@ -110,6 +111,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopWidth: 1,
     borderColor: "#DDD",
+  },
+  Time:{
+    color:"#423838",
+    fontSize:12,
+    alignSelf:"flex-end"
   },
   input: {
     flex: 1,
