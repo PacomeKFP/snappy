@@ -12,7 +12,15 @@ import { useManageUser } from '@/hooks/manageUser';
 import { useAuth } from '@/hooks/auth';
 import Image from 'next/image';
 
-
+interface User {
+  id: string;
+  displayName: string;
+  email: string;
+  phoneNumber: string;
+  online: boolean;
+  avatar: string;
+  createdAt: string;
+}
 
 interface SortConfig {
   key: keyof User;
@@ -28,39 +36,38 @@ interface tableThreeProps {
   users: User[];
 }
 
-
 const TableThree: React.FC<tableThreeProps> = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
-const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'displayName', direction: 'asc' });
-const [selectedUser, setSelectedUser] = useState<User | null>(null);
-const itemsPerPage = 10;
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'displayName', direction: 'asc' });
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const itemsPerPage = 10;
 
-const sortedUsers = useMemo(() => {
-  let sortableUsers = [...users];
-  sortableUsers.sort((a: User, b: User) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
-    }
-    return 0;
-  });
-  return sortableUsers;
-}, [users, sortConfig]); // Ajoutez `users` ici
+  const sortedUsers = useMemo(() => {
+    let sortableUsers = [...users];
+    sortableUsers.sort((a: User, b: User) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+    return sortableUsers;
+  }, [users, sortConfig]);
 
-const paginatedUsers = useMemo(() => {
-  const firstPageIndex = (currentPage - 1) * itemsPerPage;
-  const lastPageIndex = firstPageIndex + itemsPerPage;
-  return sortedUsers.slice(firstPageIndex, lastPageIndex);
-}, [currentPage, sortedUsers]);
+  const paginatedUsers = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * itemsPerPage;
+    const lastPageIndex = firstPageIndex + itemsPerPage;
+    return sortedUsers.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, sortedUsers]);
 
-const handleSort = (key: keyof User) => {
-  setSortConfig(prev => ({
-    key,
-    direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-  }));
-};
+  const handleSort = (key: keyof User) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
@@ -71,6 +78,7 @@ const handleSort = (key: keyof User) => {
   };
 
   const totalPages = Math.ceil(users.length / itemsPerPage);
+  
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -100,8 +108,10 @@ const handleSort = (key: keyof User) => {
                 <tr key={user.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 flex items-center">
                     <Image 
-                      src={user.avatar} 
+                      src="/api/placeholder/40/40" 
                       alt={user.displayName} 
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full mr-3"
                     />
                     {user.displayName}
@@ -185,9 +195,9 @@ const handleSort = (key: keyof User) => {
     </>
   );
 };
+
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) => {
   if (!user) return null;
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -200,8 +210,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) =>
         </button>
         <div className="flex flex-col items-center mb-4">
           <Image 
-            src={user.avatar} 
+            src="/api/placeholder/96/96" 
             alt={user.displayName} 
+            width={96}
+            height={96}
             className="w-24 h-24 rounded-full mb-4"
           />
           <h2 className="text-xl font-semibold">{user.displayName}</h2>
@@ -234,4 +246,5 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose }) =>
     </div>
   );
 };
+
 export default TableThree;

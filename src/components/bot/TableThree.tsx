@@ -14,6 +14,10 @@ interface SortConfig {
   key: keyof Bot;
   direction: 'asc' | 'desc';
 }
+interface Bot {
+  id: string;
+  [key: string]: any;
+}
 
 interface BotDetailsModalProps {
   bot: Bot;

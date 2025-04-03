@@ -1,15 +1,16 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { MessageSquare, Shield, Zap, Globe, ChevronDown, Users, Clock, Download, 
-         MonitorSmartphone, Target, EyeIcon, MapPin, Flag, BarChart2, 
+import { MessageSquare, Shield, Globe, ChevronDown, Users, Download, 
+         MonitorSmartphone, Target, EyeIcon, MapPin, Flag, 
          CheckCircle, Award, Smartphone } from 'lucide-react';
 import { translations } from '@/data/translations'; 
 
 type SupportedLanguage = 'fr' | 'en' | 'de';
 
 const LandingPage = () => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
     const [scrollPosition, setScrollPosition] = useState(0);
+    const [prevScrollPosition, setPrevScrollPosition] = useState(0);
     const [language, setLanguage] = useState<SupportedLanguage>('fr');
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -17,13 +18,23 @@ const LandingPage = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrollPosition(window.scrollY);
-            setIsVisible(true);
+            const currentScrollPosition = window.scrollY;
+            const isScrollingDown = currentScrollPosition > prevScrollPosition;
+            
+            if (isScrollingDown) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            
+            // Save current positions for next comparison
+            setPrevScrollPosition(currentScrollPosition);
+            setScrollPosition(currentScrollPosition);
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [prevScrollPosition]);
 
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     
@@ -203,10 +214,12 @@ const LandingPage = () => {
             ]
         }
     ];
-    // Updated Header component with mobile menu
+    // Updated Header component with mobile menu and show/hide on scroll
     const Header = () => (
         <header className={`bg-blue-600 text-white py-6 fixed w-full z-10 transition-all duration-300 ${
             scrollPosition > 50 ? 'bg-opacity-95 shadow-lg' : ''
+        } ${
+            isVisible ? 'transform-none' : 'transform -translate-y-full'
         }`}>
             <div className="container mx-auto px-4 flex justify-between items-center">
                 <div className="flex items-center space-x-2">
@@ -305,13 +318,13 @@ const LandingPage = () => {
         </header>
     );
 
-    // Updated hero section inspired by Image 2
+    // Updated hero section with padding
     const HeroSection = () => (
         <section className="bg-blue-600 text-white pt-32 pb-20 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
                 <img src="/api/placeholder/800/600" alt="Background pattern" className="w-full h-full object-cover" />
             </div>
-            <div className="container mx-auto px-4 text-center md:text-left relative">
+            <div className="container mx-auto px-18 text-center md:text-left relative">
                 <div className="md:flex md:items-center">
                     <div className="md:w-1/2 mb-10 md:mb-0">
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">{t.hero.title}</h1>
@@ -328,7 +341,7 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <div className="md:w-1/2">
-                        <img src="/api/placeholder/600/400" alt="Interface de messagerie" className="rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-500" />
+                        <img src="/images/tests/image.jpg" alt="Interface de messagerie" className="rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-500" />
                     </div>
                 </div>
             </div>
@@ -337,7 +350,7 @@ const LandingPage = () => {
 
     const FeaturesSection = () => (
         <section id="features" className="py-16">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-18">
                 <h2 className="text-3xl font-bold text-center mb-4">{t.features.title}</h2>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Découvrez toutes les fonctionnalités qui font de Snappy Chat la solution idéale pour la communication d'équipe.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -356,7 +369,7 @@ const LandingPage = () => {
 
     const AboutSection = () => (
         <section id="about" className="bg-blue-50 py-16">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-18">
                 <h2 className="text-3xl font-bold text-center mb-4">{t.about.title}</h2>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">{t.about.subtitle}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -372,10 +385,10 @@ const LandingPage = () => {
         </section>
     );
 
-    // WhatsApp-inspired demo section with translations
+    // WhatsApp-inspired demo section with translations and padding
     const DemoSection = () => (
         <section id="demo" className="py-16 bg-white">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-18">
                 <h2 className="text-3xl font-bold text-center mb-4">{t.demo.title}</h2>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">{t.demo.subtitle}</p>
                 
@@ -503,7 +516,7 @@ const LandingPage = () => {
 
     const SecuritySection = () => (
         <section id="security" className="py-16 bg-gray-50">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-18">
                 <h2 className="text-3xl font-bold text-center mb-4">{t.security.title}</h2>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">La sécurité de vos données est notre priorité absolue. Découvrez nos mesures de protection.</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -520,11 +533,11 @@ const LandingPage = () => {
         </section>
     );
 
-    // Updated team section with translations
+    // Updated team section with translations and padding
     const TeamSection = () => {
         return (
             <section id="team" className="py-16 bg-white">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto px-18">
                     <h2 className="text-3xl font-bold text-center mb-4">{t.team.title}</h2>
                     <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
                         {t.team.subtitle}
@@ -565,10 +578,10 @@ const LandingPage = () => {
         );
     };
 
-    // Updated CTA section with translations
+    // Updated CTA section with translations and padding
     const CTASection = () => (
         <section className="py-16 bg-blue-50">
-            <div className="container mx-auto px-4 text-center">
+            <div className="container mx-auto px-18 text-center">
                 <h2 className="text-3xl font-bold mb-4">{t.cta.title}</h2>
                 <p className="mb-8 max-w-2xl mx-auto">{t.cta.subtitle}</p>
                 <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -585,11 +598,73 @@ const LandingPage = () => {
         </section>
     );
 
+    const MetricsSection = () => (
+        <section id="metrics" className="py-16 bg-blue-600 text-white">
+            <div className="container mx-auto px-18">
+                <h2 className="text-3xl font-bold text-center mb-4">{t.metrics.title}</h2>
+                <p className="text-center mb-12 max-w-2xl mx-auto">{t.metrics.subtitle}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {metricItems.map((item, index) => (
+                        <div key={index} className="bg-blue-700 p-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300">
+                            {item.icon}
+                            <div className="text-3xl font-bold mb-2">{item.value}</div>
+                            <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                            <p>{item.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
 
-  
+    const PricingSection = () => (
+        <section id="pricing" className="bg-white py-16">
+            <div className="container mx-auto px-18">
+                <h2 className="text-3xl font-bold text-center mb-4">{t.pricing.title}</h2>
+                <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Des offres adaptées à tous vos besoins, de la petite équipe à la grande entreprise.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {pricingPlans.map((plan, index) => (
+                        <div key={index} className={`bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-all duration-300 ${
+                            plan.popular ? 'border-2 border-blue-600 relative' : ''
+                        }`}>
+                            {plan.popular && (
+                                <div className="absolute top-0 right-0 bg-blue-600 text-white py-1 px-4 text-sm">
+                                    {plan.popularText}
+                                </div>
+                            )}
+                            <h3 className="text-xl font-bold mb-4">{plan.title}</h3>
+                            <p className="text-3xl font-bold mb-4">{plan.price}</p>
+                            <ul className="mb-8 space-y-3">
+                                {plan.features.map((feature, featureIndex) => (
+                                    <li key={featureIndex} className="flex items-center justify-center">
+                                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                        <span>{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            {plan.title === t.pricing.enterprise.title ? (
+                                <a href="/contact" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 inline-block">
+                                    {t.pricing.contactUs}
+                                </a>
+                            ) : (
+                                <div className="space-y-2">
+                                    <a href="/app" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 inline-block flex items-center justify-center mx-auto">
+                                        <MonitorSmartphone className="w-4 h-4 mr-2" />
+                                        {t.hero.tryOnline}
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+
+
     const Footer = () => (
         <footer className="bg-blue-600 text-white py-12">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-18">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     {footerSections.map((section, index) => (
                         <div key={index}>
@@ -644,71 +719,6 @@ const LandingPage = () => {
         </footer>
     );
 
-    const MetricsSection = () => (
-        <section id="metrics" className="py-16 bg-blue-600 text-white">
-            <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-center mb-4">{t.metrics.title}</h2>
-                <p className="text-center mb-12 max-w-2xl mx-auto">{t.metrics.subtitle}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {metricItems.map((item, index) => (
-                        <div key={index} className="bg-blue-700 p-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300">
-                            {item.icon}
-                            <div className="text-3xl font-bold mb-2">{item.value}</div>
-                            <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                            <p>{item.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-
-    const PricingSection = () => (
-        <section id="pricing" className="bg-white py-16">
-            <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-center mb-4">{t.pricing.title}</h2>
-                <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Des offres adaptées à tous vos besoins, de la petite équipe à la grande entreprise.</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {pricingPlans.map((plan, index) => (
-                        <div key={index} className={`bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-all duration-300 ${
-                            plan.popular ? 'border-2 border-blue-600 relative' : ''
-                        }`}>
-                            {plan.popular && (
-                                <div className="absolute top-0 right-0 bg-blue-600 text-white py-1 px-4 text-sm">
-                                    {plan.popularText}
-                                </div>
-                            )}
-                            <h3 className="text-xl font-bold mb-4">{plan.title}</h3>
-                            <p className="text-3xl font-bold mb-4">{plan.price}</p>
-                            <ul className="mb-8 space-y-3">
-                                {plan.features.map((feature, featureIndex) => (
-                                    <li key={featureIndex} className="flex items-center justify-center">
-                                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                        <span>{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            {plan.title === t.pricing.enterprise.title ? (
-                                <a href="/contact" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 inline-block">
-                                    {t.pricing.contactUs}
-                                </a>
-                            ) : (
-                                <div className="space-y-2">
-                                    <a href="/app" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 inline-block flex items-center justify-center mx-auto">
-                                        <MonitorSmartphone className="w-4 h-4 mr-2" />
-                                        {t.hero.tryOnline}
-                                    </a>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-
-
-  
     return (
         <div className="min-h-screen bg-gray-100">
             <Header />

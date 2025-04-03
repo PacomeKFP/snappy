@@ -1,20 +1,22 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent,useMemo } from 'react';
 import { PlusCircle, Search, X } from 'lucide-react';
 import { v4 as uuidv4 } from "uuid";
-import { manageBot } from '@/hooks/manageBot';
+import { useManageBot } from '@/hooks/manageBot';
 import { useAuth } from '@/hooks/auth';
 
 const ChatbotManagement: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const {organization, token} = useAuth({ middleware: 'auth'});
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const { addBot } = manageBot({ organizationToken: token || "" });
+    const organizationToken = useMemo(()=> token || '', [token]);
+    const { addBot } = useManageBot({ organizationToken });
+    const projectId = useMemo(() => organization?.projectId, [organization]);
     const [newChatbot, setNewChatbot] = useState({
         label: '',
         prompt: '',
         description: '',
         languageModel: 'MISTRAL',
-        projectId: organization?.projectId?.toString() || ''
+        projectId: projectId
     });
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
