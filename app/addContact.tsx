@@ -5,13 +5,14 @@ import { useRouter } from "expo-router";
 export default function AddContactScreen() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const router = useRouter();
+
 
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
   const handleAddContact = () => {
+    const router = useRouter();
     if (!username || !email) {
       alert("Veuillez remplir tous les champs.");
       return;
