@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://16.171.151.193:8001/:path*', // Votre backend en HTTP
+        destination: 'http://16.171.151.193:8001/:path*',
       },
     ];
   },

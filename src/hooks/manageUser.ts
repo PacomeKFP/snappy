@@ -1,11 +1,30 @@
 import axios from '@/lib/axios';
+import { useCallback } from 'react';
+
+interface User {
+  id: string;
+  displayName: string;
+  email: string;
+  phoneNumber: string;
+  online: boolean;
+  avatar: string;
+  createdAt: string;
+}
+
+interface CreateUserDto {
+  [key: string]: any;
+}
+
+interface AddContactDto {
+  [key: string]: any;
+}
 
 interface ManageUserProps {
-    organizationToken: string; // Token de l'organisation connectée
+  organizationToken: string;
 }
 
 export const useManageUser = ({ organizationToken }: ManageUserProps) => {
-    const createUser = async (userData: CreateUserDto) => {
+    const createUser = useCallback(async (userData: CreateUserDto) => {
         try {
             const response = await axios.post<User>('/users/create', userData, {
                 headers: {
@@ -17,9 +36,9 @@ export const useManageUser = ({ organizationToken }: ManageUserProps) => {
             console.error('Erreur lors de la création de l\'utilisateur :', error);
             throw error;
         }
-    };
+    }, [organizationToken]);
 
-    const getAllUsers = async (projectId: string) => {
+    const getAllUsers = useCallback(async (projectId: string) => {
         try {
             const response = await axios.get<User[]>('/users/find-all', {
                 params: { projectId },
@@ -32,10 +51,9 @@ export const useManageUser = ({ organizationToken }: ManageUserProps) => {
             console.error('Erreur lors de la récupération des utilisateurs :', error);
             throw error;
         }
-    };
+    }, [organizationToken]);
 
-    // Fonction pour supprimer un utilisateur
-    const deleteUser = async (userId: string) => {
+    const deleteUser = useCallback(async (userId: string) => {
         try {
             await axios.delete(`/users/delete/${userId}`, {
                 headers: {
@@ -46,10 +64,9 @@ export const useManageUser = ({ organizationToken }: ManageUserProps) => {
             console.error('Erreur lors de la suppression de l\'utilisateur :', error);
             throw error;
         }
-    };
+    }, [organizationToken]);
 
-    // Fonction pour ajouter un contact à un utilisateur
-    const addContact = async (contactData: AddContactDto) => {
+    const addContact = useCallback(async (contactData: AddContactDto) => {
         try {
             const response = await axios.post<User[]>('/users/add-contact', contactData, {
                 headers: {
@@ -61,7 +78,7 @@ export const useManageUser = ({ organizationToken }: ManageUserProps) => {
             console.error('Erreur lors de l\'ajout du contact :', error);
             throw error;
         }
-    };
+    }, [organizationToken]);
 
     return {
         createUser,

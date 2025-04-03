@@ -4,33 +4,44 @@ import TableThree from "@/components/bot/TableThree";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import TablesHeader from "@/components/Header/TablesHeader";
 import ChatBotsHeader from "@/components/Header/ChatbotManagement";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback,useMemo } from "react";
 import { useAuth } from "@/hooks/auth";
-import { manageBot } from "@/hooks/manageBot";
+import { useManageBot } from "@/hooks/manageBot";
+
+interface Bot {
+  id: string;
+  [key: string]: any;
+}
 
 const TablesPage = () => {
   const { organization, token } = useAuth({ middleware: "auth" });
-  const { getAllBots } = manageBot({ organizationToken: token || "" });
+  const organizationToken = useMemo(() => token || '', [token]);
+  const { getAllBots } = useManageBot({ organizationToken });
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const projectId = useMemo(() => organization?.projectId, [organization]);
+
   const fetchBots = useCallback(async () => {
+    if (!projectId) return;
     try {
+      setLoading(true);
       if (organization) {
-        const bots = await getAllBots(organization.projectId);
-        setBots(bots);
+        const fetchedBots = await getAllBots(projectId);
+        setBots(fetchedBots);
       }
-      setLoading(false);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }, [organization, getAllBots]);
+  }, [projectId, getAllBots]);
 
   useEffect(() => {
-    fetchBots();
-  }, [fetchBots]);
+    if(projectId){
+      fetchBots();
+    }
+  }, [projectId,fetchBots]);
 
   if (loading) {
     return <p>Loading...</p>;
