@@ -4,17 +4,10 @@ import { router } from 'expo-router';
 
 
   
-  
-export default function StatusScreen() {
-  const router = useRouter();
-
   const AddContact = () => {
-<<<<<<< HEAD
-   
-=======
->>>>>>> 192abad96cfb91be652bed0ec024ad5767f0c43a
     router.push("/addContact");
   };
+export default function StatusScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
       <Text>Mes Contacts...</Text>

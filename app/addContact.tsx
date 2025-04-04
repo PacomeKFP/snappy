@@ -3,8 +3,6 @@ import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert ,Imag
 import { router } from 'expo-router';
 
 export default function AddContactScreen() {
-  const router = useRouter();
-
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
 
@@ -14,10 +12,6 @@ export default function AddContactScreen() {
   };
 
   const handleAddContact = () => {
-<<<<<<< HEAD
-  
-=======
->>>>>>> 192abad96cfb91be652bed0ec024ad5767f0c43a
     if (!username || !email) {
       alert("Veuillez remplir tous les champs.");
       return;
@@ -36,10 +30,6 @@ export default function AddContactScreen() {
       ]
     );
   };
-
- const handleCancel = () => {
-    router.push("/home");
-  }
 
   return (
         <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
@@ -63,12 +53,8 @@ export default function AddContactScreen() {
           value={username}
           onChangeText={setUsername}
         />
-        
         <TouchableOpacity style={styles.button} onPress={handleAddContact}>
           <Text style={styles.buttonText}>Ajouter</Text>
-        </TouchableOpacity>
-         <TouchableOpacity style={styles.button} onPress={handleCancel}>
-          <Text style={styles.buttonText}>Annuler</Text>
         </TouchableOpacity>
       </View>
      </ImageBackground>
@@ -117,11 +103,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     backgroundColor: '#6A0DAD',
-    borderRadius: 50,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
- 
   },
   buttonText: {
     fontSize: 18,
