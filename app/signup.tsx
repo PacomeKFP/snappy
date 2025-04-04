@@ -1,6 +1,7 @@
 import { View, Text, TextInput, StyleSheet,Image, TouchableOpacity, ImageBackground } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { ThemeText } from '@/components/ThemeText';
 
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
@@ -9,11 +10,30 @@ export default function SignupScreen() {
   const [confirm_password, setConfirm_Password] = useState("");
   const router = useRouter();
 
+  const validateEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const handleLogin = () => {
+    if (!username || !password || !email||!confirm_password) {
+      alert("Veuillez remplir tous les champs.");
+      return;
+    }
+    if (!validateEmail(email)) {//verification de l'email
+      alert("Veuillez entrer une adresse email valide.");
+      return;
+    }
+    if(confirm_password != password){
+      alert("mot de passe different, veillez saisir à nouveau votre mot de passe.")
+    }
+    router.push("/login"); 
+  };
+  
   return (
         <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
     <View style={styles.container}>
          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
-      <Text style={styles.title}>Inscription</Text>
+      <ThemeText variant="titrelogin" style={styles.title}>Inscription</ThemeText>
 
       <TextInput
         style={styles.input}
@@ -42,7 +62,7 @@ export default function SignupScreen() {
         onChangeText={setConfirm_Password}
       />
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>S'inscrire</Text>
       </TouchableOpacity>
     </View>
@@ -72,7 +92,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 20
   },
   input: {
     width: "100%",

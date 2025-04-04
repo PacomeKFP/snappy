@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRouter } from "expo-router";
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert ,ImageBackground} from 'react-native';
+import { router } from 'expo-router';
 
 export default function AddContactScreen() {
   const router = useRouter();
@@ -14,7 +14,10 @@ export default function AddContactScreen() {
   };
 
   const handleAddContact = () => {
+<<<<<<< HEAD
   
+=======
+>>>>>>> 192abad96cfb91be652bed0ec024ad5767f0c43a
     if (!username || !email) {
       alert("Veuillez remplir tous les champs.");
       return;
@@ -39,7 +42,8 @@ export default function AddContactScreen() {
   }
 
   return (
-    <View style={styles.background}>
+        <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
+    
       <View style={styles.container}>
         <View>
           <Image source={require("../assets/images/logo.png")} style={styles.logo} />
@@ -67,7 +71,7 @@ export default function AddContactScreen() {
           <Text style={styles.buttonText}>Annuler</Text>
         </TouchableOpacity>
       </View>
-    </View>
+     </ImageBackground>
   );
 };
 
@@ -76,12 +80,10 @@ const styles = StyleSheet.create({
  
   background: {
     flex: 1,
-    backgroundColor: "#7B52AB",
-    // resizeMode: "cover",
+    resizeMode: "cover",
     justifyContent: "center",
     alignItems: "center",
-     height:"50%",
-  },
+    },
   container: {
     width: "90%",
     backgroundColor: "rgba(255, 255, 255, 0.9)", 

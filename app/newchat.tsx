@@ -21,10 +21,11 @@ export default function NewChat() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.nav}>
         <TouchableOpacity onPress={() => router.back()}>
                   <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-      <Text style={styles.header}>Listes des contacts</Text>
+      <Text style={styles.header}>Nouvelle conversation</Text></View>
       <FlatList
         data={contacts}
         keyExtractor={(item) => item.id}
@@ -41,6 +42,7 @@ export default function NewChat() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white", padding: 15 },
+  nav:{flexDirection: "row"},
   header: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   contactItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },

@@ -10,7 +10,11 @@ const styles =StyleSheet.create({
     },
     time:{
         fontSize: 10,
-        
+
+    },
+    titrelogin:{
+        fontSize: 24,
+        fontWeight: "bold"
     }
 })
 type Props = TextProps &{
