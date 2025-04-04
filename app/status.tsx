@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text,StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from "expo-router";
+import { router } from 'expo-router';
+
 
   
   const AddContact = () => {
-    const router = useRouter();
     router.push("/addContact");
   };
 export default function StatusScreen() {

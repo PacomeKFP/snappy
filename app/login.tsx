@@ -2,6 +2,7 @@ import { View, Text, TextInput, Button, StyleSheet,Image, TouchableOpacity, Imag
 import { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ThemeText } from '@/components/ThemeText';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -28,7 +29,7 @@ export default function LoginScreen() {
     <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
      <View style={styles.container}>
     <Image source={require("../assets/images/logo.png")} style={styles.logo} />
-      <Text style={styles.title}>  <Icon name="login" size={20} color="purple" /> Connexion</Text>
+      <ThemeText variant="titrelogin" style={styles.title}>  <Icon name="login" size={20} color="purple" /> Connexion</ThemeText>
       <TextInput
         style={styles.input}
         placeholder="Nom d'utilisateur"

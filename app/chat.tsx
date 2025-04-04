@@ -42,7 +42,7 @@ export default function ChatScreen() {
             </View>
 
             <View style={styles.rightContainer}>
-              <ThemeText style={styles.time}>{item.time}</ThemeText>
+              <ThemeText variant='time' style={styles.time}>{item.time}</ThemeText>
               {item.unreadCount > 0 && (
                 <View style={styles.unreadBadge}>
                   <ThemeText style={styles.unreadThemeText}>{item.unreadCount}</ThemeText>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: 'gray',
-    fontSize: 12,
+    
     marginBottom: 5,
   },
   unreadBadge: {

@@ -4,6 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
 import {format} from 'date-fns';
+import { ThemeText } from '@/components/ThemeText';
+
 // Interface d'un message
 interface Message {
   id: string;
@@ -39,7 +41,7 @@ export default function ChatRoom() {
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Image source={{ uri: avatar }} style={styles.avatar} />
-        <Text style={styles.headerText}>{name}</Text>
+        <ThemeText style={styles.headerText}>{name}</ThemeText>
         <Ionicons name="call" size={24} color="white" style={styles.icon} />
         <AppSetting/>
       </View>
@@ -49,8 +51,8 @@ export default function ChatRoom() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={[styles.messageContainer, item.sender === "me" ? styles.myMessage : styles.otherMessage]}>
-            <Text style={styles.messageText}>{item.text}</Text>
-            <Text style= {styles.Time}>{item.time}</Text>
+            <ThemeText style={styles.messageText}>{item.text}</ThemeText>
+            <ThemeText style= {styles.Time}>{item.time}</ThemeText>
           </View>
         )}
         contentContainerStyle={styles.chatBody}
