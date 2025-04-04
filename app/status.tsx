@@ -3,11 +3,14 @@ import { View, Text,StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from "expo-router";
 
   
+  
+export default function StatusScreen() {
+  const router = useRouter();
+
   const AddContact = () => {
-    const router = useRouter();
+   
     router.push("/addContact");
   };
-export default function StatusScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
       <Text>Mes Contacts...</Text>
