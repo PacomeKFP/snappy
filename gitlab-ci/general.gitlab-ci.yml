@@ -1,0 +1,42 @@
+variables:
+  ENV_NAME: $CI_COMMIT_BRANCH
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: recursive
+  CI_REGISTRY_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
+  DOCKER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  DEPLOYMENT_ENVIRONMENT: "development"
+  SPRING_PROFILES_ACTIVE: "development"
+  TARGET_DIR: "target"
+  VERSION: "1.0.0"
+  JAR_FILE: "${CI_PROJECT_NAME}-${VERSION}.jar"
+  MAVEN_OPTS: >-
+    -Dmaven.repo.local=.m2/repository
+  MAVEN_CLI_OPTS: >-
+    -DskipTests
+    -s gitlab-ci/ci_settings.xml
+  REMOVE_GROUP_ID: "inc.yowyob"
+
+image: maven:latest
+
+cache:
+  paths:
+    - .m2/repository
+
+before_script:
+  - echo "Current environment:$ENVIRONMENT"
+  - echo "Current version:$VERSION"
+  - |
+    echo "Attempting to remove packages with groupId $REMOVE_GROUP_ID from Maven cache"
+    if [ -d ".m2/repository/${REMOVE_GROUP_ID//./\/}" ]; then
+      find .m2/repository/${REMOVE_GROUP_ID//./\/} -type d -exec rm -rf {} + 2>/dev/null || true
+      echo "Packages removed successfully"
+    else
+      echo "Directory .m2/repository/${REMOVE_GROUP_ID//./\/} not found. Nothing to remove."
+    fi
+
+stages:
+  #- test
+  - build
+  - package
+  - docker-build
+  - deploy

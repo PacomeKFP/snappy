@@ -1,32 +1,18 @@
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-slim
 
-# Install Maven
-RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+ARG JAVA_OPTS
+ARG SPRING_PROFILES_ACTIVE=production
+ARG SERVICE_VERSION=1.0.0
 
-WORKDIR /app
+ENV SERVICE_VERSION=$SERVICE_VERSION
+ENV JAVA_OPTS=$JAVA_OPTS
+ENV SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE
 
-# Copy the pom.xml file
-COPY pom.xml .
+ADD target/snappy-service-${SERVICE_VERSION}.jar snappy-service.jar
+ADD wait-for-it.sh /usr/wait-for-it.sh
 
-# Copy the source code
-COPY src ./src
 
-# Build the application
-RUN mvn package -Dmaven.test.skip
-
-# No need to copy the JAR file since it's already built in the container
-# Just rename/move it if needed
-RUN mv target/*.jar app.jar
-
-# Copy the uploads directory if it exists
-COPY uploads/ /app/uploads/
-
-# Expose ports
 EXPOSE 8001
-EXPOSE 3305
+EXPOSE 3308
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -DSPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE -jar snappy-service.jar"]

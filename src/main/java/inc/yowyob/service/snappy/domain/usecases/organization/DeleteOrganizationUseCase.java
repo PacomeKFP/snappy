@@ -1,0 +1,40 @@
+package inc.yowyob.service.snappy.domain.usecases.organization;
+
+import inc.yowyob.service.snappy.domain.exceptions.EntityNotFoundException;
+import inc.yowyob.service.snappy.domain.usecases.UseCase;
+import inc.yowyob.service.snappy.infrastructure.repositories.OrganizationRepository;
+import java.util.UUID;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DeleteOrganizationUseCase implements UseCase<String, Void> {
+
+  private final OrganizationRepository organizationRepository;
+
+  public DeleteOrganizationUseCase(OrganizationRepository organizationRepository) {
+    this.organizationRepository = organizationRepository;
+  }
+
+  @Override
+  public Void execute(String organizationId) {
+    // Conversion de l'ID en UUID
+    UUID uuid;
+    try {
+      uuid = UUID.fromString(organizationId);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "L'identifiant fourni n'est pas un UUID valide : " + organizationId, e);
+    }
+
+    // Vérifiez que l'organisation existe, sinon lancez une exception
+    boolean exists = organizationRepository.existsById(uuid);
+    if (!exists) {
+      throw new EntityNotFoundException(
+          "Organisation avec l'ID " + organizationId + " introuvable.");
+    }
+
+    // Supprimez l'organisation
+    organizationRepository.deleteById(uuid);
+    return null; // Aucun retour nécessaire
+  }
+}

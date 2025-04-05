@@ -1,0 +1,8 @@
+test:
+  stage: test
+  tags: [yowyob]
+  script: 
+    - if [ "$CI_COMMIT_REF_NAME" == "master" ]; then export SPRING_PROFILES_ACTIVE="production"; else export SPRING_PROFILES_ACTIVE="development"; fi
+    - echo "Building with profile:$SPRING_PROFILES_ACTIVE"
+    - echo "Maven test started"
+    - mvn $MAVEN_OPTS clean test -P$SPRING_PROFILES_ACTIVE -s gitlab-ci/ci_settings.xml

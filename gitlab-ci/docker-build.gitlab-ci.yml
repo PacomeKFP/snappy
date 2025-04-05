@@ -1,0 +1,28 @@
+docker-build:
+  stage: docker-build
+  tags: [yowyob-cmd]
+  dependencies:
+    - package
+  script:
+    - echo "Deploying to $SPRING_PROFILES_ACTIVE environment..."
+    - |
+      if [ ! -f "${TARGET_DIR}/${JAR_FILE}" ]; then
+        echo "JAR file does not exist. Running Maven build."
+        mvn $MAVEN_CLI_OPTS clean package
+      else
+        echo "JAR file already exists. Skipping Maven build."
+      fi
+    - docker build --no-cache --build-arg JAVA_OPTS="-DCONFIG_SERVEUR_URL=$CI_INC_CONFIG_SERVER_URL" --build-arg SERVICE_VERSION=$VERSION  --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE -t $DOCKER_IMAGE .
+    - ls -R target/generated-sources/annotations
+    - docker login -u "$CI_INC_GROUP_DEPLOY_USER" -p "$CI_INC_GROUP_DEPLOY_TOKEN" "$CI_REGISTRY"
+    - docker push $DOCKER_IMAGE
+    - docker image prune --force
+    - echo "Deployment complete"
+  artifacts:
+    paths:
+      - "${TARGET_DIR}/${JAR_FILE}"
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      variables:
+        SPRING_PROFILES_ACTIVE: "production"
