@@ -9,7 +9,6 @@ ENV JAVA_OPTS=$JAVA_OPTS
 ENV SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE
 
 ADD target/snappy-service-${SERVICE_VERSION}.jar snappy-service.jar
-ADD wait-for-it.sh /usr/wait-for-it.sh
 
 
 EXPOSE 8001
