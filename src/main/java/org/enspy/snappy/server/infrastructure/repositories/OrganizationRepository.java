@@ -1,16 +1,16 @@
 package org.enspy.snappy.server.infrastructure.repositories;
 
-import org.enspy.snappy.server.domain.entities.Organization;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 import java.util.UUID;
+import org.enspy.snappy.server.domain.entities.Organization;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface OrganizationRepository extends JpaRepository<Organization, UUID> {
+public interface OrganizationRepository extends R2dbcRepository<Organization, UUID> {
+  Mono<Boolean> existsByEmail(String email);
 
-  Optional<Organization> findByEmail(String email);
+  Mono<Organization> findByEmail(String email);
 
-  Optional<Organization> findByProjectId(String projectId);
+  Mono<Organization> findByProjectId(String projectId);
 }

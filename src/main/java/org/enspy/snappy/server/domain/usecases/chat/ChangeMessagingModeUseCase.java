@@ -1,15 +1,15 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import java.util.Optional;
 import org.enspy.snappy.server.domain.entities.Chat;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.MonoUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.ChatRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.chat.ChangeMessagingModeDto;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class ChangeMessagingModeUseCase implements UseCase<ChangeMessagingModeDto, Chat> {
+public class ChangeMessagingModeUseCase implements MonoUseCase<ChangeMessagingModeDto, Chat> {
 
   private final UserRepository userRepository;
   private final ChatRepository chatRepository;
@@ -20,43 +20,46 @@ public class ChangeMessagingModeUseCase implements UseCase<ChangeMessagingModeDt
   }
 
   @Override
-  public Chat execute(ChangeMessagingModeDto dto) {
-    if (dto.getRequesterId() == null
+  public Mono<Chat> execute(ChangeMessagingModeDto dto) {
+    if (dto == null
+        || dto.getRequesterId() == null
         || dto.getRequesterId().isBlank()
         || dto.getInterlocutorId() == null
         || dto.getInterlocutorId().isBlank()
         || dto.getTargetMode() == null
         || dto.getProjectId() == null
         || dto.getProjectId().isBlank()) {
-      throw new IllegalArgumentException("Invalid input: All fields are required");
+      return Mono.error(
+          new IllegalArgumentException("Entrée invalide: Tous les champs sont requis"));
     }
 
-    userRepository
-        .findByExternalIdAndProjectId(dto.getRequesterId(), dto.getProjectId())
-        .orElseThrow(() -> new IllegalArgumentException("Requester not found"));
-
-    userRepository
-        .findByExternalIdAndProjectId(dto.getInterlocutorId(), dto.getProjectId())
-        .orElseThrow(() -> new IllegalArgumentException("Interlocutor not found"));
-
-    Optional<Chat> chat =
-        chatRepository.findByProjectIdAndReceiverAndSender(
-            dto.getProjectId(), dto.getRequesterId(), dto.getInterlocutorId());
-
-    chat.ifPresent(
-        value -> {
-          value.setMode(dto.getTargetMode());
-          chatRepository.save(value);
-        });
-
-    if (chat.isEmpty()) {
-      Chat newChat = new Chat();
-      newChat.setProjectId(dto.getProjectId());
-      newChat.setReceiver(dto.getRequesterId());
-      newChat.setSender(dto.getInterlocutorId());
-      newChat.setMode(dto.getTargetMode());
-      return chatRepository.save(newChat);
-    }
-    return chat.get();
+    // Vérification de l'existence des utilisateurs de façon réactive
+    return Mono.zip(
+            userRepository
+                .findByExternalIdAndProjectId(dto.getRequesterId(), dto.getProjectId())
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Demandeur non trouvé"))),
+            userRepository
+                .findByExternalIdAndProjectId(dto.getInterlocutorId(), dto.getProjectId())
+                .switchIfEmpty(
+                    Mono.error(new IllegalArgumentException("Interlocuteur non trouvé"))))
+        .then(
+            chatRepository
+                .findByProjectIdAndReceiverAndSender(
+                    dto.getProjectId(), dto.getRequesterId(), dto.getInterlocutorId())
+                .flatMap(
+                    existingChat -> {
+                      existingChat.setMode(dto.getTargetMode());
+                      return chatRepository.save(existingChat);
+                    })
+                .switchIfEmpty(
+                    Mono.defer(
+                        () -> {
+                          Chat newChat = new Chat();
+                          newChat.setProjectId(dto.getProjectId());
+                          newChat.setReceiver(dto.getRequesterId());
+                          newChat.setSender(dto.getInterlocutorId());
+                          newChat.setMode(dto.getTargetMode());
+                          return chatRepository.save(newChat);
+                        })));
   }
 }

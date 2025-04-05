@@ -1,39 +1,40 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import java.util.Optional;
-import org.enspy.snappy.server.domain.entities.Message;
-import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
-import org.enspy.snappy.server.domain.exceptions.IllegalStateTransitionException;
-import org.enspy.snappy.server.domain.usecases.UseCase;
-import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
-import org.enspy.snappy.server.presentation.dto.chat.UpdateMessageAckDto;
-import org.springframework.stereotype.Service;
+      import org.enspy.snappy.server.domain.entities.Message;
+      import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
+      import org.enspy.snappy.server.domain.exceptions.IllegalStateTransitionException;
+      import org.enspy.snappy.server.domain.usecases.MonoUseCase;
+      import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
+      import org.enspy.snappy.server.presentation.dto.chat.UpdateMessageAckDto;
+      import org.springframework.stereotype.Service;
+      import reactor.core.publisher.Mono;
 
-@Service
-public class UpdateMessageAck implements UseCase<UpdateMessageAckDto, Message> {
+      @Service
+      public class UpdateMessageAck implements MonoUseCase<UpdateMessageAckDto, Message> {
 
-  private final MessageRepository messageRepository;
+          private final MessageRepository messageRepository;
 
-  public UpdateMessageAck(MessageRepository messageRepository) {
-    this.messageRepository = messageRepository;
-  }
+          public UpdateMessageAck(MessageRepository messageRepository) {
+              this.messageRepository = messageRepository;
+          }
 
-  @Override
-  public Message execute(UpdateMessageAckDto dto) {
-    Optional<Message> message = messageRepository.findById(dto.getMessageId());
-    if (message.isEmpty())
-      throw new EntityNotFoundException(
-          "Target message not found; We are unable to change his ack");
-    if (message.get().getAck().ordinal() + 1 == dto.getNewAck().ordinal()) {
-      message.get().setAck(dto.getNewAck());
-      messageRepository.save(message.get());
-    } else {
-      throw new IllegalStateTransitionException(
-          "Vous ne pouvez pas changer un ack de "
-              + message.get().getAck()
-              + " à "
-              + dto.getNewAck());
-    }
-    return message.get();
-  }
-}
+          @Override
+          public Mono<Message> execute(UpdateMessageAckDto dto) {
+              if (dto == null || dto.getMessageId() == null || dto.getNewAck() == null) {
+                  return Mono.error(new IllegalArgumentException("ID du message et nouvel ACK sont requis"));
+              }
+
+              return messageRepository.findById(dto.getMessageId())
+                  .switchIfEmpty(Mono.error(new EntityNotFoundException(
+                      "Message cible non trouvé; impossible de changer son ack")))
+                  .flatMap(message -> {
+                      if (message.getAck().ordinal() + 1 == dto.getNewAck().ordinal()) {
+                          message.setAck(dto.getNewAck());
+                          return messageRepository.save(message);
+                      } else {
+                          return Mono.error(new IllegalStateTransitionException(
+                              "Impossible de changer un ack de " + message.getAck() + " à " + dto.getNewAck()));
+                      }
+                  });
+          }
+      }

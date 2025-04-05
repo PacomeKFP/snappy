@@ -1,12 +1,13 @@
 package org.enspy.snappy.server.domain.usecases.signal;
 
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.MonoUseCase;
 import org.enspy.snappy.server.infrastructure.storages.PreKeyBundleStorage;
 import org.enspy.snappy.server.presentation.dto.signal.RegisterPreKeyBundleDto;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class RegisterPreKeyBundleUseCase implements UseCase<RegisterPreKeyBundleDto, Void> {
+public class RegisterPreKeyBundleUseCase implements MonoUseCase<RegisterPreKeyBundleDto, Void> {
 
   private final PreKeyBundleStorage preKeyBundleStorage;
 
@@ -15,14 +16,15 @@ public class RegisterPreKeyBundleUseCase implements UseCase<RegisterPreKeyBundle
   }
 
   @Override
-  public Void execute(RegisterPreKeyBundleDto registerPreKeyBundleDto) {
+  public Mono<Void> execute(RegisterPreKeyBundleDto registerPreKeyBundleDto) {
     if (registerPreKeyBundleDto == null
         || registerPreKeyBundleDto.getUserId() == null
         || registerPreKeyBundleDto.getPreKeyBundle() == null) {
-      throw new IllegalArgumentException("Les données d'enregistrement ne peuvent pas être nulles");
+      return Mono.error(
+          new IllegalArgumentException("Les données d'enregistrement ne peuvent pas être nulles"));
     }
-    preKeyBundleStorage.save(
+
+    return preKeyBundleStorage.save(
         registerPreKeyBundleDto.getUserId(), registerPreKeyBundleDto.getPreKeyBundle());
-    return null;
   }
 }

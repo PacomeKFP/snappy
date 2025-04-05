@@ -1,21 +1,20 @@
 package org.enspy.snappy.server.infrastructure.services;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.security.Key;
-import java.util.function.Function;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -40,6 +39,19 @@ public class JwtService {
 
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
     return buildToken(extraClaims, userDetails, jwtExpiration);
+  }
+
+  // Méthodes réactives pour une meilleure intégration
+  public Mono<String> generateTokenReactive(UserDetails userDetails) {
+    return Mono.fromCallable(() -> generateToken(userDetails));
+  }
+
+  public Mono<String> generateTokenReactive(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return Mono.fromCallable(() -> generateToken(extraClaims, userDetails));
+  }
+
+  public Mono<Boolean> isTokenValidReactive(String token, UserDetails userDetails) {
+    return Mono.fromCallable(() -> isTokenValid(token, userDetails));
   }
 
   public long getExpirationTime() {

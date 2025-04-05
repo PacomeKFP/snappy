@@ -1,13 +1,13 @@
 package org.enspy.snappy.server.domain.usecases.user;
 
-import java.util.List;
 import org.enspy.snappy.server.domain.entities.User;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.FluxUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 @Component
-public class FindAllUsersUseCase implements UseCase<String, List<User>> {
+public class FindAllUsersUseCase implements FluxUseCase<String, User> {
 
     private final UserRepository userRepository;
 
@@ -16,16 +16,15 @@ public class FindAllUsersUseCase implements UseCase<String, List<User>> {
     }
 
     @Override
-    public List<User> execute(String projectId) {
-        // Validate projectId
+    public Flux<User> execute(String projectId) {
+        // Validation réactive
         if (projectId == null || projectId.isEmpty()) {
-            throw new IllegalArgumentException("Project ID cannot be null or empty.");
+            return Flux.error(new IllegalArgumentException("L'ID de projet ne peut pas être vide."));
         }
 
-        // Fetch all users (logic assumes we have a field projectId in the User entity)
-        // Adjust the query method as needed to filter by projectId
-
-
-        return userRepository.findAll();
+        // Optimisation avec handle pour traiter les erreurs potentielles
+        return userRepository.findByProjectId(projectId)
+            .onErrorResume(e -> Flux.error(new RuntimeException("Erreur lors de la récupération des utilisateurs", e)))
+            .switchIfEmpty(Flux.empty());
     }
 }

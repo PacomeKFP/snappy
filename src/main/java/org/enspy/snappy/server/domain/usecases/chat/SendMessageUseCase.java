@@ -2,11 +2,11 @@ package org.enspy.snappy.server.domain.usecases.chat;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import java.util.*;
+import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.enspy.snappy.server.domain.callbacks.SendMessageCallback;
 import org.enspy.snappy.server.domain.entities.*;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.MonoUseCase;
 import org.enspy.snappy.server.infrastructure.helpers.WebSocketHelper;
 import org.enspy.snappy.server.infrastructure.repositories.ChatRepository;
 import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
@@ -15,14 +15,14 @@ import org.enspy.snappy.server.infrastructure.storages.ConnectedUserStorage;
 import org.enspy.snappy.server.infrastructure.storages.NotSentMessagesStorage;
 import org.enspy.snappy.server.presentation.dto.chat.SaveMessageAttachementDto;
 import org.enspy.snappy.server.presentation.dto.chat.SendMessageDto;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Service
 @Log4j2
-public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
+public class SendMessageUseCase implements MonoUseCase<SendMessageDto, Message> {
 
   @Value("${alan.baseurl}")
   private String alanBaseUrl;
@@ -30,6 +30,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
   @Value("${alan.endpoint.send-message}")
   private String alanEndpointSendMessage;
 
+  private final WebClient webClient;
   private final UserRepository userRepository;
   private final ChatRepository chatRepository;
   private final SocketIOServer socketIOServer;
@@ -39,6 +40,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
   private final SaveMessageAttachementUseCase saveMessageAttachementUseCase;
 
   public SendMessageUseCase(
+      WebClient webClient,
       UserRepository userRepository,
       ChatRepository chatRepository,
       SocketIOServer socketIOServer,
@@ -46,6 +48,7 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
       ConnectedUserStorage connectedUserStorage,
       NotSentMessagesStorage notSentMessagesStorage,
       SaveMessageAttachementUseCase saveMessageAttachementUseCase) {
+    this.webClient = webClient;
     this.userRepository = userRepository;
     this.chatRepository = chatRepository;
     this.socketIOServer = socketIOServer;
@@ -56,112 +59,158 @@ public class SendMessageUseCase implements UseCase<SendMessageDto, Message> {
   }
 
   @Override
-  public Message execute(SendMessageDto dto) {
-    log.info("Starting message sending process for project: {}", dto.getProjectId());
-
-    Optional<User> sender =
-        userRepository.findByExternalIdAndProjectId(dto.getSenderId(), dto.getProjectId());
-    if (sender.isEmpty()) {
-      log.error(
-          "Sender not found - senderId: {}, projectId: {}", dto.getSenderId(), dto.getProjectId());
-      throw new IllegalArgumentException("Sender not found");
+  public Mono<Message> execute(SendMessageDto dto) {
+    if (dto == null
+        || dto.getSenderId() == null
+        || dto.getReceiverId() == null
+        || dto.getProjectId() == null) {
+      return Mono.error(
+          new IllegalArgumentException(
+              "Les informations d'expéditeur et de destinataire sont requises"));
     }
-    log.debug("Sender found: {}", sender.get().getId());
 
-    Optional<User> receiver =
-        userRepository.findByExternalIdAndProjectId(dto.getReceiverId(), dto.getProjectId());
-    if (receiver.isEmpty()) {
-      log.error(
-          "Receiver not found - receiverId: {}, projectId: {}",
-          dto.getReceiverId(),
-          dto.getProjectId());
-      throw new IllegalArgumentException("Receiver not found");
-    }
-    log.debug("Receiver found: {}", receiver.get().getId());
+    log.info("Début du processus d'envoi de message pour le projet: {}", dto.getProjectId());
 
-    final Message message = persistMessage(dto, sender, receiver);
+    Mono<User> senderMono =
+        userRepository
+            .findByExternalIdAndProjectId(dto.getSenderId(), dto.getProjectId())
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("Expéditeur non trouvé")))
+            .doOnNext(sender -> log.debug("Expéditeur trouvé: {}", sender.getId()));
 
-    this.saveMessageAttachements(dto, message);
-    this.sendMessageToReceiver(message);
-    this.sendMessageToSender(message);
-    this.sendMessageToAlan(message);
+    Mono<User> receiverMono =
+        userRepository
+            .findByExternalIdAndProjectId(dto.getReceiverId(), dto.getProjectId())
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("Destinataire non trouvé")))
+            .doOnNext(receiver -> log.debug("Destinataire trouvé: {}", receiver.getId()));
 
-    log.info("Message sending process completed");
-    return message;
+    return Mono.zip(senderMono, receiverMono)
+        .flatMap(
+            tuple -> {
+              User sender = tuple.getT1();
+              User receiver = tuple.getT2();
+
+              Message message = new Message();
+              message.setSender(sender);
+              message.setReceiver(receiver);
+              message.setBody(dto.getBody());
+              message.setProjectId(dto.getProjectId());
+
+              return messageRepository.save(message);
+            })
+        .doOnNext(message -> log.info("Message sauvegardé avec ID: {}", message.getId()))
+        .flatMap(
+            message -> {
+              if (dto.getAttachements() != null && !dto.getAttachements().isEmpty()) {
+                return saveMessageAttachementUseCase
+                    .execute(new SaveMessageAttachementDto(message, dto.getAttachements()))
+                    .collectList()
+                    .doOnNext(message::setMessageAttachements)
+                    .thenReturn(message);
+              }
+              return Mono.just(message);
+            })
+        .flatMap(
+            message ->
+                sendMessageToReceiver(message)
+                    .then(sendMessageToSender(message))
+//                    .then(sendMessageToAlan(message))
+                    .thenReturn(message))
+        .doOnNext(message -> log.info("Processus d'envoi de message terminé"));
   }
 
-  private void sendMessageToAlan(Message message) {
-    Optional<Chat> chat =
-        chatRepository.findByProjectIdAndReceiverAndSender(
+  private Mono<Void> sendMessageToAlan(Message message) {
+    return chatRepository
+        .findByProjectIdAndReceiverAndSender(
             message.getProjectId(),
             message.getReceiver().getExternalId(),
-            message.getSender().getExternalId());
-    if (chat.isEmpty()) return;
-    MessagingMode receiversMessagingMode = chat.get().getMode();
-    if (receiversMessagingMode == MessagingMode.OFF) return;
+            message.getSender().getExternalId())
+        .flatMap(
+            chat -> {
+              MessagingMode receiversMessagingMode = chat.getMode();
+              if (receiversMessagingMode == MessagingMode.OFF) {
+                return Mono.empty();
+              }
 
-    int mode = 0;
-    if (receiversMessagingMode == MessagingMode.ON) mode = 1;
+              int mode = receiversMessagingMode == MessagingMode.ON ? 1 : 0;
+              String url = alanBaseUrl + alanEndpointSendMessage + mode;
+              log.debug("URL Alan: " + url);
 
-    // Envoi de la requête HTTP POST
-    String url = alanBaseUrl + alanEndpointSendMessage + mode;
-    log.error("L'URL est " + url);
-    RestTemplate restTemplate = new RestTemplate();
-    Object response = restTemplate.postForObject(url, message, Object.class);
-    log.info("the response is here" + response);
+              return webClient
+                  .post()
+                  .uri(url)
+                  .bodyValue(message)
+                  .retrieve()
+                  .bodyToMono(Object.class)
+                  .doOnNext(response -> log.info("Réponse reçue: {}", response))
+                  .doOnError(error -> log.error("Erreur lors de l'envoi à Alan", error));
+            })
+        .then();
   }
 
-  private @NotNull Message persistMessage(
-      SendMessageDto dto, Optional<User> sender, Optional<User> receiver) {
-    assert sender.isPresent() && receiver.isPresent();
-    Message message = new Message();
-    message.setSender(sender.get());
-    message.setReceiver(receiver.get());
-    message.setBody(dto.getBody());
-    message.setProjectId(dto.getProjectId());
-
-    message = messageRepository.save(message);
-    log.info("Message saved with id: {}", message.getId());
-    return message;
-  }
-
-  private void saveMessageAttachements(SendMessageDto dto, Message message) {
-    if (dto.getAttachements() != null && !dto.getAttachements().isEmpty()) {
-      List<MessageAttachement> messageAttachements =
-          saveMessageAttachementUseCase.execute(
-              new SaveMessageAttachementDto(message, dto.getAttachements()));
-      message.setMessageAttachements(messageAttachements);
-    }
-  }
-
-  public void sendMessageToReceiver(@NotNull Message message) {
+  private Mono<Void> sendMessageToReceiver(Message message) {
     String receiverId = message.getReceiver().getId().toString();
-    String receiverSession = connectedUserStorage.getConnectedUserSessionId(receiverId);
 
-    if (receiverSession != null) {
-      log.warn("Receiver is connected. Session: {}", receiverSession);
-      SocketIOClient receiver = socketIOServer.getClient(UUID.fromString(receiverSession));
-      receiver.sendEvent(
-          WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, new SendMessageCallback(), message);
-      log.info("Message sent to receiver. UserId: {}", receiverId);
-    } else {
-      log.warn("Receiver is offline. Adding to unread messages. UserId: {}", receiverId);
-      notSentMessagesStorage.addNotSentMessageForUser(receiverId, message);
-    }
+    return connectedUserStorage
+        .getConnectedUserSessionId(receiverId)
+        .flatMap(
+            receiverSession -> {
+              log.debug("Destinataire connecté. Session: {}", receiverSession);
+              SocketIOClient receiver = socketIOServer.getClient(UUID.fromString(receiverSession));
+
+              if (receiver != null) {
+                receiver.sendEvent(
+                    WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER,
+                    new SendMessageCallback(),
+                    message);
+                log.info("Message envoyé au destinataire. UserId: {}", receiverId);
+                return Mono.empty();
+              } else {
+                log.warn("Session du destinataire invalide. UserId: {}", receiverId);
+                return addNotSentMessage(receiverId, message);
+              }
+            })
+        .switchIfEmpty(
+            Mono.defer(
+                () -> {
+                  log.warn(
+                      "Destinataire hors ligne. Ajout aux messages non lus. UserId: {}",
+                      receiverId);
+                  return addNotSentMessage(receiverId, message);
+                }));
   }
 
-  public void sendMessageToSender(@NotNull Message message) {
+  private Mono<Void> sendMessageToSender(Message message) {
     String senderId = message.getSender().getId().toString();
-    String senderSession = connectedUserStorage.getConnectedUserSessionId(senderId);
 
-    if (senderSession != null) {
-      log.debug("Sender is connected. Session: {}", senderSession);
-      SocketIOClient sender = socketIOServer.getClient(UUID.fromString(senderSession));
-      sender.sendEvent(
-          WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER, new SendMessageCallback(), message);
-      log.info("Message sent to sender. UserId: {}", senderId);
-    } else {
-      log.warn("Sender is offline. UserId: {}", senderId);
-    }
+    connectedUserStorage
+        .getConnectedUserSessionId(senderId)
+        .flatMap(
+            senderSession -> {
+              log.debug("Expéditeur connecté. Session: {}", senderSession);
+              SocketIOClient sender = socketIOServer.getClient(UUID.fromString(senderSession));
+
+              if (sender != null) {
+                sender.sendEvent(
+                    WebSocketHelper.OutputEndpoints.SEND_MESSAGE_TO_USER,
+                    new SendMessageCallback(),
+                    message);
+                log.info("Message envoyé à l'expéditeur. UserId: {}", senderId);
+              } else {
+                log.warn("Session de l'expéditeur invalide. UserId: {}", senderId);
+              }
+              return Mono.empty();
+            })
+        .switchIfEmpty(
+            Mono.defer(
+                () -> {
+                  log.warn("Expéditeur hors ligne. UserId: {}", senderId);
+                  return Mono.empty();
+                }));
+    return Mono.empty();
+  }
+
+  private Mono<Void> addNotSentMessage(String userId, Message message) {
+    return Mono.fromRunnable(
+        () -> notSentMessagesStorage.addNotSentMessageForUser(userId, message));
   }
 }

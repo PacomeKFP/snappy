@@ -1,57 +1,58 @@
 package org.enspy.snappy.server.domain.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
-import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+  import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+  import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+  import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+  import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
+  import org.springframework.data.annotation.CreatedDate;
+  import org.springframework.data.annotation.Id;
+  import org.springframework.data.annotation.LastModifiedDate;
+  import org.springframework.data.relational.core.mapping.Column;
+  import org.springframework.data.relational.core.mapping.Table;
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+  import java.time.LocalDateTime;
+  import java.util.UUID;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(
-    name = "chats",
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_chat_project_sender_receiver",
-          columnNames = {"project_id", "sender", "receiver"})
-    })
-public class Chat {
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Table("chats")
+  public class Chat {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(columnDefinition = "uuid")
-  private UUID id;
+    @Id
+    private UUID id;
 
-  @Column(name = "project_id", nullable = false)
-  private String projectId;
+    @Column("project_id")
+    private String projectId;
 
-  @Column(nullable = false)
-  private String sender;
+    private String sender;
 
-  @Column(nullable = false)
-  private String receiver;
+    private String receiver;
 
-  @Enumerated(EnumType.STRING)
-  private MessagingMode mode;
+    @Column("mode")
+    private String mode;
 
-  @CreationTimestamp
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
-  private LocalDateTime createdAt;
+    @CreatedDate
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @Column("created_at")
+    private LocalDateTime createdAt;
 
-  @UpdateTimestamp
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
-  private LocalDateTime updatedAt;
-}
+    @LastModifiedDate
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @Column("updated_at")
+    private LocalDateTime updatedAt;
+
+    // Méthode utilitaire pour définir le mode comme enum
+    public void setMode(MessagingMode messagingMode) {
+      this.mode = messagingMode.name();
+    }
+
+    // Méthode utilitaire pour récupérer le mode comme enum
+    public MessagingMode getMode() {
+      return mode != null ? MessagingMode.valueOf(mode) : null;
+    }
+  }

@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.enspy.snappy.server.domain.entities.Message;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.codec.multipart.FilePart;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class SaveMessageAttachementDto {
     private Message message;
-    private List<MultipartFile> attachements;
+    private List<FilePart> attachements;
 }

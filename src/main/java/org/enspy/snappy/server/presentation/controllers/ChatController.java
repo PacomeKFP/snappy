@@ -1,7 +1,6 @@
 package org.enspy.snappy.server.presentation.controllers;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import org.enspy.snappy.server.domain.entities.Chat;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.usecases.chat.ChangeMessagingModeUseCase;
@@ -18,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @Validated
@@ -29,42 +30,40 @@ public class ChatController {
   private final SendMessageUseCase sendMessageUseCase;
   private final ChangeMessagingModeUseCase changeMessagingModeUseCase;
 
-  public ChatController(GetUserChatsUseCase getUserChats, GetChatDetailsUseCase getChatDetails, SendMessageUseCase sendMessageUseCase, ChangeMessagingModeUseCase changeMessagingModeUseCase) {
-    this.getUserChats = getUserChats;
-    this.getChatDetails = getChatDetails;
+  public ChatController(
+      GetUserChatsUseCase getUserChatsUseCase,
+      GetChatDetailsUseCase getChatDetailsUseCase,
+      SendMessageUseCase sendMessageUseCase,
+      ChangeMessagingModeUseCase changeMessagingModeUseCase) {
+    this.getUserChats = getUserChatsUseCase;
+    this.getChatDetails = getChatDetailsUseCase;
     this.sendMessageUseCase = sendMessageUseCase;
     this.changeMessagingModeUseCase = changeMessagingModeUseCase;
   }
 
-
-  /** Retrieve detailed chat between two users. */
   @PostMapping("/details")
-  public ResponseEntity<ChatDetailsResource> getChatDetails(
+  public Mono<ResponseEntity<ChatDetailsResource>> getChatDetails(
       @Valid @RequestBody GetChatDetailsDto dto) {
-    ChatDetailsResource chatDetails = getChatDetails.execute(dto);
-    return ResponseEntity.ok(chatDetails);
+    return getChatDetails.execute(dto).map(ResponseEntity::ok);
   }
 
-  /** Retrieve all active chats for a specific user. */
   @GetMapping("/{userId}/chats")
-  public ResponseEntity<List<ChatResource>> getUserChats(
+  public Flux<ChatResource> getUserChats(
       @PathVariable String userId, @RequestParam String projectId) {
     GetUserChatsDto dto = new GetUserChatsDto(userId, projectId);
-    return ResponseEntity.ok(getUserChats.execute(dto));
+    return getUserChats.execute(dto);
   }
 
-  /** Send a message from one user to another. */
   @PostMapping(
       path = "/send",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<Message> sendMessage(@Valid @ModelAttribute SendMessageDto dto) {
-
-    return ResponseEntity.ok(sendMessageUseCase.execute(dto));
+  public Mono<ResponseEntity<Message>> sendMessage(@Valid @ModelAttribute SendMessageDto dto) {
+    return sendMessageUseCase.execute(dto).map(ResponseEntity::ok);
   }
 
-  /** Change the messaging mode of a conversation */
   @PutMapping("/changeMode")
-  public ResponseEntity<Chat> changeMessagingMode(@Valid @RequestBody ChangeMessagingModeDto dto) {
-    return ResponseEntity.ok(changeMessagingModeUseCase.execute(dto));
+  public Mono<ResponseEntity<Chat>> changeMessagingMode(
+      @Valid @RequestBody ChangeMessagingModeDto dto) {
+    return changeMessagingModeUseCase.execute(dto).map(ResponseEntity::ok);
   }
 }

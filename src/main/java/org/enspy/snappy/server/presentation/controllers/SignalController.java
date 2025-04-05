@@ -7,6 +7,7 @@ import org.enspy.snappy.server.domain.usecases.signal.RegisterPreKeyBundleUseCas
 import org.enspy.snappy.server.presentation.dto.signal.RegisterPreKeyBundleDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/signal")
@@ -17,17 +18,16 @@ public class SignalController {
   private final GetPreKeyBundleUseCase getPreKeyBundleUseCase;
 
   @PostMapping("/pre-key-bundle/{userId}")
-  public ResponseEntity<Void> registerPreKeyBundle(
+  public Mono<ResponseEntity<Void>> registerPreKeyBundle(
       @PathVariable String userId, @RequestBody PreKeyBundle preKeyBundle) {
-    RegisterPreKeyBundleDto registerPreKeyBundleDto =
-        new RegisterPreKeyBundleDto(userId, preKeyBundle);
-    registerPreKeyBundleUseCase.execute(registerPreKeyBundleDto);
-    return ResponseEntity.ok().build();
+    RegisterPreKeyBundleDto dto = new RegisterPreKeyBundleDto(userId, preKeyBundle);
+    return registerPreKeyBundleUseCase.execute(dto)
+             .thenReturn(ResponseEntity.ok().build());
   }
 
   @GetMapping("/pre-key-bundle/{userId}")
-  public ResponseEntity<PreKeyBundle> getPreKeyBundle(@PathVariable String userId) {
-    PreKeyBundle bundle = getPreKeyBundleUseCase.execute(userId);
-    return ResponseEntity.ok(bundle);
+  public Mono<ResponseEntity<PreKeyBundle>> getPreKeyBundle(@PathVariable String userId) {
+    return getPreKeyBundleUseCase.execute(userId)
+             .map(ResponseEntity::ok);
   }
 }

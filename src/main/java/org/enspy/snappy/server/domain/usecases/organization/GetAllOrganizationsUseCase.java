@@ -1,13 +1,13 @@
 package org.enspy.snappy.server.domain.usecases.organization;
 
-import java.util.List;
 import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.FluxUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Service
-public class GetAllOrganizationsUseCase implements UseCase<Boolean, List<Organization>> {
+public class GetAllOrganizationsUseCase implements FluxUseCase<Void, Organization> {
 
     private final OrganizationRepository organizationRepository;
 
@@ -16,7 +16,7 @@ public class GetAllOrganizationsUseCase implements UseCase<Boolean, List<Organiz
     }
 
     @Override
-    public List<Organization> execute(Boolean input) {
+    public Flux<Organization> execute(Void unused) {
         return organizationRepository.findAll();
     }
 }

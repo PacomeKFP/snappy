@@ -10,6 +10,7 @@ import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,16 +26,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/organization")
-    public ResponseEntity<AuthenticationResource<Organization>> authenticateOrganization(
+    public Mono<ResponseEntity<AuthenticationResource<Organization>>> authenticateOrganization(
             @RequestBody @Validated AuthenticateOrganizationDto dto) {
-        AuthenticationResource<Organization> authenticationResource = authenticateOrganizationUseCase.execute(dto);
-        return ResponseEntity.ok(authenticationResource);
+        return authenticateOrganizationUseCase.execute(dto)
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/user")
-    public ResponseEntity<AuthenticationResource<User>> authenticateUser(
+    public Mono<ResponseEntity<AuthenticationResource<User>>> authenticateUser(
             @RequestBody @Validated AuthenticateUserDto dto) {
-        AuthenticationResource<User> authenticationResource = authenticateUserUseCase.execute(dto);
-        return ResponseEntity.ok(authenticationResource);
+        return authenticateUserUseCase.execute(dto)
+                .map(ResponseEntity::ok);
     }
 }

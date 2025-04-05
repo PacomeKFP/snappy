@@ -1,11 +1,10 @@
 package org.enspy.snappy.server.infrastructure.repositories;
 
-import org.enspy.snappy.server.domain.entities.Chatbot;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 import java.util.UUID;
+import org.enspy.snappy.server.domain.entities.Chatbot;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Flux;
 
-public interface ChatbotRepository extends JpaRepository<Chatbot, UUID> {
-    List<Chatbot> findChatbotByProjectId(String projectId);
+public interface ChatbotRepository extends R2dbcRepository<Chatbot, UUID> {
+  Flux<Chatbot> findChatbotByProjectId(String projectId);
 }

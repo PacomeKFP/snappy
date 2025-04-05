@@ -1,38 +1,40 @@
 package org.enspy.snappy.server.infrastructure.storages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
 public class NotSentMessagesStorage {
     /**
      * [UserExternalId]: [notSentMessages]
      * */
-    private final HashMap<String, ArrayList<Message>> notSentMessages = new HashMap<>();
+    private final ConcurrentHashMap<String, ArrayList<Message>> notSentMessages = new ConcurrentHashMap<>();
 
-    public void addNotSentMessageForUser(String userId, Message message) {
-        if (notSentMessages.containsKey(userId)) {
-            notSentMessages.get(userId).add(message);
-        } else {
-            notSentMessages.put(userId, new ArrayList<>());
-            notSentMessages.get(userId).add(message);
-        }
+    public Mono<Void> addNotSentMessageForUser(String userId, Message message) {
+        return Mono.fromRunnable(() -> {
+            notSentMessages.computeIfAbsent(userId, k -> new ArrayList<>()).add(message);
+        });
     }
-    public void removeNotSentMessageForUser(String userId, Message message) {
-        if (notSentMessages.containsKey(userId)) {
-            notSentMessages.get(userId).remove(message);
-        }
+    
+    public Mono<Void> removeNotSentMessageForUser(String userId, Message message) {
+        return Mono.fromRunnable(() -> {
+            if (notSentMessages.containsKey(userId)) {
+                notSentMessages.get(userId).remove(message);
+            }
+        });
     }
-    public void clearNotSentMessagesForUser(String userId) {
-        notSentMessages.remove(userId);
+    
+    public Mono<Void> clearNotSentMessagesForUser(String userId) {
+        return Mono.fromRunnable(() -> notSentMessages.remove(userId));
     }
-    public ArrayList<Message> getNotSentMessagesForUser(String userId) {
-        if (notSentMessages.containsKey(userId)) {
-            return notSentMessages.get(userId);
-        } else {
-            return new ArrayList<>();
-        }
+    
+    public Flux<Message> getNotSentMessagesForUser(String userId) {
+        return Mono.justOrEmpty(notSentMessages.get(userId))
+            .defaultIfEmpty(new ArrayList<>())
+            .flatMapMany(Flux::fromIterable);
     }
 }

@@ -1,38 +1,25 @@
 package org.enspy.snappy.server.domain.usecases.organization;
 
-import java.util.UUID;
-import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
-import org.enspy.snappy.server.domain.usecases.UseCase;
 import org.enspy.snappy.server.infrastructure.repositories.OrganizationRepository;
+import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class DeleteOrganizationUseCase implements UseCase<String, Void> {
+public class DeleteOrganizationUseCase {
 
-    private final OrganizationRepository organizationRepository;
+  private final OrganizationRepository organizationRepository;
+  private final UserRepository userRepository;
 
-    public DeleteOrganizationUseCase(OrganizationRepository organizationRepository) {
-        this.organizationRepository = organizationRepository;
-    }
+  public DeleteOrganizationUseCase(
+      OrganizationRepository organizationRepository, UserRepository userRepository) {
+    this.organizationRepository = organizationRepository;
+    this.userRepository = userRepository;
+  }
 
-    @Override
-    public Void execute(String organizationId) {
-        // Conversion de l'ID en UUID
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(organizationId);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("L'identifiant fourni n'est pas un UUID valide : " + organizationId, e);
-        }
-
-        // Vérifiez que l'organisation existe, sinon lancez une exception
-        boolean exists = organizationRepository.existsById(uuid);
-        if (!exists) {
-            throw new EntityNotFoundException("Organisation avec l'ID " + organizationId + " introuvable.");
-        }
-
-        // Supprimez l'organisation
-        organizationRepository.deleteById(uuid);
-        return null; // Aucun retour nécessaire
-    }
+  public Mono<Void> execute(String organizationId) {
+    // Supprimer d'abord tous les utilisateurs associés
+    // TODO: il faut marquer l'organisation comme inactive
+    return Mono.empty();
+  }
 }

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.codec.multipart.FilePart;
 
 @Data
 public class SendMessageDto {
@@ -18,7 +18,7 @@ public class SendMessageDto {
     private String body;
 
     @Nullable
-    private List<MultipartFile> attachements;
+    private List<FilePart> attachements;
 
     @NotBlank
     private String projectId;

@@ -2,19 +2,18 @@ package org.enspy.snappy.server.presentation.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Objects;
 import org.enspy.snappy.server.domain.entities.Organization;
-import org.enspy.snappy.server.domain.exceptions.EntityNotFoundException;
 import org.enspy.snappy.server.domain.usecases.organization.CreateOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.DeleteOrganizationUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetAllOrganizationsUseCase;
 import org.enspy.snappy.server.domain.usecases.organization.GetOrganizationUseCase;
 import org.enspy.snappy.server.presentation.dto.organization.CreateOrganizationDto;
 import org.enspy.snappy.server.presentation.resources.AuthenticationResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/organizations")
@@ -24,7 +23,11 @@ public class OrganizationController {
   private final CreateOrganizationUseCase createOrganizationUseCase;
   private final GetAllOrganizationsUseCase getAllOrganizationsUseCase;
 
-  public OrganizationController(GetOrganizationUseCase getOrganizationUseCase, DeleteOrganizationUseCase deleteOrganizationUseCase, CreateOrganizationUseCase createOrganizationUseCase, GetAllOrganizationsUseCase getAllOrganizationsUseCase) {
+  public OrganizationController(
+      GetOrganizationUseCase getOrganizationUseCase,
+      DeleteOrganizationUseCase deleteOrganizationUseCase,
+      CreateOrganizationUseCase createOrganizationUseCase,
+      GetAllOrganizationsUseCase getAllOrganizationsUseCase) {
     this.getOrganizationUseCase = getOrganizationUseCase;
     this.deleteOrganizationUseCase = deleteOrganizationUseCase;
     this.createOrganizationUseCase = createOrganizationUseCase;
@@ -32,44 +35,29 @@ public class OrganizationController {
   }
 
   @PostMapping
-  public ResponseEntity<AuthenticationResource<Organization>> create(
+  public Mono<ResponseEntity<AuthenticationResource<Organization>>> create(
       @RequestBody @Valid CreateOrganizationDto createOrganizationDto) {
-    AuthenticationResource<Organization> authenticationResource =
-        createOrganizationUseCase.execute(createOrganizationDto);
-    return ResponseEntity.status(201).body(authenticationResource);
+    return createOrganizationUseCase.execute(createOrganizationDto).map(ResponseEntity::ok);
   }
 
   @GetMapping("/getAll/{key}")
-  public ResponseEntity<List<Organization>> getAllOrganizations(@PathVariable String key) {
-    if (!Objects.equals(key, "password"))
-      return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of());
-    List<Organization> organizations = getAllOrganizationsUseCase.execute(true); // Aucun paramètre
-    return ResponseEntity.ok(organizations);
+  public Flux<Organization> getAllOrganizations(@PathVariable String key) {
+    if (!Objects.equals(key, "password")) {
+      return Flux.empty();
+    }
+    return getAllOrganizationsUseCase.execute(null);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Organization> getOrganizationById(@PathVariable String id) {
-    try {
-      Organization organization = getOrganizationUseCase.execute(id);
-      return ResponseEntity.ok(organization); // Retourne un code 200 avec l'organisation
-    } catch (EntityNotFoundException e) {
-      return ResponseEntity.status(404)
-          .body(null); // Retourne un code 404 si l'organisation n'existe pas
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(400).body(null); // Retourne un code 400 pour un UUID invalide
-    }
+  public Mono<ResponseEntity<Organization>> getOrganizationById(@PathVariable String id) {
+    return getOrganizationUseCase.execute(id).map(ResponseEntity::ok);
   }
 
   @DeleteMapping("/{id}")
   @SecurityRequirement(name = "bearerAuth")
-  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
-    try {
-      deleteOrganizationUseCase.execute(id); // Appelle le UseCase pour la suppression
-      return ResponseEntity.noContent().build(); // Retourne 204 No Content en cas de succès
-    } catch (EntityNotFoundException e) {
-      return ResponseEntity.status(404).build(); // Retourne 404 si l'organisation n'existe pas
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(400).build(); // Retourne 400 si l'ID est invalide
-    }
+  public Mono<ResponseEntity<Void>> deleteOrganization(@PathVariable String id) {
+    return deleteOrganizationUseCase
+        .execute(id)
+        .thenReturn(ResponseEntity.noContent().<Void>build());
   }
 }

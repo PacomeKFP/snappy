@@ -9,6 +9,7 @@ import org.enspy.snappy.server.presentation.listeners.OnDisconnectListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 @Log4j2
@@ -44,17 +45,22 @@ public class WebSocketServer {
     config.setAllowCustomRequests(true);
     config.setUpgradeTimeout(10000);
     config.setPingTimeout(60000);
+
     server = new SocketIOServer(config);
     server.start();
     server.addConnectListener(onConnectListener);
     server.addDisconnectListener(onDisconnectListener);
-    // TODO: Rajouter des ecouteurs d'evenements pour les accusé de reception et de lecture de
-    // message
+
     return server;
   }
 
   @PreDestroy
-  public void stopSocketIOServer() {
-    this.server.stop();
+  public Mono<Void> stopSocketIOServer() {
+    return Mono.fromRunnable(
+        () -> {
+          if (this.server != null) {
+            this.server.stop();
+          }
+        });
   }
 }

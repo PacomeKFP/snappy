@@ -1,17 +1,15 @@
 package org.enspy.snappy.server.domain.usecases.chatbot;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.enspy.snappy.server.domain.entities.ChatbotLLM;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.FluxUseCase;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Service
-public class GetAvailableLanguageModelsUseCase implements UseCase<Void, List<String>> {
+public class GetAvailableLanguageModelsUseCase implements FluxUseCase<Void, String> {
 
   @Override
-  public List<String> execute(Void dto) {
-    return Arrays.stream(ChatbotLLM.values()).map(Enum::toString).collect(Collectors.toList());
+  public Flux<String> execute(Void unused) {
+    return Flux.fromArray(ChatbotLLM.values()).map(Enum::toString);
   }
 }

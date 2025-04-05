@@ -1,53 +1,45 @@
 package org.enspy.snappy.server.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.persistence.*;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.Data;
-import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
-import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-@Entity
 @Data
-@Table(
-    name = "users",
-    uniqueConstraints = {
-      @UniqueConstraint(
-          columnNames = {"project_id", "login"},
-          name = "uk_project_login")
-    })
+@Table("users")
 public class User implements UserDetails {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(columnDefinition = "uuid")
-  private UUID id;
+  @Id private UUID id;
 
-  @Column(name = "project_id")
+  @Column("project_id")
   private String projectId;
 
-  @Column(name = "external_id")
+  @Column("external_id")
   private String externalId;
 
   private String avatar;
 
-  @Column(name = "display_name")
+  @Column("display_name")
   private String displayName;
 
   private String email;
 
-  @Column(name = "phone_number")
+  @Column("phone_number")
   private String phoneNumber;
 
   private String login;
@@ -56,43 +48,27 @@ public class User implements UserDetails {
 
   private boolean isOnline;
 
-  @ElementCollection
-  @CollectionTable(name = "user_custom_json", joinColumns = @JoinColumn(name = "user_id"))
-  @MapKeyColumn(name = "json_key")
-  @Column(name = "json_value")
-  private Map<String, String> customJson;
+  // Les collections ne peuvent pas être mappées directement avec R2DBC
+  // Ces relations devront être gérées manuellement
+  @Transient
+  @JsonIgnore private transient Map<String, String> customJson;
 
-  @ManyToMany
-  @JoinTable(
-      name = "user_contacts",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "contact_id"))
-  @JsonIgnoreProperties("contacts")
-  private List<User> contacts;
+  @Transient
+  @JsonIgnore private transient List<User> contacts;
 
-  @ManyToOne
-  @JoinColumn(name = "organization_id", nullable = false)
-  @JsonIgnoreProperties("users")
-  private Organization organization;
+  @Column("organization_id")
+  private UUID organizationId;
 
-  @OneToMany(mappedBy = "sender")
-  @JsonIgnore
-  private List<Message> sentMessages;
-
-  @OneToMany(mappedBy = "receiver")
-  @JsonIgnore
-  private List<Message> receivedMessages;
-
-  @CreationTimestamp
+  @CreatedDate
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
+  @Column("created_at")
   private LocalDateTime createdAt;
 
-  @UpdateTimestamp
+  @LastModifiedDate
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
+  @Column("updated_at")
   private LocalDateTime updatedAt;
 
   @JsonIgnore
@@ -107,8 +83,33 @@ public class User implements UserDetails {
     return this.secret;
   }
 
+  @JsonIgnore
   @Override
   public String getUsername() {
     return this.login + ";" + this.projectId;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 }

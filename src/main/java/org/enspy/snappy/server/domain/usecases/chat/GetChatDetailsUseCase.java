@@ -1,48 +1,55 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.enspy.snappy.server.domain.entities.Message;
-import org.enspy.snappy.server.domain.entities.User;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.MonoUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.chat.GetChatDetailsDto;
 import org.enspy.snappy.server.presentation.resources.ChatDetailsResource;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
-public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDetailsResource> {
+public class GetChatDetailsUseCase implements MonoUseCase<GetChatDetailsDto, ChatDetailsResource> {
 
-    private final UserRepository userRepository;
-    private final MessageRepository messageRepository;
+  private final UserRepository userRepository;
+  private final MessageRepository messageRepository;
 
-    public GetChatDetailsUseCase(UserRepository userRepository, MessageRepository messageRepository) {
-        this.userRepository = userRepository;
-        this.messageRepository = messageRepository;
+  public GetChatDetailsUseCase(UserRepository userRepository, MessageRepository messageRepository) {
+    this.userRepository = userRepository;
+    this.messageRepository = messageRepository;
+  }
+
+  @Override
+  public Mono<ChatDetailsResource> execute(GetChatDetailsDto dto) {
+    if (dto == null || dto.getUser() == null || dto.getInterlocutor() == null || dto.getProjectId() ==null) {
+      return Mono.error(
+          new IllegalArgumentException("Les identifiants des utilisateurs sont requis"));
     }
 
-    @Override
-    public ChatDetailsResource execute(GetChatDetailsDto userId) {
-        // Find the users involved in the chat
-        Optional<User> user = userRepository.findById(UUID.fromString(userId.getUser()));
-        Optional<User> interlocutor = userRepository.findById(UUID.fromString(userId.getInterlocutor()));
 
-        if (user.isEmpty() || interlocutor.isEmpty()) {
-            throw new IllegalArgumentException("User or interlocutor not found");
-        }
+    // Définir l'interlocuteur
+    // Récupérer les messages entre les deux utilisateurs
 
-        // Fetch messages exchanged between the two users using a repository query
-        List<Message> messages = messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
-                UUID.fromString(userId.getUser()), UUID.fromString(userId.getInterlocutor()),
-                UUID.fromString(userId.getInterlocutor()), UUID.fromString(userId.getUser())
-        );
+    return Mono.zip(
+            userRepository
+                .findByExternalIdAndProjectId(dto.getUser(), dto.getProjectId())
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Utilisateur non trouvé"))),
+            userRepository
+                .findByExternalIdAndProjectId(dto.getInterlocutor(), dto.getProjectId())
+                .switchIfEmpty(
+                    Mono.error(new IllegalArgumentException("Interlocuteur non trouvé"))))
+        .flatMap(
+            tuple -> {
+              ChatDetailsResource chatResource = new ChatDetailsResource();
+              chatResource.setUser(tuple.getT2()); // Définir l'interlocuteur
 
-        // Transform messages into ChatDetailsResource objects
-        ChatDetailsResource resource = new ChatDetailsResource();
-        resource.setUser(interlocutor.get()); // Set the interlocutor
-        resource.setMessages(messages); // Set the message details
-        return resource;
-    }
+              // Récupérer les messages entre les deux utilisateurs
+              return messageRepository
+                  .findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
+                      tuple.getT1().getId(), tuple.getT2().getId(), tuple.getT2().getId(), tuple.getT1().getId())
+                  .collectList()
+                  .doOnNext(chatResource::setMessages)
+                  .thenReturn(chatResource);
+            });
+  }
 }

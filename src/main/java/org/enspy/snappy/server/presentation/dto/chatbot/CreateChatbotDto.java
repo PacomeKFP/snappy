@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Data;
 import org.enspy.snappy.server.domain.entities.ChatbotLLM;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.codec.multipart.FilePart;
 
 @Data
 public class CreateChatbotDto {
@@ -14,5 +14,5 @@ public class CreateChatbotDto {
   @NotNull private String projectId;
   @Nullable  private String description;
   @NotNull private ChatbotLLM languageModel;
-  @Nullable private List<MultipartFile> attachements;
+  @Nullable private List<FilePart> attachements;
 }

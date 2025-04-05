@@ -1,18 +1,19 @@
 package org.enspy.snappy.server.domain.usecases.chat;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
 import org.enspy.snappy.server.domain.entities.Message;
 import org.enspy.snappy.server.domain.entities.User;
-import org.enspy.snappy.server.domain.usecases.UseCase;
+import org.enspy.snappy.server.domain.usecases.FluxUseCase;
 import org.enspy.snappy.server.infrastructure.repositories.MessageRepository;
 import org.enspy.snappy.server.infrastructure.repositories.UserRepository;
 import org.enspy.snappy.server.presentation.dto.chat.GetUserChatsDto;
 import org.enspy.snappy.server.presentation.resources.ChatResource;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
-public class GetUserChatsUseCase implements UseCase<GetUserChatsDto, List<ChatResource>> {
+public class GetUserChatsUseCase implements FluxUseCase<GetUserChatsDto, ChatResource> {
 
   private final UserRepository userRepository;
   private final MessageRepository messageRepository;
@@ -23,48 +24,49 @@ public class GetUserChatsUseCase implements UseCase<GetUserChatsDto, List<ChatRe
   }
 
   @Override
-  public List<ChatResource> execute(GetUserChatsDto dto) {
-    // Step 1: Retrieve the user
-    User user =
-        userRepository
-            .findByExternalIdAndProjectId(dto.getExternalUserId(), dto.getProjectId())
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+  public Flux<ChatResource> execute(GetUserChatsDto dto) {
+    if (dto == null || dto.getExternalUserId() == null || dto.getProjectId() == null) {
+      return Flux.error(
+          new IllegalArgumentException("Les identifiants utilisateur et projet sont requis"));
+    }
 
-    // Step 2: Fetch all messages where the user is either the sender or receiver
-    List<Message> messages =
-        messageRepository.findBySenderIdOrReceiverId(user.getId(), user.getId());
+    return userRepository
+        .findByExternalIdAndProjectId(dto.getExternalUserId(), dto.getProjectId())
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("Utilisateur non trouvé")))
+        .flatMapMany(
+            user ->
+                messageRepository
+                    .findBySenderIdOrReceiverId(user.getId(), user.getId())
+                    // Groupe par interlocuteur
+                    .groupBy(
+                        message ->
+                            message.getSender().getId().equals(user.getId())
+                                ? message.getReceiver().getId()
+                                : message.getSender().getId())
+                    // Pour chaque groupe, trouve le dernier message et l'interlocuteur
+                    .flatMap(
+                        group ->
+                            group
+                                .collectList()
+                                .flatMap(
+                                    messages -> {
+                                      // Trouver le dernier message
+                                      Message lastMessage =
+                                          messages.stream()
+                                              .max(Comparator.comparing(Message::getCreatedAt))
+                                              .orElse(null);
 
-    // Step 3: Group messages by the interlocutor
-    Map<User, List<Message>> groupedByInterlocutor =
-        messages.stream()
-            .collect(
-                Collectors.groupingBy(
-                    message ->
-                        message.getSender().equals(user)
-                            ? message.getReceiver()
-                            : message.getSender()));
+                                      // Déterminer l'interlocuteur
+                                      User interlocutor =
+                                          lastMessage.getSender().getId().equals(user.getId())
+                                              ? lastMessage.getReceiver()
+                                              : lastMessage.getSender();
 
-    // Step 4: Map grouped messages into ChatResource
-    List<ChatResource> chatResources =
-        groupedByInterlocutor.entrySet().stream()
-            .map(
-                entry -> {
-                  User interlocutor = entry.getKey(); // The other user in the chat
-                  List<Message> chatMessages = entry.getValue();
-                  Message lastMessage =
-                      chatMessages.stream()
-                          .max(
-                              Comparator.comparing(
-                                  Message::getCreatedAt)) // Find the most recent message
-                          .orElse(null);
+                                      ChatResource resource = new ChatResource();
+                                      resource.setUser(interlocutor);
+                                      resource.setLastMessage(lastMessage);
 
-                  ChatResource chatResource = new ChatResource();
-                  chatResource.setUser(interlocutor); // Set the interlocutor
-                  chatResource.setLastMessage(lastMessage); // Set the last message
-                  return chatResource;
-                })
-            .collect(Collectors.toList());
-
-    return chatResources;
+                                      return Mono.just(resource);
+                                    })));
   }
 }

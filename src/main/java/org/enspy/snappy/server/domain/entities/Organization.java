@@ -1,10 +1,8 @@
 package org.enspy.snappy.server.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -14,52 +12,48 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
 import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "organizations")
+@Table("organizations")
 public class Organization implements UserDetails {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(columnDefinition = "uuid")
-  private UUID id;
+  @Id private UUID id;
 
   private String name;
   private String email;
 
   @JsonIgnore private String password;
 
-  @Column(name = "project_id", unique = true, nullable = false)
+  @Column("project_id")
   private String projectId;
 
-  @Column(name = "private_key")
+  @Column("private_key")
   private String privateKey;
 
-  @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
-  @JsonIgnoreProperties({"organization", "secret"})
-  private List<User> users;
+  @JsonIgnore @Transient private transient List<User> users;
 
-  @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
-  @JsonIgnoreProperties({"organization"})
-  private List<Chatbot> chatbots;
+  @JsonIgnore @Transient private transient List<Chatbot> chatbots;
 
-  @CreationTimestamp
+  @CreatedDate
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
+  @Column("created_at")
   private LocalDateTime createdAt;
 
-  @UpdateTimestamp
+  @LastModifiedDate
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @Column(columnDefinition = "TIMESTAMP")
+  @Column("updated_at")
   private LocalDateTime updatedAt;
 
   public Organization(String name, String email, String password) {
@@ -83,5 +77,29 @@ public class Organization implements UserDetails {
   @Override
   public String getPassword() {
     return this.password;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 }
