@@ -1,22 +1,23 @@
 package org.enspy.snappy.server.domain.entities;
 
-  import com.fasterxml.jackson.annotation.JsonProperty;
-  import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-  import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-  import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
-  import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
-  import org.springframework.data.annotation.CreatedDate;
-  import org.springframework.data.annotation.Id;
-  import org.springframework.data.annotation.LastModifiedDate;
-  import org.springframework.data.annotation.Transient;
-  import org.springframework.data.relational.core.mapping.Column;
-  import org.springframework.data.relational.core.mapping.Table;
-  import lombok.Data;
-  import java.time.LocalDateTime;
-  import java.util.List;
-  import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import lombok.Data;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeDeserializer;
+import org.enspy.snappy.server.infrastructure.helpers.LocalDateTimeSerializer;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-  @Data
+@Data
   @Table("messages")
   public class Message {
 
@@ -41,12 +42,15 @@ package org.enspy.snappy.server.domain.entities;
     private UUID receiverId;
 
     @Transient
+    @JsonManagedReference
     private User sender;
 
     @Transient
+    @JsonManagedReference
     private User receiver;
 
     @Transient
+    @JsonManagedReference
     private List<MessageAttachement> messageAttachements;
 
     @CreatedDate
