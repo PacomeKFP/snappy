@@ -94,6 +94,7 @@ UserDetailsService userDetailsService) {
             "http://localhost:3000",
             "http://localhost:3001",
             "http://localhost:3002",
+            "https://gateway.yowyob.com/",
             "https://snappy-teal.vercel.app",
             "http://snappy-teal.vercel.app"));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
