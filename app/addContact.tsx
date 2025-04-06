@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert ,ImageBackground} from 'react-native';
 import { router } from 'expo-router';
+import { ThemeText } from '@/components/ThemeText';
 
 export default function AddContactScreen() {
   const [email, setEmail] = useState('');
@@ -31,14 +32,17 @@ export default function AddContactScreen() {
     );
   };
 
-  return (
+  const handleCancel = () =>{
+    router.push('/home');
+  }
+  return ( 
         <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
     
       <View style={styles.container}>
         <View>
           <Image source={require("../assets/images/logo.png")} style={styles.logo} />
         </View>
-        <Text style={styles.title}>Ajouter Personne</Text>
+        <ThemeText variant="titrelogin" style={styles.title}>Ajouter Personne</ThemeText>
         <TextInput
           style={styles.input}
           placeholder="leonel.azangue@facscience-uy1.cm"
@@ -55,6 +59,9 @@ export default function AddContactScreen() {
         />
         <TouchableOpacity style={styles.button} onPress={handleAddContact}>
           <Text style={styles.buttonText}>Ajouter</Text>
+        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleCancel}>
+          <Text style={styles.buttonText}>Annuler</Text>
         </TouchableOpacity>
       </View>
      </ImageBackground>
