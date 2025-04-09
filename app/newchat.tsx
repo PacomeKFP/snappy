@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet,TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -13,7 +13,12 @@ const contacts = [
 
 export default function NewChat() {
   const router = useRouter();
-
+  const [search, setSearch] = useState("");
+    const [showSearch, setShowSearch] = useState(false);
+    const handleCloseSearch = () => {
+      setShowSearch(false);
+      setSearch(""); 
+    };
   // Démarrer une nouvelle conversation
   const startChat = (name: string, avatar: any) => {
     router.push({ pathname: "/ChatItems", params: { name, avatar } });
@@ -21,11 +26,34 @@ export default function NewChat() {
 
   return (
     <View style={styles.container}>
+       
       <View style={styles.nav}>
         <TouchableOpacity onPress={() => router.back()}>
                   <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-      <Text style={styles.header}>Nouvelle conversation</Text></View>
+      <Text style={styles.header}>Nouvelle conversation</Text>
+      
+              <View style={styles.boxsearch}>
+                {showSearch ? (
+                  <View style={styles.searchContainer}>
+                    <TextInput
+                      style={styles.searchBar}
+                      placeholder="Rechercher..."
+                      value={search}
+                      onChangeText={setSearch}
+                      autoFocus
+                    />
+                    <TouchableOpacity onPress={handleCloseSearch}>
+                      <Ionicons name="close" size={24} color="#7B52AB" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity onPress={() => setShowSearch(true)}>
+                    <Ionicons name="search" size={24}  color="#7B52AB" />
+                  </TouchableOpacity>
+                )}
+              </View>
+      </View>
       <FlatList
         data={contacts}
         keyExtractor={(item) => item.id}
@@ -43,8 +71,25 @@ export default function NewChat() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white", padding: 15 },
   nav:{flexDirection: "row"},
-  header: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  header: { fontSize: 20, fontWeight: "bold", marginBottom: 10,   justifyContent: "space-between" ,flexDirection: "row", },
   contactItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },
   name: { fontSize: 18, color: "black" },
+  boxsearch: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e0e0e0",
+    borderRadius: 20,
+    flex: 1, 
+    paddingHorizontal: 10,
+  },
+  searchBar: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#e0e0e0",}
 });
