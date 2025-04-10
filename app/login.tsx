@@ -1,8 +1,10 @@
 import { View, Text, TextInput, Button, StyleSheet,Image, TouchableOpacity, ImageBackground } from "react-native";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeText } from '@/components/ThemeText';
+import { ThemeTextInput } from "@/components/ThemeTextInput";
+import { ThemeTouchableOpacity } from "@/components/ThemeTouchableOpacity";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -11,6 +13,9 @@ export default function LoginScreen() {
 
   const router = useRouter();
   const validateEmail = (email: string) => {
+    /*
+    Methode pour controller l'email
+    */
     return /\S+@\S+\.\S+/.test(email);
   };
 
@@ -30,32 +35,32 @@ export default function LoginScreen() {
      <View style={styles.container}>
     <Image source={require("../assets/images/logo.png")} style={styles.logo} />
       <ThemeText variant="titrelogin" style={styles.title}>  <Icon name="login" size={20} color="purple" /> Connexion</ThemeText>
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+        variant="input"
         placeholder="Nom d'utilisateur"
          placeholderTextColor='gray'
         value={username}
         onChangeText={setUsername}
       />
-        <TextInput
-        style={styles.input}
+        <ThemeTextInput
+        variant="input"
         placeholder="Email"
         placeholderTextColor='gray'
         value={email} 
         onChangeText={setEmail}
         
       />
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+        variant="input"
         placeholder="Mot de passe"
          placeholderTextColor='gray'
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-      <Text style={styles.buttonText} > se connecter</Text>
-    </TouchableOpacity>
+      <ThemeTouchableOpacity variant="button" onPress={handleLogin}>
+      <ThemeText variant="buttonText"> se connecter</ThemeText>
+    </ThemeTouchableOpacity>
     <Text > Vous n'avez pas de compte ?  <Link href="../signup" style={styles.linkText}>
         Inscrivez-vous
       </Link>
@@ -89,25 +94,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  input: {
-    width: "100%",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  button:{
-    borderRadius: 60,
-    backgroundColor:"#7B52AB",
-    margin: 10,
-    padding: 10
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+
+
   linkText: {
     marginTop: 10,
     color: "#7B52AB",

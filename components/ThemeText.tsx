@@ -15,7 +15,12 @@ const styles =StyleSheet.create({
     titrelogin:{
         fontSize: 24,
         fontWeight: "bold"
-    }
+    },
+    buttonText: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
+      },
 })
 type Props = TextProps &{
     variant?:keyof typeof styles,

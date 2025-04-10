@@ -10,10 +10,22 @@ export default function AppMenu() {
       <MenuTrigger>
         <Ionicons name="ellipsis-vertical" size={24}  color="#7B52AB" />
       </MenuTrigger>
-      <MenuOptions>
-        <MenuOption onSelect={() => alert("Nouveau groupe")} text="Nouveau groupe" />
-        <MenuOption onSelect={() => alert("Paramètres")} text="Paramètres" />
-        <MenuOption onSelect={() => router.push("/login")} text="Déconnexion" />
+      <MenuOptions optionsContainerStyle={{ width: 200, height: 150 }}>
+        <MenuOption onSelect={() => alert("Nouveau groupe")} text="Nouveau groupe" 
+          customStyles={{
+            optionWrapper: { padding: 10 },
+            optionText: { fontSize: 18, color: '#333' },
+          }}/>
+        <MenuOption onSelect={() => alert("Paramètres")} text="Paramètres" 
+          customStyles={{
+            optionWrapper: { padding: 10 },
+            optionText: { fontSize: 18, color: '#333' },
+          }} />
+        <MenuOption onSelect={() => router.push("/login")} text="Déconnexion"
+         customStyles={{
+          optionWrapper: { padding: 10 },
+          optionText: { fontSize: 18, color: '#333' },
+        }} />
       </MenuOptions>
     </Menu>
   );

@@ -3,6 +3,7 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react
 import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
+import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 
 
 
@@ -54,9 +55,9 @@ export default function ChatScreen() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
      
-      <TouchableOpacity style={styles.fab} onPress={openNewChat}>
+      <ThemeTouchableOpacity variant="fab" onPress={openNewChat}>
         <Ionicons name="chatbubble-ellipses" size={28} color="white" />
-      </TouchableOpacity>
+      </ThemeTouchableOpacity>
 
     </View>
   );
@@ -65,7 +66,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "while",
+    backgroundColor: "#FFF",
     paddingTop: 10,
     paddingHorizontal: 10,
   },
@@ -117,22 +118,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ddd',
     marginVertical: 5,
-  },
-  fab: {
-    position: "absolute",
-    bottom: 70,
-    right: 20,
-    backgroundColor: "#7B52AB",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
   },
 
 });

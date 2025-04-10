@@ -2,6 +2,8 @@ import { View, Text, TextInput, StyleSheet,Image, TouchableOpacity, ImageBackgro
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { ThemeText } from '@/components/ThemeText';
+import { ThemeTextInput } from "@/components/ThemeTextInput";
+import { ThemeTouchableOpacity } from "@/components/ThemeTouchableOpacity";
 
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
@@ -35,36 +37,36 @@ export default function SignupScreen() {
          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
       <ThemeText variant="titrelogin" style={styles.title}>Inscription</ThemeText>
 
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+              variant="input"
         placeholder="Nom d'utilisateur"
         value={username}
         onChangeText={setUsername}
       />
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+        variant="input"
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+        variant="input"
         placeholder="Mot de passe"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
-      <TextInput
-        style={styles.input}
+      <ThemeTextInput
+        variant="input"
         placeholder="Confirmer le Mot de passe"
         secureTextEntry
         value={confirm_password}
         onChangeText={setConfirm_Password}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>S'inscrire</Text>
-      </TouchableOpacity>
+      <ThemeTouchableOpacity variant="button" onPress={handleLogin}>
+        <ThemeText variant="buttonText">S'inscrire</ThemeText>
+      </ThemeTouchableOpacity>
     </View>
     </ImageBackground>
   );
@@ -93,25 +95,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20
-  },
-  input: {
-    width: "100%",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  button: {
-    borderRadius: 60,
-    backgroundColor: "blue",
-    margin: 10,
-    padding: 10,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
   },
 });

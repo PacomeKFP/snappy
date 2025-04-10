@@ -74,7 +74,9 @@ export default function ChatRoom() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F3F3" },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#F3F3F3" },
   header: {
     flexDirection: "row",
     alignItems: "center",

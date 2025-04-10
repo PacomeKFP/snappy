@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert ,ImageBackground} from 'react-native';
 import { router } from 'expo-router';
 import { ThemeText } from '@/components/ThemeText';
+import { ThemeTextInput } from '@/components/ThemeTextInput';
+import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 
 export default function AddContactScreen() {
   const [email, setEmail] = useState('');
@@ -43,26 +45,26 @@ export default function AddContactScreen() {
           <Image source={require("../assets/images/logo.png")} style={styles.logo} />
         </View>
         <ThemeText variant="titrelogin" style={styles.title}>Ajouter Personne</ThemeText>
-        <TextInput
-          style={styles.input}
+        <ThemeTextInput
+                variant="input"
           placeholder="leonel.azangue@facscience-uy1.cm"
           placeholderTextColor='gray'
           value={email}
           onChangeText={setEmail}
         />
-        <TextInput
-          style={styles.input}
+        <ThemeTextInput
+                variant="input"
           placeholder="Nom d'utilisateur"
           placeholderTextColor='gray'
           value={username}
           onChangeText={setUsername}
         />
-        <TouchableOpacity style={styles.button} onPress={handleAddContact}>
-          <Text style={styles.buttonText}>Ajouter</Text>
-        </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleCancel}>
-          <Text style={styles.buttonText}>Annuler</Text>
-        </TouchableOpacity>
+        <ThemeTouchableOpacity variant="button"onPress={handleAddContact}>
+          <ThemeText variant="buttonText">Ajouter</ThemeText>
+        </ThemeTouchableOpacity>
+            <ThemeTouchableOpacity variant="button" onPress={handleCancel}>
+          <ThemeText variant="buttonText">Annuler</ThemeText>
+        </ThemeTouchableOpacity>
       </View>
      </ImageBackground>
   );
@@ -95,29 +97,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginLeft: 8,
   },
-  input: {
-    width: '100%',
-    color:"black",
-    height: 50,
-  
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor:'#ddd'
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#6A0DAD',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  buttonText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+
 });

@@ -5,6 +5,7 @@ import ChatScreen from "./chat";
 import StatutScreen from "./status";
 import { Ionicons } from "@expo/vector-icons";
 import AppMenu from "../components/Menu";
+import { ThemeTextInput } from "@/components/ThemeTextInput";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -25,8 +26,8 @@ export default function Home() {
         <View style={styles.boxsearch}>
           {showSearch ? (
             <View style={styles.searchContainer}>
-              <TextInput
-                style={styles.searchBar}
+              <ThemeTextInput
+                variant="searchBar"
                 placeholder="Rechercher..."
                 value={search}
                 onChangeText={setSearch}
@@ -78,16 +79,10 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#eFeFeF",
     borderRadius: 20,
     flex: 1, 
     paddingHorizontal: 10,
-  },
-  searchBar: {
-    flex: 1,
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "#e0e0e0",
   },
   title: {
     fontSize: 20,

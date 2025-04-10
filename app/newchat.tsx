@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet,TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
+import { ThemeTextInput } from "@/components/ThemeTextInput";
 
 // Liste de contacts disponibles
 const contacts = [
@@ -36,8 +36,8 @@ export default function NewChat() {
               <View style={styles.boxsearch}>
                 {showSearch ? (
                   <View style={styles.searchContainer}>
-                    <TextInput
-                      style={styles.searchBar}
+                    <ThemeTextInput 
+                     variant="searchBar"
                       placeholder="Rechercher..."
                       value={search}
                       onChangeText={setSearch}
@@ -82,14 +82,9 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#eFeFeF",
     borderRadius: 20,
     flex: 1, 
     paddingHorizontal: 10,
   },
-  searchBar: {
-    flex: 1,
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "#e0e0e0",}
 });
