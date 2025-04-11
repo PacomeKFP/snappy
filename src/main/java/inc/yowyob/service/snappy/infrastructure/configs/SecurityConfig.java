@@ -61,7 +61,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/organizations")
                     .permitAll()
                     .anyRequest()
-                    .authenticated())
+                    .permitAll())
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     //        .authenticationProvider(authenticationProvider())
     //        .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
