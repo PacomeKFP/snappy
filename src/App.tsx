@@ -5,7 +5,7 @@ import './App.css'
 import {SnappyHTTPClient} from "./lib/SnappyHTTPClient.ts";
 import {SnappySocketClient} from "./lib/SnappySocketClient.ts";
 import {ISnappySocketClient} from "./lib/ISnappySocketClient.ts";
-import {Message} from "./lib/models";
+import {CreateChatbotDtoLanguageModelEnum, Message} from "./lib/models";
 
 
 function App() {
@@ -47,11 +47,14 @@ function App() {
             </div>
             <h1>Vite + React</h1>
             <div className="card">
-                <button onClick={async () => console.log(await snappy.createOrganization({
-                    "name": "org24",
-                    "email": "string15@string.com",
-                    "password": "password"
+                <button onClick={async () => console.log(await snappy.createChatbot(    {
+                    "label": "The Real Chatbot",
+                    "prompt": "Make it as simple as possible",
+                    "projectId": "81997082-7e88-464a-9af1-b790fdd454f8",
+                    "description": "string",
+                    "languageModel": CreateChatbotDtoLanguageModelEnum.MISTRAL
                 }))}>
+                    Button
                     {/*count is {count}*/}
                 </button>
                 <p>

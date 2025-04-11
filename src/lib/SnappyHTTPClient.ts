@@ -92,7 +92,7 @@ export class SnappyHTTPClient extends BaseService {
     // CHATBOT
     async getAllChatbots(): Promise<Chatbot[]> {
         this.refreshApiInstance(this.basePath, true, this.bearerToken!)
-        return this.get<Chatbot[]>(`/chatbots`);
+        return this.get<Chatbot[]>(`/chatbot`);
     }
 
     async createChatbot(dto: CreateChatbotDto): Promise<Chatbot> {
@@ -101,7 +101,7 @@ export class SnappyHTTPClient extends BaseService {
             'Content-Type': 'multipart/form-data',
             "Authorization": `Bearer ${this.bearerToken}`
         }
-        return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbots", headers);
+        return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbot", headers);
     }
 
     async getChatbotsForProject(projectId: string): Promise<Chatbot[]> {
