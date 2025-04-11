@@ -10,8 +10,8 @@ import {Message} from "./lib/models";
 
 function App() {
     // const [count, setCount] = useState(0)
-    const snappy = new SnappyHTTPClient("http://16.171.151.193:8001")
-    const snappySocket = new SnappySocketClient("http://localhost:3308", "c9248b89-00b1-4c24-8678-c2ed923c83a1", "ext1")
+    const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
+    const snappySocket = new SnappySocketClient("http://88.198.150.195:8614", "c9248b89-00b1-4c24-8678-c2ed923c83a1", "ext1")
 
     const client: ISnappySocketClient = {
         onConnect: () => {
@@ -48,8 +48,8 @@ function App() {
             <h1>Vite + React</h1>
             <div className="card">
                 <button onClick={async () => console.log(await snappy.createOrganization({
-                    "name": "org17",
-                    "email": "string@string.com",
+                    "name": "org24",
+                    "email": "string15@string.com",
                     "password": "password"
                 }))}>
                     {/*count is {count}*/}

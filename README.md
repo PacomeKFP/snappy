@@ -105,7 +105,7 @@ Le client HTTP permet d'interagir avec les API RESTful du serveur Snappy.
 import { SnappyHTTPClient } from "snappy";
 
 // Création d'une instance avec l'URL de base de l'API
-const httpClient = new SnappyHTTPClient("http://api.example.com");
+const httpClient = new SnappyHTTPClient("http://16.171.151.193:8001");
 ```
 
 ### Utilisation du client HTTP
@@ -125,6 +125,7 @@ console.log(result);
 // - getUser()
 // etc.
 ```
+
 
 ## Modèles de données
 
