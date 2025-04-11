@@ -1,20 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text,StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text,StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { router } from 'expo-router';
+import AddContactScreen from './addContact';
+import { useState } from 'react';``
 
+  export default function StatusScreen() {
+    const [isModalVisible, setModalVisible] = useState(false);
 
+    const toggleModal = () => setModalVisible(!isModalVisible);
   
-  const AddContact = () => {
-    router.push("/addContact");
-  };
-export default function StatusScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
       <Text>Mes Contacts...</Text>
 
-         <TouchableOpacity style={styles.fab} onPress={AddContact}>
+         <TouchableOpacity style={styles.fab} onPress={toggleModal}>
          <Ionicons name="person-add" size={28} color="white" />
             </TouchableOpacity>
+        
+          <AddContactScreen  visible={isModalVisible} onClose={toggleModal}/>    
     </View>
   );
 }
@@ -35,4 +38,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
+  
+  
 })
