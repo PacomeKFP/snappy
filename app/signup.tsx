@@ -1,10 +1,12 @@
-import { View, Text, TextInput, StyleSheet,Image, TouchableOpacity, ImageBackground } from "react-native";
+import { View,  StyleSheet,Image,  ImageBackground } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from "@/components/ThemeTextInput";
 import { ThemeTouchableOpacity } from "@/components/ThemeTouchableOpacity";
+import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -12,11 +14,14 @@ export default function SignupScreen() {
   const [confirm_password, setConfirm_Password] = useState("");
   const router = useRouter();
 
+      const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
+      const projetId =    "81997082-7e88-464a-9af1-b790fdd454f8";
+      
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username || !password || !email||!confirm_password) {
       alert("Veuillez remplir tous les champs.");
       return;
@@ -27,8 +32,27 @@ export default function SignupScreen() {
     }
     if(confirm_password != password){
       alert("mot de passe different, veillez saisir à nouveau votre mot de passe.")
+      return;
     }
-    router.push("/login"); 
+    try {
+    const result = snappy.createUser({
+        "projectId":projetId,
+        "externalId":"test",
+        "avatar":"../assets/images/logo.png",
+        "displayName":username,
+        "email":email,
+        "login":email,
+        "secret":password
+       })
+       console.log(result);
+
+      // Store user data in AsyncStorage
+      await AsyncStorage.setItem('user', JSON.stringify(result));
+      router.push("/login"); 
+    } catch (error) {
+      return;
+    }
+
   };
   
   return (
@@ -40,18 +64,21 @@ export default function SignupScreen() {
       <ThemeTextInput
               variant="input"
         placeholder="Nom d'utilisateur"
+          placeholderTextColor='gray'
         value={username}
         onChangeText={setUsername}
       />
       <ThemeTextInput
         variant="input"
         placeholder="Email"
+          placeholderTextColor='gray'
         value={email}
         onChangeText={setEmail}
       />
       <ThemeTextInput
         variant="input"
         placeholder="Mot de passe"
+          placeholderTextColor='gray'
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -59,6 +86,7 @@ export default function SignupScreen() {
       <ThemeTextInput
         variant="input"
         placeholder="Confirmer le Mot de passe"
+          placeholderTextColor='gray'
         secureTextEntry
         value={confirm_password}
         onChangeText={setConfirm_Password}
