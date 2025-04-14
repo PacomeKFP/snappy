@@ -1,4 +1,5 @@
-import {BaseService} from "./BaseService.ts";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {BaseService} from "./BaseService";
 import {
     AddContactDto,
     AuthenticateOrganizationDto,
@@ -14,6 +15,7 @@ export class SnappyHTTPClient extends BaseService {
     projectId?: string;
     bearerToken?: string;
     basePath: string;
+    user?: User;
 
     constructor(basePath: string, bearerToken?: string, projectId?: string) {
         super(basePath)
@@ -21,14 +23,20 @@ export class SnappyHTTPClient extends BaseService {
         this.bearerToken = bearerToken;
         this.basePath = basePath;
         if (!this.bearerToken)
-            this.loadBearerToken()
+        (async ()=>{await this.loadBearerToken()})()
+        if (!this.user){
+            (async ()=>{await this.loadUser()})()
+        }
     }
 
     setProjectId = (projectId: string) => this.projectId = projectId;
     setBearerToken = (bearerToken: string) => this.bearerToken = bearerToken;
-    saveBearerToken = () => this.bearerToken && localStorage.setItem("bearer", this.bearerToken);
-    loadBearerToken = () => localStorage.getItem("bearer") && this.setBearerToken(localStorage.getItem("bearer")!);
-
+    saveBearerToken = () => this.bearerToken && AsyncStorage.setItem("bearer", this.bearerToken);
+    loadBearerToken = async () => await AsyncStorage.getItem("bearer") && this.setBearerToken((await AsyncStorage.getItem("bearer"))!);
+    setUser = (user: User)=> this.user = user;
+    getUser = () => this.user;
+    saveUser = () => this.user && AsyncStorage.setItem("user", (JSON.stringify(this.user)))
+    loadUser = async () => await AsyncStorage.getItem("user") &&this.setUser(JSON.parse((await AsyncStorage.getItem("user"))!))
     // Organization
     async createOrganization(dto: CreateOrganizationDto) {
         this.refreshApiInstance(this.basePath, false)
@@ -86,6 +94,8 @@ export class SnappyHTTPClient extends BaseService {
         this.setBearerToken(authenticationResourceUser.token)
         this.refreshApiInstance(this.basePath, true, this.bearerToken!)
         this.saveBearerToken()
+        this.setUser(authenticationResourceUser.data)
+        this.saveUser()
         return authenticationResourceUser;
     }
 
