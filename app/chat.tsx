@@ -6,7 +6,7 @@ import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 import { ChatService } from '@/services/chat-service';
 import { ChatResource } from '@/lib/models';
-import { fetchChats } from '../assets/dataFetcher';
+import { fetchChats } from '../services/subservices/chatFetcher';
 
 
 // Liste des conversations
