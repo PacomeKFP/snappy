@@ -6,4 +6,5 @@ import lombok.Data;
 public class GetChatDetailsDto {
   String user;
   String interlocutor;
+  String projectId;
 }
