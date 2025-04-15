@@ -1,4 +1,4 @@
-import { View,  StyleSheet,Image,  ImageBackground } from "react-native";
+import { View,  StyleSheet,Image,  ImageBackground, ActivityIndicator,Text } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { ThemeText } from '@/components/ThemeText';
@@ -7,53 +7,16 @@ import { ThemeTouchableOpacity } from "@/components/ThemeTouchableOpacity";
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { AuthenticationService } from "@/services/authentication-service";
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirm_Password] = useState("");
+  const [isAuthenticating,setIsAuthentificating] = useState(false)
   const router = useRouter();
 
-      const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-      const projetId =    "81997082-7e88-464a-9af1-b790fdd454f8";
-      
-  const validateEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
-
-  const handleLogin = async () => {
-    if (!username || !password || !email||!confirm_password) {
-      alert("Veuillez remplir tous les champs.");
-      return;
-    }
-    if (!validateEmail(email)) {//verification de l'email
-      alert("Veuillez entrer une adresse email valide.");
-      return;
-    }
-    if(confirm_password != password){
-      alert("mot de passe different, veillez saisir à nouveau votre mot de passe.")
-      return;
-    }
-    try {
-    const result = snappy.createUser({
-        "projectId":projetId,
-        "externalId":"test",
-        "avatar":"../assets/images/logo.png",
-        "displayName":username,
-        "email":email,
-        "login":email,
-        "secret":password
-       })
-       console.log(result);
-
-      // Store user data in AsyncStorage
-      await AsyncStorage.setItem('user', JSON.stringify(result));
-      router.push("/login"); 
-    } catch (error) {
-      return;
-    }
-
-  };
+  
   
   return (
         <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
@@ -92,9 +55,17 @@ export default function SignupScreen() {
         onChangeText={setConfirm_Password}
       />
 
-      <ThemeTouchableOpacity variant="button" onPress={handleLogin}>
+      <ThemeTouchableOpacity variant="button"
+       onPress={(e) => AuthenticationService.register(email, password,confirm_password,username, router,setIsAuthentificating)}>
         <ThemeText variant="buttonText">S'inscrire</ThemeText>
       </ThemeTouchableOpacity>
+
+      {isAuthenticating && (
+              <View>
+                <ActivityIndicator size="large" color="#7B52AB" />
+                <Text>Chargement...</Text>
+              </View>
+            )}
     </View>
     </ImageBackground>
   );

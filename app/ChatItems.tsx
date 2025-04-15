@@ -33,6 +33,13 @@ export default function ChatRoom() {
       setNewMessage("");
     }
   };
+  const handleSendFile = () => {
+    // Fonction pour envoyer un fichier
+  };
+
+  const handleSendEmoji = () => {
+    // Fonction pour envoyer un émoticône
+  };
 
   return (
     <View style={styles.container}>
@@ -59,6 +66,13 @@ export default function ChatRoom() {
       />
 
       <View style={styles.inputContainer}>
+      <TouchableOpacity onPress={handleSendFile}>
+        <Ionicons name="attach" size={24} color="#7B52AB" />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={handleSendEmoji}>
+        <Ionicons name="happy" size={24} color="#7B52AB" />
+      </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Écrire un message..."

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, ImageBackground } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -6,19 +6,15 @@ import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from "@/components/ThemeTextInput";
 import { ThemeTouchableOpacity } from "@/components/ThemeTouchableOpacity";
 
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { SnappyHTTPClient } from "../lib/SnappyHTTPClient";
 import { AuthenticationService } from "@/services/authentication-service";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [isAuthenticating,setIsAuthentificating] = useState(false)
 
   const router = useRouter();
-
-  // Validate email format
-
 
   return (
     <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
@@ -49,7 +45,7 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
         />
-        <ThemeTouchableOpacity variant="button" onPress={(e) => AuthenticationService.login(email, password, router)}>
+        <ThemeTouchableOpacity variant="button" onPress={(e) => AuthenticationService.login(email, password, router,setIsAuthentificating)}>
           <ThemeText variant="buttonText">Se connecter</ThemeText>
         </ThemeTouchableOpacity>
         <Text>
@@ -58,6 +54,13 @@ export default function LoginScreen() {
             Inscrivez-vous
           </Link>
         </Text>
+
+        {isAuthenticating && (
+        <View>
+          <ActivityIndicator size="large" color="#7B52AB" />
+          <Text>Chargement...</Text>
+        </View>
+      )}
       </View>
     </ImageBackground>
   );

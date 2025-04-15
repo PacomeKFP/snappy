@@ -5,6 +5,7 @@ import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from '@/components/ThemeTextInput';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 import Modal from 'react-native-modal';
+import { ContactService } from '@/services/add-contact-service';
 
 type CommentModalProps = {
   visible: boolean;
@@ -13,32 +14,6 @@ type CommentModalProps = {
 const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-
-
-  const validateEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
-
-  const handleAddContact = () => {
-    if (!username || !email) {
-      alert("Veuillez remplir tous les champs.");
-      return;
-    }
-    if (!validateEmail(email)) {
-      alert("Veuillez entrer une adresse email valide.");
-      return;
-    }    
-    Alert.alert(
-      "Confirmation",
-      `Voulez-vous ajouter ${email} ?`,
-      [
-
-        { text: "Annuler", style: "cancel" },
-        { text: "OK", onPress: () => onClose() }
-      ]
-    );
-    
-  };
 
   
   return ( 
@@ -69,7 +44,7 @@ const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => 
                 value={username}
                 onChangeText={setUsername}
               />
-              <ThemeTouchableOpacity variant="button"onPress={handleAddContact}>
+              <ThemeTouchableOpacity variant="button"onPress={(e) => {ContactService.addContact(email,username,onClose)}}>
                 <ThemeText variant="buttonText">Ajouter</ThemeText>
               </ThemeTouchableOpacity>
                   
