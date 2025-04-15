@@ -4,9 +4,11 @@ import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
+import {ChatService} from '../services/chat-service';
 
 
-
+let Dis = ChatService.getUserChat
+console.log(Dis);
 // Liste des conversations
 const chats = [
   { id: '1', name: 'Alice', lastMessage: 'Salut, comment ça va ?', avatar: require('../assets/images/me.jpeg'), time: '14:30', unreadCount: 3 },
@@ -28,6 +30,7 @@ export default function ChatScreen() {
   
   return (
     <View style={styles.container}>
+      
       <FlatList
         data={chats}
         keyExtractor={(item) => item.id}

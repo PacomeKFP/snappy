@@ -1,24 +1,44 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet,TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet,TextInput,ActivityIndicator} from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeTextInput } from "@/components/ThemeTextInput";
+import { User } from "@/lib/models/user";
+import {ChatService} from '../services/chat-service';
 
-// Liste de contacts disponibles
-const contacts = [
-  { id: "1", name: "Emma", avatar: require("../assets/images/me.jpeg") },
-  { id: "2", name: "Liam", avatar: require("../assets/images/me.jpeg") },
-  { id: "3", name: "Sophia", avatar: require("../assets/images/me.jpeg") },
-];
+
 
 export default function NewChat() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [search, setSearch] = useState("");
-    const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
     const handleCloseSearch = () => {
       setShowSearch(false);
       setSearch(""); 
     };
+    useEffect(() => {
+      const loadUsers = async () => {
+        try {
+          const userArray = await fetchUsers(); // Attend la résolution de la promesse
+          setUsers(userArray);
+        } catch (error) {
+          console.error("Erreur:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      loadUsers();
+    }, []);
+    
+    if (loading) {
+      return <ActivityIndicator size="large" />;
+    }
+  const fetchUsers = async ()=>{
+        return ChatService.getViewContact();
+      }
   // Démarrer une nouvelle conversation
   const startChat = (name: string, avatar: any) => {
     router.push({ pathname: "/ChatItems", params: { name, avatar } });
@@ -55,12 +75,12 @@ export default function NewChat() {
               </View>
       </View>
       <FlatList
-        data={contacts}
-        keyExtractor={(item) => item.id}
+        data={users}
+        keyExtractor={(item) => item?.externalId||Math.random().toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.contactItem} onPress={() => startChat(item.name, item.avatar)}>
-            <Image source={item.avatar} style={styles.avatar} />
-            <Text style={styles.name}>{item.name}</Text>
+          <TouchableOpacity style={styles.contactItem} onPress={() => startChat(item!.displayName!, item.avatar)}>
+            <Image source ={require('../assets/images/me.jpeg')} style={styles.avatar} />
+            <Text style={styles.name}>{item.displayName}</Text>
           </TouchableOpacity>
         )}
       />
