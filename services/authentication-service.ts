@@ -86,8 +86,8 @@ export class AuthenticationService {
            console.log(result);
     
            //authentificate user
-           this.login(email, password, router, setIsAuthentificating)
-
+           //this.login(email, password, router, setIsAuthentificating)
+           router.push("/home");
   }catch (error) {
 
     console.error("Error during registration:", error);
