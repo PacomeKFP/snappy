@@ -1,4 +1,5 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 
 export  class ContactService{
@@ -34,6 +35,7 @@ export  class ContactService{
                           "contactId": otherUser[0]!.id!, 
                           "projectId":projectId
                         });
+                        
                         onClose();
                       } else {
                         alert("No contacts found.");

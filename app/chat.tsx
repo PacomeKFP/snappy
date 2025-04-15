@@ -4,17 +4,28 @@ import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
+import { ChatService } from '@/services/chat-service';
+import { ChatResource } from '@/lib/models';
 
 
 
 // Liste des conversations
-const chats = [
-  { id: '1', name: 'Alice', lastMessage: 'Salut, comment ça va ?', avatar: require('../assets/images/me.jpeg'), time: '14:30', unreadCount: 3 },
-  { id: '2', name: 'Bob', lastMessage: 'Tu es dispo ce soir ?', avatar: require('../assets/images/me.jpeg'), time: '12:30', unreadCount: 0 },
-  { id: '3', name: 'Oscar', lastMessage: 'Calcio demain ?', avatar: require('../assets/images/me.jpeg'), time: '19:30', unreadCount: 1 },
-];
+//Recupérer de AsyncStorage ou en ligne
 
-export default function ChatScreen() {
+
+
+// const chats = [
+//   { id: '1', name: 'Alice', lastMessage: 'Salut, comment ça va ?', avatar: require('../assets/images/me.jpeg'), time: '14:30', unreadCount: 3 },
+//   { id: '2', name: 'Bob', lastMessage: 'Tu es dispo ce soir ?', avatar: require('../assets/images/me.jpeg'), time: '12:30', unreadCount: 0 },
+//   { id: '3', name: 'Oscar', lastMessage: 'Calcio demain ?', avatar: require('../assets/images/me.jpeg'), time: '19:30', unreadCount: 1 },
+// ];
+
+export default async function ChatScreen() {
+  const [chats, setChats] = React.useState<ChatResource[]>([]);
+  
+  const userChats = await ChatService.getUserChat();
+  setChats(userChats);
+
   // Fonction pour ouvrir une conversation
   const handleChatNavigation = (name: string, avatar: any) => {
     router.push({
@@ -30,25 +41,30 @@ export default function ChatScreen() {
     <View style={styles.container}>
       <FlatList
         data={chats}
-        keyExtractor={(item) => item.id}
+        // keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-        <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.name, item.avatar)}>
+        <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.user?.displayName || '', item.user?.avatar)}>
             
-            <Image source={item.avatar} style={styles.avatar} />
+            <Image 
+              source={item.user?.avatar ? { uri: item.user.avatar } : require('../assets/images/me.jpeg')} 
+              style={styles.avatar} 
+            />
 
             
             <View style={styles.textContainer}>
-              <ThemeText variant='titre'>{item.name}</ThemeText>
-              <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</ThemeText>
+              <ThemeText variant='titre'>{item.user?.displayName}</ThemeText>
+              <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage?.body || ''}</ThemeText>
             </View>
 
             <View style={styles.rightContainer}>
-              <ThemeText variant='time' style={styles.time}>{item.time}</ThemeText>
-              {item.unreadCount > 0 && (
+              <ThemeText variant='time' style={styles.time}>{item.lastMessage?.updatedAt?.toLocaleString()}</ThemeText>
+
+              //nombre de message non lu
+              {/* {item.unreadCount > 0 && (
                 <View style={styles.unreadBadge}>
                   <ThemeText style={styles.unreadThemeText}>{item.unreadCount}</ThemeText>
                 </View>
-              )}
+              )} */}
             </View>
           </TouchableOpacity>
         )}
@@ -121,4 +137,6 @@ const styles = StyleSheet.create({
   },
 
 });
+
+// Removed duplicate ChatScreen function to resolve the error.
 
