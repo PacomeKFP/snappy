@@ -23,13 +23,7 @@ export default function LoginScreen() {
         <ThemeText variant="titrelogin" style={styles.title}>
           <Icon name="login" size={20} color="purple" /> Connexion
         </ThemeText>
-        <ThemeTextInput
-          variant="input"
-          placeholder="Nom d'utilisateur"
-          placeholderTextColor="gray"
-          value={username}
-          onChangeText={setUsername}
-        />
+        
         <ThemeTextInput
           variant="input"
           placeholder="Email"
