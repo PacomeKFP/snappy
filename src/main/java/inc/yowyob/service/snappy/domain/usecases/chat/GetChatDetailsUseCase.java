@@ -40,8 +40,8 @@ public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDet
     // Fetch messages exchanged between the two users using a repository query
     List<Message> messages =
         messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
-            UUID.fromString(user.getId()), UUID.fromString(interlocutor.getId()),
-            UUID.fromString(interlocutor.getId()), UUID.fromString(user.getId()));
+            user.getId(),interlocutor.getId(),
+            interlocutor.getId(), user.getId());
 
     // Transform messages into ChatDetailsResource objects
     ChatDetailsResource resource = new ChatDetailsResource();
