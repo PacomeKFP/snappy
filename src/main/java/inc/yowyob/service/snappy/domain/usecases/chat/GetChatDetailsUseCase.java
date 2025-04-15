@@ -45,7 +45,7 @@ public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDet
 
     // Transform messages into ChatDetailsResource objects
     ChatDetailsResource resource = new ChatDetailsResource();
-    interlocutor.setOrganization = null;
+    interlocutor.setOrganization(null);
     resource.setUser(interlocutor); // Set the interlocutor
     resource.setMessages(messages); // Set the message details
     return resource;
