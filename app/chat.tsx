@@ -4,10 +4,8 @@ import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
-
-
-let Dis = ChatService.getUserChat
-console.log(Dis);
+import {ChatResource} from "@/lib/models";
+import {fetchChats} from "../services/subservices/chatFetcher";
 // Liste des conversations
 //Recupérer de AsyncStorage ou en ligne
 
