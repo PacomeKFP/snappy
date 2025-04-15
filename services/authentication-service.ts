@@ -48,7 +48,7 @@ export class AuthenticationService {
 
   public static async register(email: string, password: string, confirm_password : string , username: string, router :any,setIsAuthentificating:any) {    
 
-    const projetId =    "81997082-7e88-464a-9af1-b790fdd454f8";
+    const projetId ="81997082-7e88-464a-9af1-b790fdd454f8";
 
     //generate externalId
     const { v4: uuidv4 } = require('uuid');
