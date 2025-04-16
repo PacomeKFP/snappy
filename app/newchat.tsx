@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeTextInput } from "@/components/ThemeTextInput";
 import { User } from "@/lib/models/user";
-import {fetchUsers} from "../services/subservices/userFetcher";
+import { fetchUsers } from "@/services/subservices/userFetcher";
 
 
 export default function NewChat() {
@@ -35,7 +35,6 @@ export default function NewChat() {
     if (loading) {
       return <ActivityIndicator size="large" />;
     }
-
   // Démarrer une nouvelle conversation
   const startChat = (name: string, avatar: any) => {
     router.push({ pathname: "/ChatItems", params: { name, avatar } });

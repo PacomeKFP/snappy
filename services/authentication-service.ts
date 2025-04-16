@@ -1,5 +1,6 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
 export class AuthenticationService {
 
@@ -114,6 +115,7 @@ export class AuthenticationService {
              //save user inn AsyncSTorage
           await AsyncStorage.setItem('user', JSON.stringify(result));
 
+          Alert.alert(result!.displayName!, "Votre compte a été créé avec succès !")
            //authentificate user
            this.login(email, password, router, setIsAuthentificating)
            //router.push("/home");

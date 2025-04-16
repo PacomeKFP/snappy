@@ -15,7 +15,7 @@ export default function Home() {
 
   const handleCloseSearch = () => {
     setShowSearch(false);
-    setSearch(""); 
+    setSearch("");
   };
 
   return (
@@ -39,7 +39,7 @@ export default function Home() {
             </View>
           ) : (
             <TouchableOpacity onPress={() => setShowSearch(true)}>
-              <Ionicons name="search" size={24}  color="#7B52AB" />
+              <Ionicons name="search" size={24} color="#7B52AB" />
             </TouchableOpacity>
           )}
           <AppMenu />
@@ -52,8 +52,8 @@ export default function Home() {
           tabBarStyle: styles.tabBar,
           tabBarIndicatorStyle: styles.tabIndicator,
           tabBarActiveTintColor: "#7B52AB",
-          tabBarInactiveTintColor: "#555", 
-          tabBarLabelStyle: { fontWeight: "bold" }, 
+          tabBarInactiveTintColor: "#555",
+          tabBarLabelStyle: { fontWeight: "bold" },
         }}
       >
         <Tab.Screen name="Chats" component={ChatScreen} />
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#eFeFeF",
     borderRadius: 20,
-    flex: 1, 
+    flex: 1,
     paddingHorizontal: 10,
   },
   title: {
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-   
+
   },
   tabIndicator: { backgroundColor: "#7B52AB", height: 3 },
 });

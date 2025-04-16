@@ -4,11 +4,11 @@ import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
-import {ChatResource} from "@/lib/models";
-import {fetchChats} from "../services/subservices/chatFetcher";
+import { ChatResource } from "@/lib/models";
+import { fetchChats } from "../services/subservices/chatFetcher";
 
 
-export default  function ChatScreen() {
+export default function ChatScreen() {
   const [chats, setChats] = useState<ChatResource[]>([]);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default  function ChatScreen() {
     };
     loadChats();
   }, []);
-  
+
   // Fonction pour ouvrir une conversation
   const handleChatNavigation = (name: string, avatar: any) => {
     router.push({
@@ -29,22 +29,22 @@ export default  function ChatScreen() {
   const openNewChat = () => {
     router.push("/newchat");
   };
-  
+
   return (
     <View style={styles.container}>
-      
+
       <FlatList
         data={chats}
-        keyExtractor={(item) => item.user?.id  || Math.random().toString()}
+        keyExtractor={(item) => item.user?.id || Math.random().toString()}
         renderItem={({ item }: { item: ChatResource }) => (
-        <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.user!.displayName! , item.user?.avatar)}>
-            
-            <Image 
-              source={item.user?.avatar ? { uri: item.user.avatar } : require('../assets/images/me.jpeg')} 
-              style={styles.avatar} 
+          <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.user!.displayName!, item.user?.avatar)}>
+
+            <Image
+              source={item.user?.avatar ? { uri: item.user.avatar } : require('../assets/images/me.jpeg')}
+              style={styles.avatar}
             />
 
-            
+
             <View style={styles.textContainer}>
               <ThemeText variant='titre'>{item.user?.displayName}</ThemeText>
               <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage?.body || ''}</ThemeText>
@@ -64,7 +64,7 @@ export default  function ChatScreen() {
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-     
+
       <ThemeTouchableOpacity variant="fab" onPress={openNewChat}>
         <Ionicons name="chatbubble-ellipses" size={28} color="white" />
       </ThemeTouchableOpacity>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: 'gray',
-    
+
     marginBottom: 5,
   },
   unreadBadge: {

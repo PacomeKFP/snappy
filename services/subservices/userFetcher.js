@@ -1,5 +1,5 @@
-import {ChatService} from "@/services/contact-service";
+import { ContactService } from "@/services/contact-service";
 
-export const fetchUsers = async ()=>{
-        return ChatService.getViewContact();
-      }
+export const fetchUsers = async () => {
+  return ContactService .getViewContact();
+}

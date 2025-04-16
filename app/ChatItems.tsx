@@ -1,38 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
-import {format} from 'date-fns';
+import { format } from 'date-fns';
 import { ThemeText } from '@/components/ThemeText';
+import { Message } from "@/lib/models";
+import { fetchChatDetails } from "../services/subservices/chatDetailsFetcher";
+import { ChatService } from "../services/chat-service";
 
 // Interface d'un message
-interface Message {
-  id: string;
-  text: string;
-  sender: "me" | "other";
-  time:string;
-}
+// interface Message {
+//   id: string;
+//   text: string;
+//   sender: "me" | "other";
+//   time:string;
+// }
 
 // Écran de la conversation
 export default function ChatRoom() {
   const router = useRouter();
   const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Récupérer les paramètres de navigation
-  
-  const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Salut ! Comment ça va ?", sender: "other",time:'12h30' },
-    { id: "2", text: "Hey ! Ça va bien et toi ?", sender: "me", time:'12h35' },
-  ]);
+
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    const loadChatDetails = async () => {
+      const chatDetails = await fetchChatDetails(name);
+      setMessages(chatDetails);
+    }
+    loadChatDetails();
+  }, []);
 
   const [newMessage, setNewMessage] = useState("");
 
-  // Envoyer un message
-  const sendMessage = () => {
-    if (newMessage.trim() !== "") {
-      setMessages([...messages, { id: Date.now().toString(), text: newMessage, sender: "me",time:format(new Date(),'HH:mm') }]);
-      setNewMessage("");
-    }
-  };
+
   const handleSendFile = () => {
     // Fonction pour envoyer un fichier
   };
@@ -50,36 +52,39 @@ export default function ChatRoom() {
         <Image source={{ uri: avatar }} style={styles.avatar} />
         <ThemeText style={styles.headerText}>{name}</ThemeText>
         <Ionicons name="call" size={24} color="white" style={styles.icon} />
-        <AppSetting/>
+        <AppSetting />
       </View>
 
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || (item.createdAt ? item.createdAt.toString() : Date.now().toString())}
         renderItem={({ item }) => (
-          <View style={[styles.messageContainer, item.sender === "me" ? styles.myMessage : styles.otherMessage]}>
-            <ThemeText style={styles.messageText}>{item.text}</ThemeText>
-            <ThemeText style= {styles.Time}>{item.time}</ThemeText>
+          <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
+            <ThemeText style={styles.messageText}>{item.body}</ThemeText>
+            <ThemeText style={styles.Time}>{item.createdAt ? format(new Date(item.createdAt), 'HH:mm') : ''}</ThemeText>
           </View>
         )}
         contentContainerStyle={styles.chatBody}
       />
 
       <View style={styles.inputContainer}>
-      <TouchableOpacity onPress={handleSendFile}>
-        <Ionicons name="attach" size={24} color="#7B52AB" />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleSendFile}>
+          <Ionicons name="attach" size={24} color="#7B52AB" />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleSendEmoji}>
-        <Ionicons name="happy" size={24} color="#7B52AB" />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleSendEmoji}>
+          <Ionicons name="happy" size={24} color="#7B52AB" />
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Écrire un message..."
           value={newMessage}
           onChangeText={setNewMessage}
         />
-        <TouchableOpacity onPress={sendMessage}>
+        <TouchableOpacity onPress={() => {
+          ChatService.sendMessage(newMessage, name);
+          setNewMessage("")
+        }}>
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>
       </View>
@@ -88,9 +93,10 @@ export default function ChatRoom() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#F3F3F3" },
+  container: {
+    flex: 1,
+    backgroundColor: "#F3F3F3"
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -130,10 +136,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#DDD",
   },
-  Time:{
-    color:"#423838",
-    fontSize:12,
-    alignSelf:"flex-end"
+  Time: {
+    color: "#423838",
+    fontSize: 12,
+    alignSelf: "flex-end"
   },
   input: {
     flex: 1,

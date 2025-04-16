@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert ,ImageBackground} from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { router } from 'expo-router';
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from '@/components/ThemeTextInput';
@@ -15,8 +15,8 @@ const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => 
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
 
-  
-  return ( 
+
+  return (
     <Modal
       isVisible={visible}
       onBackdropPress={onClose}
@@ -25,41 +25,41 @@ const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => 
       style={styles.modal}
       propagateSwipe
     >
-    
-    <View style={styles.container}>
+
+      <View style={styles.container}>
         <View style={styles.headerBar} />
-              
-              <ThemeText variant="titrelogin" style={styles.title}>Ajouter Personne</ThemeText>
-              <ThemeTextInput
-                      variant="input"
-                placeholder="leonel.azangue@facscience-uy1.cm"
-                placeholderTextColor='gray'
-                value={email}
-                onChangeText={setEmail}
-              />
-              <ThemeTextInput
-                      variant="input"
-                placeholder="Nom d'utilisateur"
-                placeholderTextColor='gray'
-                value={username}
-                onChangeText={setUsername}
-              />
-              <ThemeTouchableOpacity variant="button"onPress={(e) => {ContactService.addContact(email,username,onClose)}}>
-                <ThemeText variant="buttonText">Ajouter</ThemeText>
-              </ThemeTouchableOpacity>
-                  
-          
+
+        <ThemeText variant="titrelogin" style={styles.title}>Ajouter Personne</ThemeText>
+        <ThemeTextInput
+          variant="input"
+          placeholder="leonel.azangue@facscience-uy1.cm"
+          placeholderTextColor='gray'
+          value={email}
+          onChangeText={setEmail}
+        />
+        <ThemeTextInput
+          variant="input"
+          placeholder="Nom d'utilisateur"
+          placeholderTextColor='gray'
+          value={username}
+          onChangeText={setUsername}
+        />
+        <ThemeTouchableOpacity variant="button" onPress={(e) => { ContactService.addContact(email, username, onClose) }}>
+          <ThemeText variant="buttonText">Ajouter</ThemeText>
+        </ThemeTouchableOpacity>
+
+
       </View>
-      
-     </Modal>
+
+    </Modal>
   );
 };
 
 export default AddContactScreen;
 
 const styles = StyleSheet.create({
- 
-  
+
+
   container: {
     backgroundColor: 'white',
     paddingHorizontal: 20,
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: '80%',
   },
- 
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
