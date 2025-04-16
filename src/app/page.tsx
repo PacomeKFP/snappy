@@ -58,12 +58,6 @@ const LandingPage = () => {
             image: "/images/tests/chat-conversation-communication-connection-concept.jpg"
         },
         {
-            icon: <Users className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
-            title: t.features.thematicRooms.title,
-            description: t.features.thematicRooms.description,
-            image: "/images/tests/image.jpg"
-        },
-        {
             icon: <Globe className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
             title: t.features.fileSharing.title,
             description: t.features.fileSharing.description,
@@ -73,7 +67,7 @@ const LandingPage = () => {
             icon: <Smartphone className="w-12 h-12 mx-auto mb-4 text-blue-600" />,
             title: t.features.mobileApp.title,
             description: t.features.mobileApp.description,
-            image: "/api/placeholder/400/300"
+            image: "/images/tests/3949019.jpg"
         }
     ];
 
@@ -119,7 +113,7 @@ const LandingPage = () => {
             icon: <CheckCircle className="w-8 h-8 mb-4 text-blue-600 animate-pulse" />,
             title: t.security.gdpr.title,
             description: t.security.gdpr.description,
-            image: "/api/placeholder/400/300"
+            image: "/images/tests/rpg.png"
         }
     ];
 
@@ -353,7 +347,7 @@ const LandingPage = () => {
             <div className="container mx-auto px-18">
                 <h2 className="text-3xl font-bold text-center mb-4">{t.features.title}</h2>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Découvrez toutes les fonctionnalités qui font de Snappy Chat la solution idéale pour la communication d'équipe.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {featureItems.map((feature, index) => (
                         <div key={index} className="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-all duration-300">
                             {feature.icon}
@@ -548,7 +542,7 @@ const LandingPage = () => {
                             <div key={index} className="text-center">
                                 <div className="relative mb-4 mx-auto w-48 h-48 rounded-full overflow-hidden transform transition-transform duration-500 hover:scale-105">
                                     <img 
-                                        src="/images/user/image.png" 
+                                        src={member.avatar} 
                                         alt={member.name} 
                                         className="w-full h-full object-cover"
                                     />
