@@ -5,7 +5,7 @@ import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from '@/components/ThemeTextInput';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 import Modal from 'react-native-modal';
-import { ContactService } from '@/services/add-contact-service';
+import { ContactService } from '@/services/contact-service';
 
 type CommentModalProps = {
   visible: boolean;

@@ -28,10 +28,17 @@ export  class ContactService{
                     snappy.filterUserByDisplayName({
                       "displayName": username,
                       "projectId": projectId
-                    }).then((otherUser) => {
+                    }).then(async (otherUser) => {
                       if (otherUser.length > 0) {
                         snappy.addContact({
-                          "requesterId": snappy.getUser()!.id!, //get user's ID
+                          "requesterId":await (async () => {
+                            const value = await AsyncStorage.getItem("user");
+                            if (value !== null) {
+                                // We have data!!
+                                return JSON.parse(value).externalId;
+                            }
+                            return snappy.getUser()!.externalId!;
+                        })(), //get user's ID
                           "contactId": otherUser[0]!.id!, 
                           "projectId":projectId
                         });
@@ -54,4 +61,21 @@ export  class ContactService{
          }
     }
  
+    public static async getViewContact(){
+        const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
+        const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
+        
+        const Contact = await snappy.getUserContacts({
+            "projectId":projectId,
+            "userExternalId": await (async () => {
+                const value = await AsyncStorage.getItem("user");
+                if (value !== null) {
+                    // We have data!!
+                    return JSON.parse(value).externalId;
+                }
+                return snappy.getUser()!.externalId!;
+            })()
+        })
+        return Contact
+    }
 }

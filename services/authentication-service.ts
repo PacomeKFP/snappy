@@ -32,10 +32,31 @@ export class AuthenticationService {
       });
 
       //save user inn AsyncSTorage
-      await AsyncStorage.setItem('user', JSON.stringify(result));
+      //await AsyncStorage.setItem('user', JSON.stringify(snappy.getUser()));
       
-  
+    AsyncStorage.getItem('user').then((value) => {
+      if (value !== null) {
+        // We have data!!
+        console.log("user", JSON.parse(value));
+
+      }
+    });
+
+    console.log("contacts",snappy.getUserContacts({
+      "projectId":projectId,
+      "userExternalId":await (async () => {
+        const value = await AsyncStorage.getItem("user");
+        if (value !== null) {
+            // We have data!!
+            return JSON.parse(value).externalId;
+        }
+        return snappy.getUser()!.externalId!;
+    })()
+    }))
+
+
       setIsAuthentificating(false)
+    
       router.push("/home");
     } catch (error) {
 
@@ -89,6 +110,10 @@ export class AuthenticationService {
            console.log(result);
           
            setIsAuthentificating(false)
+
+             //save user inn AsyncSTorage
+          await AsyncStorage.setItem('user', JSON.stringify(result));
+
            //authentificate user
            this.login(email, password, router, setIsAuthentificating)
            //router.push("/home");
