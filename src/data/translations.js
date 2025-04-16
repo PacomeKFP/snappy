@@ -25,10 +25,6 @@ export const translations = {
                 title: 'Messages instantanés',
                 description: 'Échangez des messages en temps réel avec votre équipe.'
             },
-            thematicRooms: {
-                title: 'Salons thématiques',
-                description: 'Créez des canaux dédiés pour chaque projet ou équipe.'
-            },
             fileSharing: {
                 title: 'Partage de fichiers',
                 description: 'Partagez facilement documents, images et fichiers.'
@@ -86,7 +82,7 @@ export const translations = {
             }
         },
         metrics: {
-            title: 'Métriques d\'engagement',
+            title: '',
             subtitle: 'Des chiffres qui témoignent de la confiance que nous accordent nos utilisateurs.',
             users: {
                 value: '250K+',
@@ -114,26 +110,32 @@ export const translations = {
             subtitle: 'Des experts passionnés qui travaillent ensemble pour créer la meilleure plateforme de communication.',
             members: [
                 {
-                    name: 'Marie Laurent',
-                    role: 'Fondatrice & CEO',
-                    bio: 'Experte en communication d\'entreprise avec plus de 10 ans d\'expérience dans le secteur tech.'
+                    name: 'Thomas Djotio Ndié',
+                    role: 'Prof, Dr-Ing, CEO',
+                    bio: 'bio',
+                    avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Thomas Dubois',
-                    role: 'CTO',
-                    bio: 'Ingénieur en informatique passionné par les technologies de communication sécurisées.'
+                    name: 'Pacome kengali',
+                    role: 'role',
+                    bio: 'Bio.',
+                    avatar:'/profile/pacome.png'
                 },
                 {
-                    name: 'Sophie Moreau',
-                    role: 'Directrice Marketing',
-                    bio: 'Spécialiste en stratégie de croissance des applications SaaS B2B.'
+                    name: 'Loic Mbassi',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/loic.png'
+
                 },
                 {
-                    name: 'Alexandre Petit',
-                    role: 'Lead Developer',
-                    bio: 'Développeur full-stack avec une expertise en applications mobiles et web.'
+                    name: 'Anne Rosalie',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/rosalie.png'
                 }
             ]
+
         },
         pricing: {
             title: 'Tarifs adaptés à vos besoins',
@@ -229,10 +231,6 @@ export const translations = {
                 title: 'Instant Messaging',
                 description: 'Exchange real-time messages with your team.'
             },
-            thematicRooms: {
-                title: 'Thematic Channels',
-                description: 'Create dedicated channels for each project or team.'
-            },
             fileSharing: {
                 title: 'File Sharing',
                 description: 'Easily share documents, images and files.'
@@ -290,7 +288,7 @@ export const translations = {
             }
         },
         metrics: {
-            title: 'Engagement Metrics',
+            title: '',
             subtitle: 'Numbers that demonstrate the trust our users place in us.',
             users: {
                 value: '250K+',
@@ -318,26 +316,32 @@ export const translations = {
             subtitle: 'Passionate experts working together to create the best communication platform.',
             members: [
                 {
-                    name: 'Marie Laurent',
-                    role: 'Founder & CEO',
-                    bio: 'Business communication expert with over 10 years of experience in the tech industry.'
+                    name: 'Thomas Djotio Ndié',
+                    role: 'Prof, Dr-Ing, CEO',
+                    bio: 'bio',
+                    avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Thomas Dubois',
-                    role: 'CTO',
-                    bio: 'Computer engineer passionate about secure communication technologies.'
+                    name: 'Pacome kengali',
+                    role: 'role',
+                    bio: 'Bio.',
+                    avatar:'/profile/pacome.png'
                 },
                 {
-                    name: 'Sophie Moreau',
-                    role: 'Marketing Director',
-                    bio: 'Specialist in growth strategy for B2B SaaS applications.'
+                    name: 'Loic Mbassi',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/loic.png'
+
                 },
                 {
-                    name: 'Alexandre Petit',
-                    role: 'Lead Developer',
-                    bio: 'Full-stack developer with expertise in mobile and web applications.'
+                    name: 'Anne Rosalie',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/rosalie.png'
                 }
             ]
+
         },
         pricing: {
             title: 'Pricing tailored to your needs',
@@ -433,10 +437,6 @@ export const translations = {
                 title: 'Sofortnachrichten',
                 description: 'Tauschen Sie Echtzeitnachrichten mit Ihrem Team aus.'
             },
-            thematicRooms: {
-                title: 'Thematische Kanäle',
-                description: 'Erstellen Sie dedizierte Kanäle für jedes Projekt oder Team.'
-            },
             fileSharing: {
                 title: 'Datenaustausch',
                 description: 'Teilen Sie einfach Dokumente, Bilder und Dateien.'
@@ -494,7 +494,7 @@ export const translations = {
             }
         },
         metrics: {
-            title: 'Engagement-Metriken',
+            title: '',
             subtitle: 'Zahlen, die das Vertrauen belegen, das unsere Benutzer in uns setzen.',
             users: {
                 value: '250K+',
@@ -522,26 +522,32 @@ export const translations = {
             subtitle: 'Leidenschaftliche Experten, die gemeinsam an der Entwicklung der besten Kommunikationsplattform arbeiten.',
             members: [
                 {
-                    name: 'Marie Laurent',
-                    role: 'Gründerin & CEO',
-                    bio: 'Expertin für Unternehmenskommunikation mit über 10 Jahren Erfahrung in der Technologiebranche.'
+                    name: 'Thomas Djotio Ndié',
+                    role: 'Prof, Dr-Ing, CEO',
+                    bio: 'bio',
+                    avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Thomas Dubois',
-                    role: 'CTO',
-                    bio: 'Informatikingenieur mit Leidenschaft für sichere Kommunikationstechnologien.'
+                    name: 'Pacome kengali',
+                    role: 'role',
+                    bio: 'Bio.',
+                    avatar:'/profile/pacome.png'
                 },
                 {
-                    name: 'Sophie Moreau',
-                    role: 'Marketingleiterin',
-                    bio: 'Spezialistin für Wachstumsstrategien für B2B-SaaS-Anwendungen.'
+                    name: 'Loic Mbassi',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/loic.png'
+
                 },
                 {
-                    name: 'Alexandre Petit',
-                    role: 'Lead Developer',
-                    bio: 'Full-Stack-Entwickler mit Expertise in Mobile- und Web-Anwendungen.'
+                    name: 'Anne Rosalie',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/rosalie.png'
                 }
             ]
+
         },
         pricing: {
             title: 'Preise nach Ihren Bedürfnissen',
