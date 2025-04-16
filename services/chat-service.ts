@@ -75,11 +75,14 @@ export class ChatService {
         const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
         const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
 
+        //recherche l'Id de l'utilisateur à partir de son nom
+        const users = await snappy.filterUserByDisplayName({ "displayName": receiverName, "projectId": projectId });
+        const interlocutorId = users[0]!.externalId!;
         //logique d'envoi de message
         await snappy.sendMessage({
             "body": body,
             "projectId": projectId,
-            "receiverId": "",
+            "receiverId": interlocutorId,
             "senderId": await (async () => {
                 const value = await AsyncStorage.getItem("user");
                 if (value !== null) {

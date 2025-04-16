@@ -26,14 +26,13 @@ export class AuthenticationService {
       
       // Authenticate user
 
-      const result = await snappy.authenticateUser({
+      await snappy.authenticateUser({
         projectId,
         login: email,
         secret: password,
       });
 
       //save user inn AsyncSTorage
-      //await AsyncStorage.setItem('user', JSON.stringify(snappy.getUser()));
       
     AsyncStorage.getItem('user').then((value) => {
       if (value !== null) {
@@ -42,19 +41,6 @@ export class AuthenticationService {
 
       }
     });
-
-    console.log("contacts",snappy.getUserContacts({
-      "projectId":projectId,
-      "userExternalId":await (async () => {
-        const value = await AsyncStorage.getItem("user");
-        if (value !== null) {
-            // We have data!!
-            return JSON.parse(value).externalId;
-        }
-        return snappy.getUser()!.externalId!;
-    })()
-    }))
-
 
       setIsAuthentificating(false)
     
