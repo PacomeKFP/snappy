@@ -77,7 +77,7 @@ export class AuthenticationService {
 
           //create user
           setIsAuthentificating(true)
-        const result = snappy.createUser({
+        const result = await snappy.createUser({
             "projectId":projetId,
             "externalId":externalId,
             "avatar":"../assets/images/logo.png",
@@ -87,11 +87,11 @@ export class AuthenticationService {
             "secret":password
            })
            console.log(result);
-           alert(result)
+          
            setIsAuthentificating(false)
            //authentificate user
-           //this.login(email, password, router, setIsAuthentificating)
-           router.push("/home");
+           this.login(email, password, router, setIsAuthentificating)
+           //router.push("/home");
   }catch (error) {
 
     console.error("Error during registration:", error);
