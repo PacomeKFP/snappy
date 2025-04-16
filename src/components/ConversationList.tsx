@@ -8,6 +8,9 @@ import { formatTime } from "@/utils/dateFormat";
 import { conversations } from "@/datas/mockDatas";
 import { Conversation } from "@/types/interfaces";
 
+import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+
 export default function ConversationList() {
 	const [filteredConversations, setFilteredConversations] = useState<Conversation[]>(conversations);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -21,6 +24,20 @@ export default function ConversationList() {
 		setCurrentContactId(id);
 
 		console.log("Zuchuon was here :)");
+
+		// const httpClient = new SnappyHTTPClient(
+		// 	"http://88.198.150.195:8613"
+		// );
+
+		// console.log(httpClient.findOrganizationUsers("548857c5-4fc4-42bb-9184-2d338baeb9d7"));
+
+		const socketClient = new SnappySocketClient(
+			"http://88.198.150.195:8614",
+			"548857c5-4fc4-42bb-9184-2d338baeb9d7",
+			"current-user"
+		);
+
+		console.log(socketClient.newConnectionListener("current-user"));
 	};
 	// ---
 

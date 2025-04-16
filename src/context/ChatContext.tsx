@@ -2,7 +2,11 @@
 
 import { createContext, ReactNode, useContext, useState } from "react";
 
-import { SnappyHTTPClient, SnappySocketClient, ISnappySocketClient } from "snappy";
+import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+import { ISnappySocketClient } from "@/lib/ISnappySocketClient";
+
+import { Message } from "@/lib/models";
 
 import { conversations } from "@/datas/mockDatas";
 import { Conversation } from "@/types/interfaces";
@@ -12,6 +16,35 @@ interface ChatContextType {
 	setCurrentContactId: (contactId: string) => void;
 	setCurrentConversation: (newConversation: Conversation) => void;
 }
+
+// Initialisation du client HTTP
+export const httpClient = new SnappyHTTPClient("http://88.198.150.195:8613");
+
+// Initialisation du client Socket
+// export const socketClient = new SnappySocketClient("http://88.198.150.195:8614", "81997082-7e88-464a-9af1-b790fdd454f8", "current-user");
+
+// const socketHandlers: ISnappySocketClient = {
+// 	onConnect: () => {
+// 		console.log("Connecté au serveur");
+// 		setConnected(true);
+// 	},
+// 	onDisconnect: () => {
+// 		console.log("Déconnecté du serveur");
+// 		setConnected(false);
+// 	},
+// 	newConnectionListener: (user) => {
+// 		console.log(`${user} vient de se connecter`);
+// 	},
+// 	newDisconnectionListener: (user) => {
+// 		console.log(`${user} vient de se déconnecter`);
+// 	},
+// 	onMessageReceivedListener: (message) => {
+// 		console.log("Message reçu:", message);
+// 		setMessages((prev) => [...prev, message]);
+// 	},
+// };
+
+// socketClient.initialize(socketHandlers);
 
 // 1. Création du contexte
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
