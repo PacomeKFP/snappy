@@ -35,10 +35,12 @@ export class AuthenticationService {
       await AsyncStorage.setItem('user', JSON.stringify(result));
       
   
+      setIsAuthentificating(false)
       router.push("/home");
     } catch (error) {
 
       console.error("Error during authentication:", error);
+      setIsAuthentificating(false)
       // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
     
     }
@@ -74,6 +76,7 @@ export class AuthenticationService {
           const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
 
           //create user
+          setIsAuthentificating(true)
         const result = snappy.createUser({
             "projectId":projetId,
             "externalId":externalId,
@@ -84,13 +87,15 @@ export class AuthenticationService {
             "secret":password
            })
            console.log(result);
-    
+           alert(result)
+           setIsAuthentificating(false)
            //authentificate user
            //this.login(email, password, router, setIsAuthentificating)
            router.push("/home");
   }catch (error) {
 
     console.error("Error during registration:", error);
+    setIsAuthentificating(false)
     // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
   
   }

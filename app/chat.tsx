@@ -4,13 +4,8 @@ import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
-import { ChatService } from '@/services/chat-service';
-import { ChatResource } from '@/lib/models';
-import { fetchChats } from '../services/subservices/chatFetcher';
-
-
-// Liste des conversations
-//Recupérer de AsyncStorage ou en ligne
+import {ChatResource} from "@/lib/models";
+import {fetchChats} from "../services/subservices/chatFetcher";
 
 
 export default  function ChatScreen() {
@@ -37,6 +32,7 @@ export default  function ChatScreen() {
   
   return (
     <View style={styles.container}>
+      
       <FlatList
         data={chats}
         keyExtractor={(item) => item.user?.id  || Math.random().toString()}
