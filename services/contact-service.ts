@@ -49,8 +49,21 @@ export class ContactService {
                     "projectId": projectId
                   });
 
-                  //add user in AsyncSTorage 
-                AsyncStorage.setItem("contacts", JSON.stringify(otherUser))
+                  try {
+                    // Récupérer les contacts existants
+                    const jsonValue = await AsyncStorage.getItem("contacts");
+                    const contacts = jsonValue != null ? JSON.parse(jsonValue) : [];
+                
+                    // Ajouter le nouvel utilisateur
+                    contacts.push(otherUser[0]);
+                
+                    // Sauvegarder la liste mise à jour
+                    await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
+                
+                    console.log("Utilisateur ajouté avec succès !");
+                  } catch (error) {
+                    console.error("Erreur lors de l'ajout de l'utilisateur :", error);
+                  }
 
                   onClose();
                 } else {

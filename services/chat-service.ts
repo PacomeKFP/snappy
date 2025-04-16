@@ -101,7 +101,7 @@ export class ChatService {
         }).catch((err) => {
             console.log(err);
             // si le message n'est pas envoyé, on affiche une alerte
-            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard.");
+            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard."+err);
         });
     }
 
