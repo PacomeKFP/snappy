@@ -1,64 +1,119 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import { AddContactDto, User } from "@/lib/models";
+import { Alert } from "react-native";
 
 export class ContactService {
-  private static snappy = new SnappyHTTPClient("http://88.198.150.195:8613");
-  private static projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
 
-  /**
-   * Ajoute un contact en faisant la requête API.
-   * @param dto Les données nécessaires pour l'ajout de contact.
-   */
-  public static async addContactToServer(dto: AddContactDto): Promise<User[]> {
+  public static async addContact(email: string, username: string, onClose: any) {
+    const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+    const projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
+
+    if (!validateEmail(email)) {
+      alert("Veuillez entrer une adresse email valide.");
+      return;
+    }
+
     try {
-      const response = await this.snappy.addContact(dto); // Envoie la requête d'ajout de contact
-      return response; // Retourne la liste des utilisateurs mis à jour
+      // Connect to the server
+      const snappy = new SnappyHTTPClient("http://88.198.150.195:8613");
+
+      //get user's externalId
+
+      Alert.alert(
+        "Confirmation",
+        `Voulez-vous ajouter ${email} ?`,
+        [
+          { text: "Annuler", style: "cancel" },
+          {
+            text: "OK", onPress: () => {
+              //recherche de l'utilisateur pour extraire son exrernalId
+              snappy.filterUserByDisplayName({
+
+                "displayName": username,
+                "projectId": projectId
+
+              }).then(async (otherUser) => {
+                // Check if the user exists
+                if (otherUser.length > 0) {
+                  // add contacts
+                  snappy.addContact({
+                    "requesterId": await (async () => {
+                      const value = await AsyncStorage.getItem("user");
+                      if (value !== null) {
+                        // We have data!!
+                        return JSON.parse(value).externalId;
+                      }
+                      return snappy.getUser()!.externalId!;
+                    })(), //get user's ID
+                    "contactId": otherUser[0]!.id!,
+                    "projectId": projectId
+                  });
+
+                  try {
+                    // Récupérer les contacts existants
+                    const jsonValue = await AsyncStorage.getItem("contacts");
+                    const contacts = jsonValue != null ? JSON.parse(jsonValue) : [];
+                
+                    // Ajouter le nouvel utilisateur
+                    contacts.push(otherUser[0]);
+                
+                    // Sauvegarder la liste mise à jour
+                    await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
+                
+                    console.log("Utilisateur ajouté avec succès !");
+                  } catch (error) {
+                    console.error("Erreur lors de l'ajout de l'utilisateur :", error);
+                  }
+
+                  onClose();
+                } else {
+                  alert("No contacts found.");
+                }
+              }).catch((error) => {
+                alert("Failed to fetch contacts: " + error.message);
+              });
+              onClose()
+            }
+          }
+        ]
+      );
+
+
     } catch (error) {
-      console.error("Erreur lors de l'ajout du contact :", error);
-      throw new Error("Erreur lors de l'ajout du contact.");
+      console.error("Error during authentication:", error);
+
     }
   }
 
-  /**
-   * Récupère la liste des contacts depuis le serveur.
-   * @param userExternalId L'ID externe de l'utilisateur.
-   */
-  public static async getContactsFromServer(userExternalId: string): Promise<User[]> {
-    try {
-      const response = await this.snappy.getUserContacts({
-        projectId: this.projectId,
-        userExternalId,
-      });
-      return response; // Liste des contacts
-    } catch (error) {
-      console.error("Erreur lors de la récupération des contacts :", error);
-      throw new Error("Erreur lors de la récupération des contacts.");
-    }
-  }
+  public static async getViewContact() {
 
-  /**
-   * Récupère les contacts depuis AsyncStorage (cache local).
-   */
-  public static async getContactsFromStorage(): Promise<User[]> {
-    try {
-      const contacts = await AsyncStorage.getItem("contacts");
-      return contacts ? JSON.parse(contacts) : [];
-    } catch (error) {
-      console.error("Erreur lors de la récupération des contacts depuis AsyncStorage :", error);
-      return [];
-    }
-  }
+    //essaie de vérifier les contacs en local
+    const contacts = await AsyncStorage.getItem("contacts")
 
-  /**
-   * Sauvegarde les contacts dans AsyncStorage.
-   * @param contacts Liste des contacts à sauvegarder.
-   */
-  public static async saveContactsToStorage(contacts: User[]): Promise<void> {
-    try {
-      await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde des contacts dans AsyncStorage :", error);
+    if (contacts){
+      return JSON.parse(contacts)
     }
+
+    //Si non on cherche en ligne
+    const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
+    const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
+
+  
+    const onlineContact = await snappy.getUserContacts({
+      "projectId": projectId,
+      "userExternalId": await (async () => {
+        const value = await AsyncStorage.getItem("user");
+        if (value !== null) {
+          // We have data!!
+          return JSON.parse(value).externalId;
+        }
+        return snappy.getUser()!.externalId!;
+      })()
+    })
+
+    //enregistre en local
+    AsyncStorage.setItem("contacts",JSON.stringify(onlineContact))
+    return onlineContact  
   }
 }

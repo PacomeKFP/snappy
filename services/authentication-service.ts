@@ -1,6 +1,9 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export class AuthenticationService {
 
@@ -38,7 +41,6 @@ export class AuthenticationService {
       if (value !== null) {
         // We have data!!
         console.log("user", JSON.parse(value));
-
       }
     });
 
@@ -53,19 +55,21 @@ export class AuthenticationService {
     
     }
 
-
   }
 
   public static async register(email: string, password: string, confirm_password : string , username: string, router :any,setIsAuthentificating:any) {    
 
+  
     const projetId ="81997082-7e88-464a-9af1-b790fdd454f8";
 
     //generate externalId
     const { v4: uuidv4 } = require('uuid');
+    console.log("start register for email", email);
     const externalId = uuidv4();
 
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
+   
      if (!username || !password || !email||!confirm_password) {
           alert("Veuillez remplir tous les champs.");
           return;
@@ -85,6 +89,7 @@ export class AuthenticationService {
 
           //create user
           setIsAuthentificating(true)
+
         const result = await snappy.createUser({
             "projectId":projetId,
             "externalId":externalId,
@@ -109,7 +114,7 @@ export class AuthenticationService {
 
     console.error("Error during registration:", error);
     setIsAuthentificating(false)
-    // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+    alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
   
   }
 }

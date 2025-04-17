@@ -42,6 +42,14 @@ export class ChatService {
         //recherche l'Id de l'utilisateur à partir de son nom
         const users = await snappy.filterUserByDisplayName({ "displayName": name, "projectId": projectId });
         const interlocutorId = users[0]!.externalId!;
+        const userId = await (async () => {
+            const value = await AsyncStorage.getItem("user");
+            if (value !== null) {
+                // We have data!!
+                return JSON.parse(value).externalId;
+            }
+            return snappy.getUser()!.externalId!;
+        })();
         // verifier s'il y a déja la conversation en question dans le AsyncStorage
         const chatDetails = await AsyncStorage.getItem(interlocutorId);
 
@@ -52,53 +60,53 @@ export class ChatService {
         // si non, on execute la suite
 
         const chatDetailsDto: GetChatDetailsDto = {
-            user: await (async () => {
-                const value = await AsyncStorage.getItem("user");
-                if (value !== null) {
-                    // We have data!!
-                    return JSON.parse(value).externalId;
-                }
-                return snappy.getUser()!.externalId!;
-            })(),
+            user: userId,
             interlocutor: interlocutorId,
             projectId
         };
         const onlineChatDetails = await snappy.getChatDetails(chatDetailsDto);
+        //enregistre les messages en local
         AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails))
 
         return onlineChatDetails;
 
     }
 
-    public static async sendMessage(body: string, receiverName: string) {
+    public static async sendMessage(body: string, receiverName: string,messages:any,setMessages:any) {
 
+        
         const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
         const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
 
         //recherche l'Id de l'utilisateur à partir de son nom
         const users = await snappy.filterUserByDisplayName({ "displayName": receiverName, "projectId": projectId });
         const interlocutorId = users[0]!.externalId!;
+        const userId = await (async () => {
+            const value = await AsyncStorage.getItem("user");
+            if (value !== null) {
+                // We have data!!
+                return JSON.parse(value).externalId;
+            }
+            return snappy.getUser()!.externalId!;
+        })();
+
+        //mise à jour du messages dasns chatItem
+
+        setMessages([...messages, { id: Date.now().toString(), body: body, sender: userId, receiver:interlocutorId,ack: "SENT", createdAt: new Date() }]);
         //logique d'envoi de message
         await snappy.sendMessage({
             "body": body,
             "projectId": projectId,
             "receiverId": interlocutorId,
-            "senderId": await (async () => {
-                const value = await AsyncStorage.getItem("user");
-                if (value !== null) {
-                    // We have data!!
-                    return JSON.parse(value).externalId;
-                }
-                return snappy.getUser()!.externalId!;
-            })()
+            "senderId": userId
         }).then(async (res) => {
             // si le message est envoyé avec succès, on l'ajoute à la liste des messages
             if (res) {
-                const chatDetails = await AsyncStorage.getItem(receiverName);
+                const chatDetails = await AsyncStorage.getItem(interlocutorId);
                 if (chatDetails) {
                     const chatDetailsParsed = JSON.parse(chatDetails);
                     chatDetailsParsed.push(res);
-                    AsyncStorage.setItem(receiverName, JSON.stringify(chatDetailsParsed));
+                    AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetailsParsed));
                 }
             }
         }).catch((err) => {

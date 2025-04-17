@@ -12,7 +12,7 @@ export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [isAuthenticating,setIsAuthentificating] = useState(false)
+  const [isAuthenticating, setIsAuthentificating] = useState(false)
 
   const router = useRouter();
 
@@ -23,7 +23,7 @@ export default function LoginScreen() {
         <ThemeText variant="titrelogin" style={styles.title}>
           <Icon name="login" size={20} color="purple" /> Connexion
         </ThemeText>
-        
+
         <ThemeTextInput
           variant="input"
           placeholder="Email"
@@ -39,7 +39,8 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
         />
-        <ThemeTouchableOpacity variant="button" onPress={(e) => AuthenticationService.login(email, password, router,setIsAuthentificating)}>
+        <ThemeTouchableOpacity variant="button"
+          onPress={() => AuthenticationService.login(email, password, router, setIsAuthentificating)}>
           <ThemeText variant="buttonText">Se connecter</ThemeText>
         </ThemeTouchableOpacity>
         <Text>
@@ -50,11 +51,11 @@ export default function LoginScreen() {
         </Text>
 
         {isAuthenticating && (
-        <View>
-          <ActivityIndicator size="large" color="#7B52AB" />
-          <Text>Chargement...</Text>
-        </View>
-      )}
+          <View>
+            <ActivityIndicator size="large" color="#7B52AB" />
+            <Text>Chargement...</Text>
+          </View>
+        )}
       </View>
     </ImageBackground>
   );
