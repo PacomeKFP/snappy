@@ -56,7 +56,7 @@ export default function SignupScreen() {
         />
 
         <ThemeTouchableOpacity variant="button"
-          onPress={(e) => AuthenticationService.register(email, password, confirm_password, username, router, setIsAuthentificating)}>
+          onPress={() => AuthenticationService.register(email, password, confirm_password, username, router, setIsAuthentificating)}>
           <ThemeText variant="buttonText">S'inscrire</ThemeText>
         </ThemeTouchableOpacity>
 
