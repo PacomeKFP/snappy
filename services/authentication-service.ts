@@ -38,7 +38,6 @@ export class AuthenticationService {
       if (value !== null) {
         // We have data!!
         console.log("user", JSON.parse(value));
-
       }
     });
 
@@ -52,7 +51,6 @@ export class AuthenticationService {
       // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
     
     }
-
 
   }
 
@@ -85,6 +83,7 @@ export class AuthenticationService {
 
           //create user
           setIsAuthentificating(true)
+
         const result = await snappy.createUser({
             "projectId":projetId,
             "externalId":externalId,
@@ -109,7 +108,7 @@ export class AuthenticationService {
 
     console.error("Error during registration:", error);
     setIsAuthentificating(false)
-    // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+    alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
   
   }
 }

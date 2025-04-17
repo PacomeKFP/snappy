@@ -8,6 +8,7 @@ export class ContactService {
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
     const projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
 
+
     if (!validateEmail(email)) {
       alert("Veuillez entrer une adresse email valide.");
       return;
@@ -16,6 +17,14 @@ export class ContactService {
     try {
       // Connect to the server
       const snappy = new SnappyHTTPClient("http://88.198.150.195:8613");
+      const userId = await (async () => {
+        const value = await AsyncStorage.getItem("user");
+        if (value !== null) {
+          // We have data!!
+          return JSON.parse(value).externalId;
+        }
+        return snappy.getUser()!.externalId!;
+      })();
 
       //get user's externalId
 
@@ -37,14 +46,7 @@ export class ContactService {
                 if (otherUser.length > 0) {
                   // add contacts
                   snappy.addContact({
-                    "requesterId": await (async () => {
-                      const value = await AsyncStorage.getItem("user");
-                      if (value !== null) {
-                        // We have data!!
-                        return JSON.parse(value).externalId;
-                      }
-                      return snappy.getUser()!.externalId!;
-                    })(), //get user's ID
+                    "requesterId": userId, //get user's ID
                     "contactId": otherUser[0]!.id!,
                     "projectId": projectId
                   });
@@ -53,13 +55,13 @@ export class ContactService {
                     // Récupérer les contacts existants
                     const jsonValue = await AsyncStorage.getItem("contacts");
                     const contacts = jsonValue != null ? JSON.parse(jsonValue) : [];
-                
+
                     // Ajouter le nouvel utilisateur
                     contacts.push(otherUser[0]);
-                
+
                     // Sauvegarder la liste mise à jour
                     await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
-                
+
                     console.log("Utilisateur ajouté avec succès !");
                   } catch (error) {
                     console.error("Erreur lors de l'ajout de l'utilisateur :", error);
@@ -90,29 +92,30 @@ export class ContactService {
     //essaie de vérifier les contacs en local
     const contacts = await AsyncStorage.getItem("contacts")
 
-    if (contacts){
+    if (contacts) {
       return JSON.parse(contacts)
     }
 
     //Si non on cherche en ligne
     const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
     const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
+    const userId = await (async () => {
+      const value = await AsyncStorage.getItem("user");
+      if (value !== null) {
+        // We have data!!
+        return JSON.parse(value).externalId;
+      }
+      return snappy.getUser()!.externalId!;
+    })();
 
-  
+
     const onlineContact = await snappy.getUserContacts({
       "projectId": projectId,
-      "userExternalId": await (async () => {
-        const value = await AsyncStorage.getItem("user");
-        if (value !== null) {
-          // We have data!!
-          return JSON.parse(value).externalId;
-        }
-        return snappy.getUser()!.externalId!;
-      })()
+      "userExternalId": userId
     })
-
+  console.log("onlineContact", onlineContact)
     //enregistre en local
-    AsyncStorage.setItem("contacts",JSON.stringify(onlineContact))
-    return onlineContact  
+    AsyncStorage.setItem("contacts", JSON.stringify(onlineContact))
+    return onlineContact
   }
 }

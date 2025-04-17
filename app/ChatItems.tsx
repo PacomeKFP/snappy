@@ -82,8 +82,11 @@ export default function ChatRoom() {
           onChangeText={setNewMessage}
         />
         <TouchableOpacity onPress={() => {
-          ChatService.sendMessage(newMessage, name);
-          setNewMessage("")
+           if (newMessage.trim() !== "") {
+            ChatService.sendMessage(newMessage, name,messages,setMessages);
+            setNewMessage("");
+          }
+          
         }}>
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>
