@@ -1,20 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
-import { router } from 'expo-router';
+import { View, StyleSheet, Alert } from 'react-native';
+import Modal from 'react-native-modal';
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTextInput } from '@/components/ThemeTextInput';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
-import Modal from 'react-native-modal';
-import { ContactService } from '@/services/contact-service';
+import { useContacts } from '@/contexts/ContactContext';  // utilisation du contexte
 
 type CommentModalProps = {
   visible: boolean;
   onClose: () => void;
 };
+
 const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const { addContact } = useContacts();
 
+  const handleAddContact = async () => {
+    if (!email.trim() || !username.trim()) {
+      Alert.alert("Champs manquants", "Veuillez remplir l'email et le nom d'utilisateur.");
+      return;
+    }
+
+    const success = await addContact(email.trim(), username.trim());
+
+    if (success) {
+      setEmail('');
+      setUsername('');
+      onClose();
+      Alert.alert("Succès", "Le contact a bien été ajouté !");
+    } else {
+      Alert.alert("Erreur", "Impossible d'ajouter le contact. Vérifiez les informations.");
+    }
+  };
 
   return (
     <Modal
@@ -25,32 +43,27 @@ const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => 
       style={styles.modal}
       propagateSwipe
     >
-
       <View style={styles.container}>
         <View style={styles.headerBar} />
-
         <ThemeText variant="titrelogin" style={styles.title}>Ajouter Personne</ThemeText>
         <ThemeTextInput
           variant="input"
           placeholder="leonel.azangue@facscience-uy1.cm"
-          placeholderTextColor='gray'
+          placeholderTextColor="gray"
           value={email}
           onChangeText={setEmail}
         />
         <ThemeTextInput
           variant="input"
           placeholder="Nom d'utilisateur"
-          placeholderTextColor='gray'
+          placeholderTextColor="gray"
           value={username}
           onChangeText={setUsername}
         />
-        <ThemeTouchableOpacity variant="button" onPress={(e) => { ContactService.addContact(email, username, onClose) }}>
+        <ThemeTouchableOpacity variant="button" onPress={handleAddContact}>
           <ThemeText variant="buttonText">Ajouter</ThemeText>
         </ThemeTouchableOpacity>
-
-
       </View>
-
     </Modal>
   );
 };
@@ -58,8 +71,6 @@ const AddContactScreen: React.FC<CommentModalProps> = ({ visible, onClose }) => 
 export default AddContactScreen;
 
 const styles = StyleSheet.create({
-
-
   container: {
     backgroundColor: 'white',
     paddingHorizontal: 20,
@@ -69,7 +80,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: '80%',
   },
-
   title: {
     fontSize: 24,
     fontWeight: "bold",
