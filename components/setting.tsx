@@ -52,6 +52,7 @@ export default function AppSetting() {
           <TripleRadioButton
             onStateChange={(option) => {
               console.log("Selected state:", option);
+              alert(`Selected state: ${option}`);
             }}
           />
         </MenuOption>
