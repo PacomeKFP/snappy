@@ -2,39 +2,52 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
 import { router } from 'expo-router';
 import AddContactScreen from './addContact';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useContacts } from '@/contexts/ContactContext';  
 
 export default function StatusScreen() {
-  const { contacts, fetchContacts } = useContacts();  // récupération des données via contexte
+  const { contacts, fetchContacts } = useContacts();  
   const [isModalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => setModalVisible(!isModalVisible);
 
-  // Charger les contacts quand le screen s'ouvre.
-  // L'avantage c'est que si le context les avait déjà chargés (ex: dans une autre page), ça évite un rechargement inutile.
-  if (!contacts.length) {
-    fetchContacts();  // Déclenche le chargement si la liste est vide.
-    return <ActivityIndicator size="large" />;
-  }
+  useEffect(() => {
+    if (contacts.length === 0) {
+      fetchContacts().catch((e) => {
+        console.error("Erreur lors du chargement des contacts :", e);
+      });
+    }
+  }, [contacts]);
 
   const startChat = (name: string, avatar: any) => {
     router.push({ pathname: "/ChatItems", params: { name, avatar } });
   };
 
+  if (contacts.length === 0) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#7B52AB" />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <Text>Mes Contacts...</Text>
+      <Text style={styles.header}>Mes Contacts</Text>
 
       <FlatList
-        data={contacts}
-        keyExtractor={(item) => item?.externalId || Math.random().toString()}
+        data={contacts.filter(c => c != null)} // sécurisation
+        keyExtractor={(item) => item?.externalId?.toString() ?? Math.random().toString() }
+
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.contactItem} 
             onPress={() => startChat(item!.displayName!, item.avatar)}
           >
-            <Image source={require('../assets/images/me.jpeg')} style={styles.avatar} />
+            <Image 
+              source={  require('../assets/images/me.jpeg') } 
+              style={styles.avatar} 
+            />
             <Text style={styles.name}>{item.displayName}</Text>
           </TouchableOpacity>
         )}
@@ -50,6 +63,8 @@ export default function StatusScreen() {
 }
 
 const styles = StyleSheet.create({
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  header: { fontSize: 22, fontWeight: 'bold', margin: 16 },
   fab: {
     position: "absolute",
     bottom: 70,
@@ -67,6 +82,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },
-  contactItem: { flexDirection: "row", paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
+  contactItem: { flexDirection: "row", alignItems: 'center', paddingVertical: 15, borderBottomWidth: 1, borderColor: "#ddd" },
   name: { fontSize: 18, color: "black" },
 });

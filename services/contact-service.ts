@@ -5,115 +5,95 @@ import { Alert } from "react-native";
 
 export class ContactService {
 
-  public static async addContact(email: string, username: string, onClose: any) {
+  private static projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
+  private static api = new SnappyHTTPClient("http://88.198.150.195:8613");
+
+  public static async addContact(email: string, username: string, onClose: () => void) {
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-    const projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
 
     if (!validateEmail(email)) {
       alert("Veuillez entrer une adresse email valide.");
       return;
     }
 
-    try {
-      // Connect to the server
-      const snappy = new SnappyHTTPClient("http://88.198.150.195:8613");
-
-      //get user's externalId
-
-      Alert.alert(
-        "Confirmation",
-        `Voulez-vous ajouter ${email} ?`,
-        [
-          { text: "Annuler", style: "cancel" },
-          {
-            text: "OK", onPress: () => {
-              //recherche de l'utilisateur pour extraire son exrernalId
-              snappy.filterUserByDisplayName({
-
-                "displayName": username,
-                "projectId": projectId
-
-              }).then(async (otherUser) => {
-                // Check if the user exists
-                if (otherUser.length > 0) {
-                  // add contacts
-                  snappy.addContact({
-                    "requesterId": await (async () => {
-                      const value = await AsyncStorage.getItem("user");
-                      if (value !== null) {
-                        // We have data!!
-                        return JSON.parse(value).externalId;
-                      }
-                      return snappy.getUser()!.externalId!;
-                    })(), //get user's ID
-                    "contactId": otherUser[0]!.id!,
-                    "projectId": projectId
-                  });
-
-                  try {
-                    // Récupérer les contacts existants
-                    const jsonValue = await AsyncStorage.getItem("contacts");
-                    const contacts = jsonValue != null ? JSON.parse(jsonValue) : [];
-                
-                    // Ajouter le nouvel utilisateur
-                    contacts.push(otherUser[0]);
-                
-                    // Sauvegarder la liste mise à jour
-                    await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
-                
-                    console.log("Utilisateur ajouté avec succès !");
-                  } catch (error) {
-                    console.error("Erreur lors de l'ajout de l'utilisateur :", error);
-                  }
-
-                  onClose();
-                } else {
-                  alert("No contacts found.");
-                }
-              }).catch((error) => {
-                alert("Failed to fetch contacts: " + error.message);
+    Alert.alert(
+      "Confirmation",
+      `Voulez-vous ajouter ${email} ?`,
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "OK",
+          onPress: async () => {
+            try {
+              const otherUser = await this.api.filterUserByDisplayName({
+                displayName: username,
+                projectId: this.projectId
               });
-              onClose()
+
+              if (otherUser.length === 0) {
+                alert("Aucun contact trouvé.");
+                return;
+              }
+
+              const contactToAdd = otherUser[0];
+
+              const requesterId = await this.getRequesterId();
+
+              const dto: AddContactDto = {
+                requesterId,
+                contactId: contactToAdd.id!,
+                projectId: this.projectId
+              };
+
+              await this.api.addContact(dto);  // bien attendre que le serveur confirme
+
+              await this.saveContactLocally(contactToAdd);
+              if (!dto.requesterId || !dto.contactId || !dto.projectId) {
+                console.error("Données DTO incomplètes :", dto);
+                alert("Impossible d'ajouter ce contact — données invalides !");
+                return false;
+              }
+              
+              console.log("Utilisateur ajouté avec succès !");
+              onClose();
+
+            } catch (error) {
+              console.error("Erreur lors de l'ajout de contact :", error);
+              //alert("Erreur lors de l'ajout : " + error.message);
             }
           }
-        ]
-      );
-
-
-    } catch (error) {
-      console.error("Error during authentication:", error);
-
-    }
+        }
+      ]
+    );
+    
   }
 
-  public static async getViewContact() {
-
-    //essaie de vérifier les contacs en local
-    const contacts = await AsyncStorage.getItem("contacts")
-
-    if (contacts){
-      return JSON.parse(contacts)
+  private static async getRequesterId(): Promise<string> {
+    const localUser = await AsyncStorage.getItem("user");
+    if (localUser) {
+      return JSON.parse(localUser).externalId;
     }
+    return this.api.getUser()!.externalId!;
+  }
 
-    //Si non on cherche en ligne
-    const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-    const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
+  private static async saveContactLocally(contact: User): Promise<void> {
+    const jsonValue = await AsyncStorage.getItem("contacts");
+    const contacts = jsonValue ? JSON.parse(jsonValue) : [];
+    contacts.push(contact);
+    await AsyncStorage.setItem("contacts", JSON.stringify(contacts));
+  }
 
-  
-    const onlineContact = await snappy.getUserContacts({
-      "projectId": projectId,
-      "userExternalId": await (async () => {
-        const value = await AsyncStorage.getItem("user");
-        if (value !== null) {
-          // We have data!!
-          return JSON.parse(value).externalId;
-        }
-        return snappy.getUser()!.externalId!;
-      })()
-    })
+  public static async getViewContact(): Promise<User[]> {
+    const local = await AsyncStorage.getItem("contacts");
+    if (local) return JSON.parse(local);
 
-    //enregistre en local
-    AsyncStorage.setItem("contacts",JSON.stringify(onlineContact))
-    return onlineContact  
+    const requesterId = await this.getRequesterId();
+    const onlineContacts = await this.api.getUserContacts({
+      projectId: this.projectId,
+      userExternalId: requesterId
+    });
+
+    await AsyncStorage.setItem("contacts", JSON.stringify(onlineContacts));
+    return onlineContacts;
   }
 }
