@@ -2,14 +2,14 @@ import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
+import { API_URL, PROJECT_ID } from '@/lib/constants'; 
 
 
 export class AuthenticationService {
+  private static api = new SnappyHTTPClient(API_URL);
 
   public static async login(email: string, password: string, router: any,setIsAuthentificating :any) {
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-    const projectId = "81997082-7e88-464a-9af1-b790fdd454f8";
 
     // Handle login
     if (!password || !email) {
@@ -25,12 +25,11 @@ export class AuthenticationService {
     try {
       setIsAuthentificating(true)
       // Connect to the server
-      const snappy = new SnappyHTTPClient("http://88.198.150.195:8613");
       
       // Authenticate user
 
-      await snappy.authenticateUser({
-        projectId,
+      await this.api.authenticateUser({
+        projectId:PROJECT_ID,
         login: email,
         secret: password,
       });
@@ -60,8 +59,6 @@ export class AuthenticationService {
   public static async register(email: string, password: string, confirm_password : string , username: string, router :any,setIsAuthentificating:any) {    
 
   
-    const projetId ="81997082-7e88-464a-9af1-b790fdd454f8";
-
     //generate externalId
     const { v4: uuidv4 } = require('uuid');
     console.log("start register for email", email);
@@ -84,14 +81,12 @@ export class AuthenticationService {
         }
         try {
 
-          //connect to server 
-          const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-
+          
           //create user
           setIsAuthentificating(true)
 
-        const result = await snappy.createUser({
-            "projectId":projetId,
+        const result = await this.api.createUser({
+            "projectId":PROJECT_ID,
             "externalId":externalId,
             "avatar":"../assets/images/logo.png",
             "displayName":username,

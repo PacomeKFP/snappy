@@ -2,8 +2,20 @@ import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GetChatDetailsDto } from "@/lib/models";
 import { Alert } from "react-native";
+import { API_URL, PROJECT_ID } from '@/lib/constants'; 
 
 export class ChatService {
+    private static api = new SnappyHTTPClient(API_URL);
+
+
+  private static async getRequesterId(): Promise<string> {
+    const localUser = await AsyncStorage.getItem("user");
+    if (localUser) {
+      return JSON.parse(localUser).externalId;
+    }
+    return this.api.getUser()!.externalId!;
+  }
+
 
     public static async getUserChat() {
 
@@ -15,17 +27,16 @@ export class ChatService {
             return JSON.parse(chats)
 
         // si non, on execute la suite
-        const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-        const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
+     
 
-        const onlineChats = await snappy.getUserChats(await (async () => {
+        const onlineChats = await this.api.getUserChats(await (async () => {
             const value = await AsyncStorage.getItem("user");
             if (value !== null) {
                 // We have data!!
                 return JSON.parse(value).externalId;
             }
-            return snappy.getUser()!.externalId!;
-        })(), projectId);
+            return this.api.getUser()!.externalId!;
+        })(),PROJECT_ID);
 
         //enregistre les chats en local
         AsyncStorage.setItem("chats", JSON.stringify(onlineChats))
@@ -36,20 +47,10 @@ export class ChatService {
 
     public static async getChatDetails(name: string) {
 
-        const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-        const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
-
         //recherche l'Id de l'utilisateur à partir de son nom
-        const users = await snappy.filterUserByDisplayName({ "displayName": name, "projectId": projectId });
+        const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId":PROJECT_ID });
         const interlocutorId = users[0]!.externalId!;
-        const userId = await (async () => {
-            const value = await AsyncStorage.getItem("user");
-            if (value !== null) {
-                // We have data!!
-                return JSON.parse(value).externalId;
-            }
-            return snappy.getUser()!.externalId!;
-        })();
+     
         // verifier s'il y a déja la conversation en question dans le AsyncStorage
         const chatDetails = await AsyncStorage.getItem(interlocutorId);
 
@@ -60,11 +61,11 @@ export class ChatService {
         // si non, on execute la suite
 
         const chatDetailsDto: GetChatDetailsDto = {
-            user: userId,
+            user: (await this.getRequesterId()).toString(),
             interlocutor: interlocutorId,
-            projectId
+            projectId:PROJECT_ID
         };
-        const onlineChatDetails = await snappy.getChatDetails(chatDetailsDto);
+        const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
         //enregistre les messages en local
         AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails))
 
@@ -75,30 +76,19 @@ export class ChatService {
     public static async sendMessage(body: string, receiverName: string,messages:any,setMessages:any) {
 
         
-        const snappy = new SnappyHTTPClient("http://88.198.150.195:8613")
-        const projectId = "81997082-7e88-464a-9af1-b790fdd454f8"
-
         //recherche l'Id de l'utilisateur à partir de son nom
-        const users = await snappy.filterUserByDisplayName({ "displayName": receiverName, "projectId": projectId });
+        const users = await this.api.filterUserByDisplayName({ "displayName": receiverName, "projectId":PROJECT_ID });
         const interlocutorId = users[0]!.externalId!;
-        const userId = await (async () => {
-            const value = await AsyncStorage.getItem("user");
-            if (value !== null) {
-                // We have data!!
-                return JSON.parse(value).externalId;
-            }
-            return snappy.getUser()!.externalId!;
-        })();
-
+    
         //mise à jour du messages dasns chatItem
 
-        setMessages([...messages, { id: Date.now().toString(), body: body, sender: userId, receiver:interlocutorId,ack: "SENT", createdAt: new Date() }]);
+        setMessages([...messages, { id: Date.now().toString(), body: body, sender:  (await this.getRequesterId()).toString(), receiver:interlocutorId,ack: "SENT", createdAt: new Date() }]);
         //logique d'envoi de message
-        await snappy.sendMessage({
+        await this.api.sendMessage({
             "body": body,
-            "projectId": projectId,
+            "projectId":PROJECT_ID,
             "receiverId": interlocutorId,
-            "senderId": userId
+            "senderId":  (await this.getRequesterId()).toString()
         }).then(async (res) => {
             // si le message est envoyé avec succès, on l'ajoute à la liste des messages
             if (res) {

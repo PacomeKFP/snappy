@@ -18,7 +18,9 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Nouvelle version : retour d'un statut (success / erreur)
   const fetchContacts = async (): Promise<{ success: boolean; error?: string }> => {
     try {
+      //recupère les contacts dans le local storage
       const saved = await AsyncStorage.getItem("contacts");
+      //si on a des contacts, on les met dans le state et on sort
       if (saved) {
         const localContacts = JSON.parse(saved);
         setContacts(localContacts);
@@ -57,7 +59,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addContact = async (email: string, username: string): Promise<boolean> => {
     try {
       const snappy = new SnappyHTTPClient(API_URL);
-
+      //RECHERCHE DE L'UTILISATEUR À PARTIR DE SON NOM
       const otherUser = await snappy.filterUserByDisplayName({
         displayName: username,
         projectId: PROJECT_ID
@@ -78,10 +80,11 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return false;
       }
 
-      const dto: AddContactDto = { requesterId, contactId: otherUser[0].id, projectId: PROJECT_ID };
+      const dto: AddContactDto = { requesterId, contactId: otherUser[0]!.externalId!, projectId: PROJECT_ID };
 
       console.log("Données envoyées au serveur pour addContact:", dto);
 
+      //recuperes la liste mis à jour des contacts
       const updatedContacts = await snappy.addContact(dto);
 
       // Stockage d'abord pour éviter les décalages en cas d'échec
