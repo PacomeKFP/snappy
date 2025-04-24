@@ -5,8 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemeTextInput } from "@/components/ThemeTextInput";
 import { User } from "@/lib/models/user";
 import { fetchUsers } from "@/services/subservices/userFetcher";
-
-
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+import { API_URL,PROJECT_ID } from "@/lib/constants";
 export default function NewChat() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +37,8 @@ export default function NewChat() {
     }
   // Démarrer une nouvelle conversation
   const startChat = (name: string, avatar: any) => {
+    const socket= new SnappySocketClient(API_URL,PROJECT_ID,name);
+    socket.onConnect();
     router.push({ pathname: "/ChatItems", params: { name, avatar } });
   };
 

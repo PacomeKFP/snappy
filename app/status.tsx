@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import AddContactScreen from './addContact';
 import { useEffect, useState } from 'react';
 import { useContacts } from '@/contexts/ContactContext';  
-
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+import { API_URL,PROJECT_ID } from "@/lib/constants";
 export default function StatusScreen() {
   const { contacts, fetchContacts } = useContacts();  
   const [isModalVisible, setModalVisible] = useState(false);
@@ -20,6 +21,8 @@ export default function StatusScreen() {
   }, [contacts]);
 
   const startChat = (name: string, avatar: any) => {
+    const socket= new SnappySocketClient(API_URL,PROJECT_ID,name);
+        socket.onConnect();
     router.push({ pathname: "/ChatItems", params: { name, avatar } });
   };
 
