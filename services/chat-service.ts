@@ -45,7 +45,7 @@ export class ChatService {
 
     }
 
-    public static async getChatDetails(name: string):Promise<Message []> {
+    public static async getChatDetails(name: string):Promise<Message[]> {
 
         //recherche l'Id de l'utilisateur à partir de son nom
         const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId":PROJECT_ID });
@@ -75,6 +75,7 @@ export class ChatService {
             return onlineChatDetails.messages || [];
         }    catch (error) {
               console.error("Erreur:", error);
+              return [];
         }
     }
 
