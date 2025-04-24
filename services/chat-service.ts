@@ -1,6 +1,6 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { GetChatDetailsDto } from "@/lib/models";
+import { ChatDetailsResource, GetChatDetailsDto, Message } from "@/lib/models";
 import { Alert } from "react-native";
 import { API_URL, PROJECT_ID } from '@/lib/constants'; 
 
@@ -45,7 +45,7 @@ export class ChatService {
 
     }
 
-    public static async getChatDetails(name: string) {
+    public static async getChatDetails(name: string):Promise<Message []> {
 
         //recherche l'Id de l'utilisateur à partir de son nom
         const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId":PROJECT_ID });
@@ -69,21 +69,13 @@ export class ChatService {
 
         try {
             const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
-
-            //enregistre les messages en local
-            AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails))
-
-            return onlineChatDetails;
-        }catch (error: any) {
-            if (error.response) {
-              console.error("Réponse serveur :", error.response.data);
-              alert("Erreur: " + JSON.stringify(error.response.data));
-            } else {
-              console.error("Erreur lors de la recuperation des conversations :", error);
-              alert("Erreur lors de la recuperation des conversations.");
-            }
+        
+                //enregistre les messages en local
+            AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
+            return onlineChatDetails.messages || [];
+        }    catch (error) {
+              console.error("Erreur:", error);
         }
-
     }
 
     public static async sendMessage(body: string, receiverName: string,messages:any,setMessages:any) {

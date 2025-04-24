@@ -13,10 +13,13 @@ export default function NewChat() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+
+
     const handleCloseSearch = () => {
       setShowSearch(false);
       setSearch(""); 
     };
+    
     useEffect(() => {
       const loadUsers = async () => {
         try {

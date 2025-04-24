@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
@@ -14,18 +14,29 @@ import { ChatService } from "../services/chat-service";
 export default function ChatRoom() {
   const router = useRouter();
   const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Récupérer les paramètres de navigation
-
+  const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
 
+  //recherche les conversations à chaque fois qu'on entre dans un chat
   useEffect(() => {
     const loadChatDetails = async () => {
-      const chatDetails = await fetchChatDetails(name);
-      setMessages(chatDetails);
-    }
-    loadChatDetails();
-  }, []);
+      try {
+              const chatDetails = await fetchChatDetails(name);
+              console.log("response chatDetails : ",chatDetails)
+              setMessages(chatDetails);
+          } catch (error) {
+            console.error("Erreur:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+        loadChatDetails();
+      }, []);
 
-  const [newMessage, setNewMessage] = useState("");
+      if (loading) {
+            return <ActivityIndicator size="large"  color="#7B52AB" />;
+          }
 
 
   const handleSendFile = () => {
