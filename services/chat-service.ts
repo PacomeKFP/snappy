@@ -58,18 +58,31 @@ export class ChatService {
         if (chatDetails)
             return JSON.parse(chatDetails)
 
-        // si non, on execute la suite
+        // si non, on fait une requete
 
         const chatDetailsDto: GetChatDetailsDto = {
             user: (await this.getRequesterId()).toString(),
             interlocutor: interlocutorId,
             projectId:PROJECT_ID
         };
-        const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
-        //enregistre les messages en local
-        AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails))
+        console.log("Données envoyées au serveur getChatDetails:", chatDetailsDto);
 
-        return onlineChatDetails;
+        try {
+            const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
+
+            //enregistre les messages en local
+            AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails))
+
+            return onlineChatDetails;
+        }catch (error: any) {
+            if (error.response) {
+              console.error("Réponse serveur :", error.response.data);
+              alert("Erreur: " + JSON.stringify(error.response.data));
+            } else {
+              console.error("Erreur lors de la recuperation des conversations :", error);
+              alert("Erreur lors de la recuperation des conversations.");
+            }
+        }
 
     }
 
@@ -82,8 +95,15 @@ export class ChatService {
     
         //mise à jour du messages dasns chatItem
 
-        setMessages([...messages, { id: Date.now().toString(), body: body, sender:  (await this.getRequesterId()).toString(), receiver:interlocutorId,ack: "SENT", createdAt: new Date() }]);
+        setMessages([...messages, {
+             id: Date.now().toString(), body: body, sender:  (
+            await this.getRequesterId()).toString(),
+             receiver:interlocutorId,
+             ack: "SENT", 
+             createdAt: new Date() }]);
+
         //logique d'envoi de message
+
         await this.api.sendMessage({
             "body": body,
             "projectId":PROJECT_ID,
@@ -91,11 +111,16 @@ export class ChatService {
             "senderId":  (await this.getRequesterId()).toString()
         }).then(async (res) => {
             // si le message est envoyé avec succès, on l'ajoute à la liste des messages
+
             if (res) {
+                //recuperee les anciens messages en local
                 const chatDetails = await AsyncStorage.getItem(interlocutorId);
                 if (chatDetails) {
                     const chatDetailsParsed = JSON.parse(chatDetails);
+                    //on ajoute le nouveau message
                     chatDetailsParsed.push(res);
+
+                    //on stocke encore 
                     AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetailsParsed));
                 }
             }
