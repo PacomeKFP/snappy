@@ -29,7 +29,7 @@ export class SnappySocketClient implements ISnappySocketClient {
         socket.on("new-disconnection", client.newDisconnectionListener)
 
         socket.on('message-send', (message: Message, messageReceivedCallback: () => void) => {
-                client.onMessageReceivedListener(message);                                       
+                client.onMessageReceivedListener(message);                              
                 messageReceivedCallback()
             }
         )
