@@ -9,13 +9,6 @@ import { Message } from "@/lib/models";
 import { fetchChatDetails } from "../services/subservices/chatDetailsFetcher";
 import { ChatService } from "../services/chat-service";
 
-// Interface d'un message
-// interface Message {
-//   id: string;
-//   text: string;
-//   sender: "me" | "other";
-//   time:string;
-// }
 
 // Écran de la conversation
 export default function ChatRoom() {

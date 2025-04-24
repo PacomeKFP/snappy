@@ -1,6 +1,6 @@
 import {io, Socket} from "socket.io-client";
 import {Message} from "./models";
-import {ISnappySocketClient} from "./ISnappySocketClient.ts";
+import {ISnappySocketClient} from "./ISnappySocketClient";
 
 export class SnappySocketClient implements ISnappySocketClient {
     projectId: string
@@ -29,7 +29,7 @@ export class SnappySocketClient implements ISnappySocketClient {
         socket.on("new-disconnection", client.newDisconnectionListener)
 
         socket.on('message-send', (message: Message, messageReceivedCallback: () => void) => {
-                client.onMessageReceivedListener(message);c x                                        
+                client.onMessageReceivedListener(message);                                       
                 messageReceivedCallback()
             }
         )
