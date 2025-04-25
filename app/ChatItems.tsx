@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
@@ -47,6 +47,7 @@ export default function ChatRoom() {
     // Fonction pour envoyer un émoticône
   };
 
+  // const flatListRef = useRef<FlatList>(null);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -61,7 +62,8 @@ export default function ChatRoom() {
 
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id || (item.createdAt ? item.createdAt.toString() : Date.now().toString())}
+        // ref={flatListRef}
+        keyExtractor={(item) => item.id ||Date.now().toString() + Math.random().toString(36).substr(2, 9)}
         renderItem={({ item }) => (
           <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
             <ThemeText style={styles.messageText}>{item.body}</ThemeText>
@@ -88,6 +90,7 @@ export default function ChatRoom() {
         <TouchableOpacity onPress={() => {
            if (newMessage.trim() !== "") {
             ChatService.sendMessage(newMessage, name,messages,setMessages);
+            // flatListRef.current?.scrollToEnd({ animated: true });
             setNewMessage("");
           }
           

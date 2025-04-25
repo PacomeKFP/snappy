@@ -1,6 +1,6 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ChatDetailsResource, GetChatDetailsDto, Message } from "@/lib/models";
+import {  GetChatDetailsDto, Message } from "@/lib/models";
 import { Alert } from "react-native";
 import { API_URL, PROJECT_ID } from '@/lib/constants'; 
 
@@ -61,41 +61,47 @@ export class ChatService {
         // si non, on fait une requete
 
         const chatDetailsDto: GetChatDetailsDto = {
-            user: (await this.getRequesterId()).toString(),
-            interlocutor: interlocutorId,
-            projectId:PROJECT_ID
+            "user": (await this.getRequesterId()).toString(),
+            "interlocutor": interlocutorId,
+            "projectId":PROJECT_ID
         };
         console.log("Données envoyées au serveur getChatDetails:", chatDetailsDto);
 
         try {
             const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
-        
+
                 //enregistre les messages en local
             AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
             return onlineChatDetails.messages || [];
         }    catch (error) {
-              console.error("Erreur:", error);
+              console.error("Response serveur ::", error);
+              return [];
         }
+
     }
 
     public static async sendMessage(body: string, receiverName: string,messages:any,setMessages:any) {
 
-        
-        //recherche l'Id de l'utilisateur à partir de son nom
-        const users = await this.api.filterUserByDisplayName({ "displayName": receiverName, "projectId":PROJECT_ID });
+        console.log("envoie du message",body)
+       const users = await this.api.filterUserByDisplayName({ "displayName": receiverName, "projectId":PROJECT_ID });
         const interlocutorId = users[0]!.externalId!;
     
         //mise à jour du messages dasns chatItem
-
-        setMessages([...messages, {
-             id: Date.now().toString(), body: body, sender:  (
-            await this.getRequesterId()).toString(),
-             receiver:interlocutorId,
-             ack: "SENT", 
-             createdAt: new Date() }]);
+        try{
+            setMessages([...messages, {
+                id: Date.now().toString(), body: body, sender:  (
+               await this.getRequesterId()).toString(),
+                receiver:interlocutorId,
+                ack: "SENT", 
+                createdAt: new Date() }]);
+        } catch (err) {
+            console.error("erreur lors de la mise à jour du chat", err);
+            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard." + err);
+        }
+      
 
         //logique d'envoi de message
-
+    
         await this.api.sendMessage({
             "body": body,
             "projectId":PROJECT_ID,
@@ -103,19 +109,29 @@ export class ChatService {
             "senderId":  (await this.getRequesterId()).toString()
         }).then(async (res) => {
             // si le message est envoyé avec succès, on l'ajoute à la liste des messages
-
+            console.log("response send message ", res);
             if (res) {
-                //recuperee les anciens messages en local
                 const chatDetails = await AsyncStorage.getItem(interlocutorId);
+               
+            
                 if (chatDetails) {
-                    const chatDetailsParsed = JSON.parse(chatDetails);
-                    //on ajoute le nouveau message
+                    let chatDetailsParsed = JSON.parse(chatDetails);
+            
+                    // Si ce n’est pas un tableau, on l'encapsule dans un tableau
+                    if (!Array.isArray(chatDetailsParsed)) {
+                        chatDetailsParsed = [chatDetailsParsed];
+                    }
+            
                     chatDetailsParsed.push(res);
-
-                    //on stocke encore 
-                    AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetailsParsed));
+                    await AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetailsParsed));
+                    console.log("liste message : ", await AsyncStorage.getItem(interlocutorId));
+                } else {
+                    // on stocke res directement comme tableau
+                    await AsyncStorage.setItem(interlocutorId, JSON.stringify([res]));
+                    console.log("liste message : ", await AsyncStorage.getItem(interlocutorId));
                 }
             }
+            
         }).catch((err) => {
             console.log(err);
             // si le message n'est pas envoyé, on affiche une alerte
