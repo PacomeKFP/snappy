@@ -13,7 +13,7 @@ import { useFocusEffect } from '@react-navigation/native';
 export default function ChatScreen() {
   const [chats, setChats] = useState<ChatResource[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
 
   useFocusEffect(
     useCallback(() => {
@@ -28,17 +28,17 @@ export default function ChatScreen() {
           setLoading(false);
         }
       };
-  
+
       setLoading(true); // Remets le loading à true à chaque focus
       loadChats();
     }, [])
   );
-  
-        if (loading) {
-              return <ActivityIndicator size="large"  color="#7B52AB" />;
-            }
-  
-  
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#7B52AB" />;
+  }
+
+
   // Fonction pour ouvrir une conversation
   const handleChatNavigation = (name: string, avatar: any) => {
     router.push({
@@ -66,12 +66,17 @@ export default function ChatScreen() {
 
 
             <View style={styles.textContainer}>
-              <ThemeText variant='titre'>{item.user?.displayName}</ThemeText>
-              <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage?.body || ''}</ThemeText>
+              <ThemeText variant='titre'>{item.user!.displayName!}</ThemeText>
+              <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage!.body!}</ThemeText>
             </View>
 
             <View style={styles.rightContainer}>
-              <ThemeText variant='time' style={styles.time}>{item.lastMessage?.updatedAt?.toLocaleString()}</ThemeText>
+              <ThemeText variant='time' style={styles.time}>
+              {new Date(item.lastMessage!.updatedAt!).toLocaleDateString()}
+              </ThemeText>
+              <ThemeText variant='time' style={styles.time}>
+              {new Date(item.lastMessage!.updatedAt!).toLocaleTimeString()}
+              </ThemeText>
 
               //nombre de message non lu
               {/* {item.unreadCount > 0 && (

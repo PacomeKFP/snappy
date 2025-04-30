@@ -19,7 +19,7 @@ export default function SignupScreen() {
 
 
   return (
-    <ImageBackground source={require("../assets/images/me.jpeg")} style={styles.background}>
+    <ImageBackground source={require("../assets/images/me1.jpeg")} style={styles.background}>
       <View style={styles.container}>
         <Image source={require("../assets/images/logo.png")} style={styles.logo} />
         <ThemeText variant="titrelogin" style={styles.title}>Inscription</ThemeText>

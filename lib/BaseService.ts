@@ -14,7 +14,7 @@ export abstract class BaseService {
 
 
     protected async get<T>(path: string = ''): Promise<T> {
-        const response = await this.api.get<T>(`/${path}`);
+        const response = await this.api.get<T>(`${path}`);
         return Promise.resolve(response.data);
     }
 
