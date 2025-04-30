@@ -1,56 +1,58 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {  GetChatDetailsDto, Message } from "@/lib/models";
+import { ChatResource, GetChatDetailsDto, Message } from "@/lib/models";
 import { Alert } from "react-native";
-import { API_URL, PROJECT_ID } from '@/lib/constants'; 
+import { API_URL, PROJECT_ID } from '@/lib/constants';
 
 export class ChatService {
     private static api = new SnappyHTTPClient(API_URL);
 
 
-  private static async getRequesterId(): Promise<string> {
-    const localUser = await AsyncStorage.getItem("user");
-    if (localUser) {
-      return JSON.parse(localUser).externalId;
+    private static async getRequesterId(): Promise<string> {
+        const userId = await (async () => {
+            const user = await AsyncStorage.getItem("user");
+            return user ? JSON.parse(user).externalId : this.api.getUser()!.externalId!;
+        })();
+
+        return userId;
     }
-    return this.api.getUser()!.externalId!;
-  }
+    
+    public static async getUserChat(): Promise<ChatResource[]> {
+        //essaie de recuperr les info en local
+        const chats = await AsyncStorage.getItem("userChats");
+      
+        if (chats) return JSON.parse(chats);
+    
+        try {
+          const requesterId = await this.getRequesterId();
+          console.log("Données envoyées au serveur :", requesterId, PROJECT_ID);
+            
+          const onlineChats  = await this.api.getUserChats(requesterId, PROJECT_ID);
+
+          console.log("Response serveur UserChats:", onlineChats );
+            
+          if (!onlineChats) {
+            console.warn("Aucune donnée reçue du serveur.");
+            return [];
+          }
+      
+          await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
+          return onlineChats;
+      
+        } catch (error) {
+          console.error("Erreur lors de la récupération des chats :",  await this.api.getUserChats(await this.getRequesterId(), PROJECT_ID));
+          return [];
+        }
+      }
+      
 
 
-    public static async getUserChat() {
-
-        // verifier s'il y a déja la liste des conversations dans l'AsyncStorage
-        const chats = await AsyncStorage.getItem("chats")
-
-        // si oui, alors, on sort en retournant le contenu du l'AsycnStorage
-        if (chats)
-            return JSON.parse(chats)
-
-        // si non, on execute la suite
-     
-
-        const onlineChats = await this.api.getUserChats(await (async () => {
-            const value = await AsyncStorage.getItem("user");
-            if (value !== null) {
-                // We have data!!
-                return JSON.parse(value).externalId;
-            }
-            return this.api.getUser()!.externalId!;
-        })(),PROJECT_ID);
-
-        //enregistre les chats en local
-        AsyncStorage.setItem("chats", JSON.stringify(onlineChats))
-
-        return onlineChats;
-
-    }
-
-    public static async getChatDetails(name: string):Promise<Message []> {
+    public static async getChatDetails(name: string): Promise<Message[]> {
 
         //recherche l'Id de l'utilisateur à partir de son nom
-        const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId":PROJECT_ID });
+        const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId": PROJECT_ID });
         const interlocutorId = users[0]!.externalId!;
-     
+
         // verifier s'il y a déja la conversation en question dans le AsyncStorage
         const chatDetails = await AsyncStorage.getItem(interlocutorId);
 
@@ -63,80 +65,96 @@ export class ChatService {
         const chatDetailsDto: GetChatDetailsDto = {
             "user": (await this.getRequesterId()).toString(),
             "interlocutor": interlocutorId,
-            "projectId":PROJECT_ID
+            "projectId": PROJECT_ID
         };
         console.log("Données envoyées au serveur getChatDetails:", chatDetailsDto);
 
         try {
             const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
 
-                //enregistre les messages en local
+            if (!onlineChatDetails) {
+                console.warn("Aucune donnée reçue du serveur.");
+                return [];
+              }
+            //enregistre les messages en local
             AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
             return onlineChatDetails.messages || [];
-        }    catch (error) {
-              console.error("Response serveur ::", error);
-              return [];
+        } catch (error) {
+            console.error("Response serveur ::", error);
+            return [];
         }
 
     }
 
-    public static async sendMessage(body: string, receiverName: string,messages:any,setMessages:any) {
+    public static async sendMessage(body: string, receiverName: string, messages: any, setMessages: any) {
 
-        console.log("envoie du message",body)
-       const users = await this.api.filterUserByDisplayName({ "displayName": receiverName, "projectId":PROJECT_ID });
+        console.log("envoie du message", body)
+
+        //Recherche de l'interloccutor par son nom
+        const users = await this.api.filterUserByDisplayName({
+            "displayName": receiverName,
+            "projectId": PROJECT_ID
+        });
         const interlocutorId = users[0]!.externalId!;
-    
+
         //mise à jour du messages dasns chatItem
-        try{
-            setMessages([...messages, {
-                id: Date.now().toString(), body: body, sender:  (
-               await this.getRequesterId()).toString(),
-                receiver:interlocutorId,
-                ack: "SENT", 
-                createdAt: new Date() }]);
+        try {
+            setMessages([...messages,
+            {
+                id: Date.now().toString(), body: body, sender: (
+                    await this.getRequesterId()).toString(),
+                receiver: interlocutorId,
+                ack: "SENT",
+                createdAt: new Date()
+            }
+            ]);
         } catch (err) {
             console.error("erreur lors de la mise à jour du chat", err);
-            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard." + err);
+            Alert.alert("Erreur d'envoi", "erreur lors de la mise à jour du chat." + err);
         }
-      
+
 
         //logique d'envoi de message
-    
-        await this.api.sendMessage({
-            "body": body,
-            "projectId":PROJECT_ID,
-            "receiverId": interlocutorId,
-            "senderId":  (await this.getRequesterId()).toString()
-        }).then(async (res) => {
-            // si le message est envoyé avec succès, on l'ajoute à la liste des messages
+        try {
+            const res = await this.api.sendMessage({
+                body,
+                projectId: PROJECT_ID,
+                receiverId: interlocutorId,
+                senderId: (await this.getRequesterId()).toString(),
+            });
+
             console.log("response send message ", res);
+
             if (res) {
-                const chatDetails = await AsyncStorage.getItem(interlocutorId);
-               
-            
+
+                //recupere les conversations
+                const chatDetails = await this.getChatDetails(receiverName);
+
+                //si c'est non vide
                 if (chatDetails) {
-                    let chatDetailsParsed = JSON.parse(chatDetails);
-            
-                    // Si ce n’est pas un tableau, on l'encapsule dans un tableau
-                    if (!Array.isArray(chatDetailsParsed)) {
-                        chatDetailsParsed = [chatDetailsParsed];
-                    }
-            
-                    chatDetailsParsed.push(res);
-                    await AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetailsParsed));
-                    console.log("liste message : ", await AsyncStorage.getItem(interlocutorId));
+                    chatDetails.push(res);
+                    await AsyncStorage.setItem(interlocutorId, JSON.stringify(chatDetails));
+                    console.log("liste message local : ", await AsyncStorage.getItem(interlocutorId));
                 } else {
-                    // on stocke res directement comme tableau
+                    //si c'est la premiere conversation
+                    //recupere la liste des avec qui il a deja echangé
+
+                    const onlineChats = this.getUserChat();
+                    console.log("getUserChats Response: ", onlineChats)
+
+                    //ajoute l'interloccuteur actuele
+                    await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
                     await AsyncStorage.setItem(interlocutorId, JSON.stringify([res]));
-                    console.log("liste message : ", await AsyncStorage.getItem(interlocutorId));
+                    console.log("liste message online: ", await AsyncStorage.getItem(interlocutorId));
                 }
             }
-            
-        }).catch((err) => {
+
+            return res;
+        } catch (err) {
             console.log(err);
-            // si le message n'est pas envoyé, on affiche une alerte
-            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard."+err);
-        });
+            Alert.alert("Erreur d'envoi", "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard." + err);
+            return null;
+        }
     }
 
 }
