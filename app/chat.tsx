@@ -1,24 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeText } from '@/components/ThemeText';
 import { ThemeTouchableOpacity } from '@/components/ThemeTouchableOpacity';
 import { ChatResource } from "@/lib/models";
 import { fetchChats } from "../services/subservices/chatFetcher";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 export default function ChatScreen() {
   const [chats, setChats] = useState<ChatResource[]>([]);
+  const [loading, setLoading] = useState(true);
+  
 
-  useEffect(() => {
-    const loadChats = async () => {
-      const fetchedChats = await fetchChats();
-      setChats(fetchedChats);
-    };
-    loadChats();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      const loadChats = async () => {
+        try {
+          const fetchedChats = await fetchChats();
+          console.log("response userChat : ", fetchedChats);
+          setChats(fetchedChats);
+        } catch (error) {
+          console.error("Erreur lors la recuperation des UserChats:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      setLoading(true); // Remets le loading à true à chaque focus
+      loadChats();
+    }, [])
+  );
+  
+        if (loading) {
+              return <ActivityIndicator size="large"  color="#7B52AB" />;
+            }
+  
+  
   // Fonction pour ouvrir une conversation
   const handleChatNavigation = (name: string, avatar: any) => {
     router.push({
@@ -132,5 +152,4 @@ const styles = StyleSheet.create({
 
 });
 
-// Removed duplicate ChatScreen function to resolve the error.
 

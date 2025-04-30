@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { View, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
@@ -61,7 +61,7 @@ export default function ChatRoom() {
 
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id || (item.createdAt ? item.createdAt.toString() : Date.now().toString())}
+        keyExtractor={(item) => item.id ||Date.now().toString() + Math.random().toString(36).substr(2, 9)}
         renderItem={({ item }) => (
           <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
             <ThemeText style={styles.messageText}>{item.body}</ThemeText>

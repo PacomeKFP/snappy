@@ -60,6 +60,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const snappy = new SnappyHTTPClient(API_URL);
       //RECHERCHE DE L'UTILISATEUR À PARTIR DE SON NOM
+
       const otherUser = await snappy.filterUserByDisplayName({
         displayName: username,
         projectId: PROJECT_ID
@@ -72,7 +73,8 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       const userData = await AsyncStorage.getItem("user");
-      const requesterId = userData ? JSON.parse(userData).externalId : snappy.getUser()?.externalId;
+      
+      const requesterId = userData ? JSON.parse(userData).externalId : snappy.getUser()!.externalId!;
 
       if (!requesterId) {
         alert("Utilisateur local introuvable, veuillez vous reconnecter !");
@@ -80,7 +82,11 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return false;
       }
 
-      const dto: AddContactDto = { requesterId, contactId: otherUser[0]!.externalId!, projectId: PROJECT_ID };
+      const dto: AddContactDto = { 
+        requesterId, 
+        contactId: otherUser[0]!.externalId!,
+         projectId: PROJECT_ID 
+        };
 
       console.log("Données envoyées au serveur pour addContact:", dto);
 
