@@ -88,7 +88,7 @@ export class AuthenticationService {
         const result = await this.api.createUser({
             "projectId":PROJECT_ID,
             "externalId":externalId,
-            "avatar":"../assets/images/logo.png",
+            "avatar":"../assets/images/profile.png",
             "displayName":username,
             "email":email,
             "login":email,

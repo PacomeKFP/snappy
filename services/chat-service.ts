@@ -8,7 +8,7 @@ export class ChatService {
     private static api = new SnappyHTTPClient(API_URL);
 
 
-    private static async getRequesterId(): Promise<string> {
+    public static async getRequesterId(): Promise<string> {
         const userId = await (async () => {
             const user = await AsyncStorage.getItem("user");
             return user ? JSON.parse(user).externalId : this.api.getUser()!.externalId!;
@@ -16,35 +16,36 @@ export class ChatService {
 
         return userId;
     }
-    
-    public static async getUserChat(): Promise<ChatResource[]> {
-        //essaie de recuperr les info en local
-        const chats = await AsyncStorage.getItem("userChats");
-      
-        if (chats) return JSON.parse(chats);
-    
-        try {
-          const requesterId = await this.getRequesterId();
-          console.log("Données envoyées au serveur :", requesterId, PROJECT_ID);
-            
-          const onlineChats  = await this.api.getUserChats(requesterId, PROJECT_ID);
 
-          console.log("Response serveur UserChats:", onlineChats );
-            
-          if (!onlineChats) {
-            console.warn("Aucune donnée reçue du serveur.");
-            return [];
-          }
-      
-          await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
-          return onlineChats;
-      
+    public static async getUserChat(): Promise<ChatResource[]> {
+
+
+        try {
+            const requesterId = await this.getRequesterId();
+            console.log("Données envoyées au serveur :", requesterId, PROJECT_ID);
+
+            const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
+
+            console.log("Response serveur UserChats:", onlineChats);
+
+            if (!onlineChats) {
+                console.warn("Aucune donnée reçue du serveur.");
+                return [];
+            }
+
+            await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
+            return onlineChats;
+
         } catch (error) {
-          console.error("Erreur lors de la récupération des chats :",  await this.api.getUserChats(await this.getRequesterId(), PROJECT_ID));
-          return [];
+            //essaie de recuperr les info en local
+            const chats = await AsyncStorage.getItem("userChats");
+            console.log("response userChat : ", chats);
+
+            if (chats) return JSON.parse(chats);
+            return [];
         }
-      }
-      
+    }
+
 
 
     public static async getChatDetails(name: string): Promise<Message[]> {
@@ -75,7 +76,7 @@ export class ChatService {
             if (!onlineChatDetails) {
                 console.warn("Aucune donnée reçue du serveur.");
                 return [];
-              }
+            }
             //enregistre les messages en local
             AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
             return onlineChatDetails.messages || [];
@@ -138,11 +139,12 @@ export class ChatService {
                 } else {
                     //si c'est la premiere conversation
                     //recupere la liste des avec qui il a deja echangé
-
-                    const onlineChats = this.getUserChat();
+                    const requesterId = await this.getRequesterId();
+                    const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
                     console.log("getUserChats Response: ", onlineChats)
 
                     //ajoute l'interloccuteur actuele
+
                     await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
                     await AsyncStorage.setItem(interlocutorId, JSON.stringify([res]));
                     console.log("liste message online: ", await AsyncStorage.getItem(interlocutorId));

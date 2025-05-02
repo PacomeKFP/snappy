@@ -8,35 +8,54 @@ import { ThemeText } from '@/components/ThemeText';
 import { Message } from "@/lib/models";
 import { fetchChatDetails } from "../services/subservices/chatDetailsFetcher";
 import { ChatService } from "../services/chat-service";
-
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
 
 // Écran de la conversation
-export default function ChatRoom() {
+export default  function ChatRoom() {
   const router = useRouter();
   const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Récupérer les paramètres de navigation
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
+
   //recherche les conversations à chaque fois qu'on entre dans un chat
   useEffect(() => {
     const loadChatDetails = async () => {
       try {
-              const chatDetails = await fetchChatDetails(name);
-              console.log("response chatDetails : ",chatDetails)
-              setMessages(chatDetails);
-          } catch (error) {
-            console.error("Erreur:", error);
-          } finally {
-            setLoading(false);
-          }
-        };
-        loadChatDetails();
-      }, []);
+        const chatDetails = await fetchChatDetails(name);
+        console.log("response chatDetails : ", chatDetails)
+        setMessages(chatDetails);
 
-      if (loading) {
-            return <ActivityIndicator size="large"  color="#7B52AB" />;
-          }
+      } catch (error) {
+        console.error("Erreur:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadChatDetails();
+  }, []);
+
+  useEffect(() => {
+    const setupSocket = async () => {
+      const requesterId = await ChatService.getRequesterId();
+      const socket = new SnappySocketClient(API_SOCKET_URL, PROJECT_ID, requesterId);
+      socket.initialize();
+      socket.socket?.on("message-send", (message: Message, messageReceivedCallback: () => void) => {
+        console.log("message received");
+        console.log(message);
+        setMessages((prevMessages) => [...prevMessages, message]);
+        messageReceivedCallback();
+      });
+    };
+  
+    setupSocket();
+  }, []);
+  if (loading) {
+    return <ActivityIndicator size="large" color="#7B52AB" />;
+  }
+
 
 
   const handleSendFile = () => {
@@ -46,6 +65,7 @@ export default function ChatRoom() {
   const handleSendEmoji = () => {
     // Fonction pour envoyer un émoticône
   };
+
 
   return (
     <View style={styles.container}>
@@ -61,7 +81,7 @@ export default function ChatRoom() {
 
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id ||Date.now().toString() + Math.random().toString(36).substr(2, 9)}
+        keyExtractor={(item) => item.id || Date.now().toString() + Math.random().toString(36).substr(2, 9)}
         renderItem={({ item }) => (
           <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
             <ThemeText style={styles.messageText}>{item.body}</ThemeText>
@@ -86,11 +106,11 @@ export default function ChatRoom() {
           onChangeText={setNewMessage}
         />
         <TouchableOpacity onPress={() => {
-           if (newMessage.trim() !== "") {
-            ChatService.sendMessage(newMessage, name,messages,setMessages);
+          if (newMessage.trim() !== "") {
+            ChatService.sendMessage(newMessage, name, messages, setMessages);
             setNewMessage("");
           }
-          
+
         }}>
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>

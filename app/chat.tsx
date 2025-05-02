@@ -20,14 +20,22 @@ export default function ChatScreen() {
       const loadChats = async () => {
         try {
           const fetchedChats = await fetchChats();
-          console.log("response userChat : ", fetchedChats);
-          setChats(fetchedChats);
+
+          // Trier les chats du plus récent au plus ancien
+          const sortedChats = fetchedChats.sort((a, b) => {
+            const dateA = new Date(a.lastMessage?.updatedAt || 0).getTime();
+            const dateB = new Date(b.lastMessage?.updatedAt || 0).getTime();
+            return dateB - dateA; // ordre décroissant
+          });
+
+          setChats(sortedChats);
         } catch (error) {
           console.error("Erreur lors la recuperation des UserChats:", error);
         } finally {
           setLoading(false);
         }
       };
+
 
       setLoading(true); // Remets le loading à true à chaque focus
       loadChats();
@@ -38,6 +46,7 @@ export default function ChatScreen() {
     return <ActivityIndicator size="large" color="#7B52AB" />;
   }
 
+  
 
   // Fonction pour ouvrir une conversation
   const handleChatNavigation = (name: string, avatar: any) => {
@@ -50,21 +59,38 @@ export default function ChatScreen() {
     router.push("/newchat");
   };
 
+  function isValidUrl(url?: string): boolean {
+    if (!url) return false;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
+
   return (
     <View style={styles.container}>
 
       <FlatList
         data={chats}
-        keyExtractor={(item) => item.user?.id || Math.random().toString()}
+        keyExtractor={(item) => item.user!.id!.toString()}
         renderItem={({ item }: { item: ChatResource }) => (
-          <TouchableOpacity style={styles.chatItem} onPress={() => handleChatNavigation(item.user!.displayName!, item.user?.avatar)}>
+          <TouchableOpacity style={styles.chatItem}
+            onPress={() => handleChatNavigation(
+              item.user!.displayName!, isValidUrl(item.user?.avatar)
+              ? { uri: item.user!.avatar! }
+              : '../assets/images/profile.png')}>
 
             <Image
-              source={item.user?.avatar ? { uri: item.user.avatar } : require('../assets/images/me.jpeg')}
+              source={
+                isValidUrl(item.user?.avatar)
+                  ? { uri: item.user!.avatar! }
+                  : require('../assets/images/profile.png')
+              }
               style={styles.avatar}
             />
-
-
             <View style={styles.textContainer}>
               <ThemeText variant='titre'>{item.user!.displayName!}</ThemeText>
               <ThemeText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage!.body!}</ThemeText>
@@ -72,14 +98,14 @@ export default function ChatScreen() {
 
             <View style={styles.rightContainer}>
               <ThemeText variant='time' style={styles.time}>
-              {new Date(item.lastMessage!.updatedAt!).toLocaleDateString()}
+                {new Date(item.lastMessage!.updatedAt!).toLocaleDateString()}
               </ThemeText>
               <ThemeText variant='time' style={styles.time}>
-              {new Date(item.lastMessage!.updatedAt!).toLocaleTimeString()}
+                {new Date(item.lastMessage!.updatedAt!).toLocaleTimeString()}
               </ThemeText>
 
-              //nombre de message non lu
-              {/* {item.unreadCount > 0 && (
+              { /* //nombre de message non lu
+               {item.unreadCount > 0 && (
                 <View style={styles.unreadBadge}>
                   <ThemeText style={styles.unreadThemeText}>{item.unreadCount}</ThemeText>
                 </View>
