@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
@@ -10,24 +10,40 @@ import { fetchChatDetails } from "../services/subservices/chatDetailsFetcher";
 import { ChatService } from "../services/chat-service";
 import { SnappySocketClient } from "@/lib/SnappySocketClient";
 import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
+import { MessageAckEnum } from "@/lib/models";
+import { prepareMessagesWithDateSeparators } from '@/lib/utils';
 
-// Écran de la conversation
-export default  function ChatRoom() {
+//EMOJI
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import { Modal } from "react-native";
+
+
+const RECEIVED = MessageAckEnum.RECEIVED;
+
+export default function ChatRoom() {
   const router = useRouter();
-  const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Récupérer les paramètres de navigation
+  const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>();
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const flatListRef = useRef<FlatList>(null);
 
+  const enrichedMessages = prepareMessagesWithDateSeparators(messages);
 
-  //recherche les conversations à chaque fois qu'on entre dans un chat
+  const [emojiVisible, setEmojiVisible] = useState(false);
+
+  // Scroll automatiquement vers le bas quand les messages changent
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
+
   useEffect(() => {
     const loadChatDetails = async () => {
       try {
         const chatDetails = await fetchChatDetails(name);
-        console.log("response chatDetails : ", chatDetails)
         setMessages(chatDetails);
-
       } catch (error) {
         console.error("Erreur:", error);
       } finally {
@@ -42,21 +58,18 @@ export default  function ChatRoom() {
       const requesterId = await ChatService.getRequesterId();
       const socket = new SnappySocketClient(API_SOCKET_URL, PROJECT_ID, requesterId);
       socket.initialize();
-      socket.socket?.on("message-send", (message: Message, messageReceivedCallback: () => void) => {
-        console.log("message received");
-        console.log(message);
-        setMessages((prevMessages) => [...prevMessages, message]);
+      socket.socket?.on("message-send", (newMessage: Message, messageReceivedCallback: () => void) => {
+        ChatService.receiveMessage(name, newMessage, messages, setMessages);
         messageReceivedCallback();
       });
     };
-  
+
     setupSocket();
   }, []);
+
   if (loading) {
     return <ActivityIndicator size="large" color="#7B52AB" />;
   }
-
-
 
   const handleSendFile = () => {
     // Fonction pour envoyer un fichier
@@ -64,8 +77,8 @@ export default  function ChatRoom() {
 
   const handleSendEmoji = () => {
     // Fonction pour envoyer un émoticône
+    setEmojiVisible(true);
   };
-
 
   return (
     <View style={styles.container}>
@@ -80,16 +93,31 @@ export default  function ChatRoom() {
       </View>
 
       <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id || Date.now().toString() + Math.random().toString(36).substr(2, 9)}
-        renderItem={({ item }) => (
-          <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
-            <ThemeText style={styles.messageText}>{item.body}</ThemeText>
-            <ThemeText style={styles.Time}>{item.createdAt ? format(new Date(item.createdAt), 'HH:mm') : ''}</ThemeText>
-          </View>
-        )}
+        ref={flatListRef}
+        data={enrichedMessages}
+        keyExtractor={(item, index) => item.id ? item.id : `msg-${index}`}
+        renderItem={({ item }) => {
+          if ('type' in item && item.type === 'separator') {
+            return (
+              <View style={{ alignItems: 'center', marginVertical: 10 }}>
+                <Text style={{ fontSize: 12, color: '#888' }}>{item.label}</Text>
+              </View>
+            );
+          }
+
+          return (
+            <View style={[styles.messageContainer, item.ack === 'SENT' ? styles.myMessage : styles.otherMessage]}>
+              <ThemeText style={styles.messageText}>{item.body}</ThemeText>
+              <ThemeText style={styles.Time}>
+                {item.createdAt ? format(new Date(item.createdAt), 'HH:mm') : ''}
+              </ThemeText>
+            </View>
+          );
+        }}
+
         contentContainerStyle={styles.chatBody}
       />
+
 
       <View style={styles.inputContainer}>
         <TouchableOpacity onPress={handleSendFile}>
@@ -99,22 +127,40 @@ export default  function ChatRoom() {
         <TouchableOpacity onPress={handleSendEmoji}>
           <Ionicons name="happy" size={24} color="#7B52AB" />
         </TouchableOpacity>
+
         <TextInput
           style={styles.input}
           placeholder="Écrire un message..."
           value={newMessage}
           onChangeText={setNewMessage}
         />
+
         <TouchableOpacity onPress={() => {
           if (newMessage.trim() !== "") {
             ChatService.sendMessage(newMessage, name, messages, setMessages);
             setNewMessage("");
           }
-
         }}>
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>
       </View>
+      <Modal visible={emojiVisible} animationType="slide">
+        <View style={{ flex: 1, paddingTop: 40 }}>
+          <TouchableOpacity onPress={() => setEmojiVisible(false)} style={{ alignSelf: 'flex-end', padding: 10 }}>
+            <Text style={{ fontSize: 18 }}>Fermer</Text>
+          </TouchableOpacity>
+          <EmojiSelector
+            onEmojiSelected={(emoji) => {
+              setNewMessage(prev => prev + emoji);
+              setEmojiVisible(false);
+            }}
+            showSearchBar={false}
+            showTabs={true}
+            category={Categories.all}
+          />
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -137,9 +183,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: 10,
   },
-  headerText: { fontSize: 18, color: "white", fontWeight: "bold", flex: 1 },
+  headerText: {
+    fontSize: 18,
+    color: "white",
+    fontWeight: "bold",
+    flex: 1
+  },
   icon: { marginHorizontal: 10 },
-  chatBody: { padding: 15, flexGrow: 1 },
+  chatBody: {
+    padding: 15,
+    flexGrow: 1,
+  },
   messageContainer: {
     maxWidth: "70%",
     padding: 10,
@@ -154,7 +208,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAEAEA",
     alignSelf: "flex-start",
   },
-  messageText: { fontSize: 16 },
+  messageText: {
+    fontSize: 16,
+  },
+  Time: {
+    color: "#423838",
+    fontSize: 12,
+    alignSelf: "flex-end"
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -162,11 +223,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopWidth: 1,
     borderColor: "#DDD",
-  },
-  Time: {
-    color: "#423838",
-    fontSize: 12,
-    alignSelf: "flex-end"
   },
   input: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ChatResource, GetChatDetailsDto, Message } from "@/lib/models";
+import { ChatResource, GetChatDetailsDto, Message, MessageAckEnum } from "@/lib/models";
 import { Alert } from "react-native";
 import { API_URL, PROJECT_ID } from '@/lib/constants';
 
@@ -58,8 +58,10 @@ export class ChatService {
         const chatDetails = await AsyncStorage.getItem(interlocutorId);
 
         // si oui, alors, on sort en retournant le contenu du l'AsycnStorage
-        if (chatDetails)
-            return JSON.parse(chatDetails)
+        if (chatDetails){
+            //NE RENVOYER QUE LES CONERSATIONS CONCERNANT L'UTILSATEUR CONNECTÉ
+            return JSON.parse(chatDetails).filter(async (message: Message) => message.sender === await this.getRequesterId());
+        }
 
         // si non, on fait une requete
 
@@ -78,13 +80,56 @@ export class ChatService {
                 return [];
             }
             //enregistre les messages en local
+            console.log("Response serveur getChatDetails:", onlineChatDetails);
             AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
-            return onlineChatDetails.messages || [];
+            return onlineChatDetails!.messages!;
         } catch (error) {
             console.error("Response serveur ::", error);
             return [];
         }
 
+    }
+
+    public static async receiveMessage(senderName:string ,message: Message, messages: any, setMessages: any) {
+        console.log("message reçu", message);
+        const newMessage =      {
+            id: message.id,
+            body: message.body,
+            sender: message.sender,
+            receiver: message.receiver,
+            ack: MessageAckEnum.RECEIVED,
+            createdAt: new Date()
+        }
+     
+
+        //recupere les conversations
+        const chatDetails = await this.getChatDetails(senderName);
+          //si c'est non vide
+          if (chatDetails) {
+            chatDetails.push( newMessage);
+            await AsyncStorage.setItem(message!.sender!, JSON.stringify(chatDetails));
+            console.log("liste message local : ", await AsyncStorage.getItem(message!.sender!));
+        } else {
+            //si c'est la premiere conversation
+            //recupere la liste des avec qui il a deja echangé
+            const requesterId = await this.getRequesterId();
+            const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
+
+            //ajoute l'interloccuteur actuele
+
+            await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
+            await AsyncStorage.setItem(message!.sender!, JSON.stringify([newMessage]));
+            console.log("liste message online: ", await AsyncStorage.getItem(message!.sender!));
+        }
+
+           //mise à jour du messages dans le chatItem
+           try {
+            setMessages(chatDetails);
+        } catch (err) {
+            console.error("erreur lors de la mise à jour du chat", err);
+            Alert.alert("Erreur d'envoi", "erreur lors de la mise à jour du chat." + err);
+        }
+ 
     }
 
     public static async sendMessage(body: string, receiverName: string, messages: any, setMessages: any) {
@@ -102,8 +147,9 @@ export class ChatService {
         try {
             setMessages([...messages,
             {
-                id: Date.now().toString(), body: body, sender: (
-                    await this.getRequesterId()).toString(),
+                id: Date.now().toString(),
+                body: body,
+                sender: (await this.getRequesterId()).toString(),
                 receiver: interlocutorId,
                 ack: "SENT",
                 createdAt: new Date()
