@@ -89,48 +89,49 @@ export class ChatService {
         }
 
     }
-
-    public static async receiveMessage(senderName:string ,message: Message, messages: any, setMessages: any) {
+    public static async receiveMessage(senderName: string, message: Message, messages: any, setMessages: any) {
         console.log("message reçu", message);
-        const newMessage =      {
+        
+        const newMessage = {
             id: message.id,
             body: message.body,
             sender: message.sender,
             receiver: message.receiver,
             ack: MessageAckEnum.RECEIVED,
             createdAt: new Date()
-        }
-     
-
-        //recupere les conversations
-        const chatDetails = await this.getChatDetails(senderName);
-          //si c'est non vide
-          if (chatDetails) {
-            chatDetails.push( newMessage);
-            await AsyncStorage.setItem(message!.sender!, JSON.stringify(chatDetails));
-            console.log("liste message local : ", await AsyncStorage.getItem(message!.sender!));
-        } else {
-            //si c'est la premiere conversation
-            //recupere la liste des avec qui il a deja echangé
-            const requesterId = await this.getRequesterId();
-            const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
-
-            //ajoute l'interloccuteur actuele
-
-            await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
-            await AsyncStorage.setItem(message!.sender!, JSON.stringify([newMessage]));
-            console.log("liste message online: ", await AsyncStorage.getItem(message!.sender!));
-        }
-
-           //mise à jour du messages dans le chatItem
-           try {
-            setMessages(chatDetails);
+        };
+    
+        try {
+            // Récupérer les conversations existantes
+            const chatDetails = await this.getChatDetails(senderName);
+    
+            // Ajouter le nouveau message à la conversation
+            if (chatDetails) {
+                chatDetails.push(newMessage);
+                // Sauvegarder la liste des messages mise à jour dans AsyncStorage
+                await AsyncStorage.setItem(message!.sender!, JSON.stringify(chatDetails));
+                console.log("liste message local : ", await AsyncStorage.getItem(message!.sender!));
+            } else {
+                // Si c'est la première conversation avec cet utilisateur
+                const requesterId = await this.getRequesterId();
+                const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
+    
+                // Sauvegarder les conversations en ligne
+                await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
+                await AsyncStorage.setItem(message!.sender!, JSON.stringify([newMessage]));
+                console.log("liste message online: ", await AsyncStorage.getItem(message!.sender!));
+            }
+    
+            // Mettre à jour l'état avec les nouveaux messages
+            const updatedChatDetails = await this.getChatDetails(senderName); // récupérer les détails après mise à jour
+            setMessages(updatedChatDetails);
+    
         } catch (err) {
-            console.error("erreur lors de la mise à jour du chat", err);
-            Alert.alert("Erreur d'envoi", "erreur lors de la mise à jour du chat." + err);
+            console.error("Erreur lors de la mise à jour du chat", err);
+            Alert.alert("Erreur d'envoi", "Erreur lors de la mise à jour du chat." + err);
         }
- 
     }
+    
 
     public static async sendMessage(body: string, receiverName: string, messages: any, setMessages: any) {
 

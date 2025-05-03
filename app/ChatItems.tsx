@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, ActivityIndicator, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import AppSetting from "../components/setting";
 import { format } from 'date-fns';
 import { ThemeText } from '@/components/ThemeText';
@@ -10,15 +9,9 @@ import { fetchChatDetails } from "../services/subservices/chatDetailsFetcher";
 import { ChatService } from "../services/chat-service";
 import { SnappySocketClient } from "@/lib/SnappySocketClient";
 import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
-import { MessageAckEnum } from "@/lib/models";
 import { prepareMessagesWithDateSeparators } from '@/lib/utils';
-
-//EMOJI
-import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import { Modal } from "react-native";
-
-
-const RECEIVED = MessageAckEnum.RECEIVED;
+import { Ionicons } from "@expo/vector-icons";
+import EmojiModal from "@/components/EmojiModal";
 
 export default function ChatRoom() {
   const router = useRouter();
@@ -27,12 +20,10 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const flatListRef = useRef<FlatList>(null);
+  const [emojiVisible, setEmojiVisible] = useState(false);
 
   const enrichedMessages = prepareMessagesWithDateSeparators(messages);
 
-  const [emojiVisible, setEmojiVisible] = useState(false);
-
-  // Scroll automatiquement vers le bas quand les messages changent
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -75,9 +66,8 @@ export default function ChatRoom() {
     // Fonction pour envoyer un fichier
   };
 
-  const handleSendEmoji = () => {
-    // Fonction pour envoyer un émoticône
-    setEmojiVisible(true);
+  const handleEmojiSelect = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);  // Ajoute l'emoji au message
   };
 
   return (
@@ -114,20 +104,23 @@ export default function ChatRoom() {
             </View>
           );
         }}
-
         contentContainerStyle={styles.chatBody}
       />
-
 
       <View style={styles.inputContainer}>
         <TouchableOpacity onPress={handleSendFile}>
           <Ionicons name="attach" size={24} color="#7B52AB" />
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleSendEmoji}>
+        <TouchableOpacity onPress={() => setEmojiVisible(true)}>
           <Ionicons name="happy" size={24} color="#7B52AB" />
         </TouchableOpacity>
 
+        {/* Emoji modal */}
+        <EmojiModal
+          visible={emojiVisible}
+          onClose={() => setEmojiVisible(false)}
+          onEmojiSelect={handleEmojiSelect}
+        />
         <TextInput
           style={styles.input}
           placeholder="Écrire un message..."
@@ -144,23 +137,6 @@ export default function ChatRoom() {
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>
       </View>
-      <Modal visible={emojiVisible} animationType="slide">
-        <View style={{ flex: 1, paddingTop: 40 }}>
-          <TouchableOpacity onPress={() => setEmojiVisible(false)} style={{ alignSelf: 'flex-end', padding: 10 }}>
-            <Text style={{ fontSize: 18 }}>Fermer</Text>
-          </TouchableOpacity>
-          <EmojiSelector
-            onEmojiSelected={(emoji) => {
-              setNewMessage(prev => prev + emoji);
-              setEmojiVisible(false);
-            }}
-            showSearchBar={false}
-            showTabs={true}
-            category={Categories.all}
-          />
-        </View>
-      </Modal>
-
     </View>
   );
 }
