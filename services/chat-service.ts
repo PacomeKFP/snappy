@@ -16,79 +16,100 @@ export class ChatService {
 
         return userId;
     }
-
     public static async getUserChat(): Promise<ChatResource[]> {
-
-
         try {
             const requesterId = await this.getRequesterId();
             console.log("Données envoyées au serveur :", requesterId, PROJECT_ID);
-
+    
             const onlineChats = await this.api.getUserChats(requesterId, PROJECT_ID);
-
+    
             console.log("Response serveur UserChats:", onlineChats);
-
+    
             if (!onlineChats) {
                 console.warn("Aucune donnée reçue du serveur.");
                 return [];
             }
-
-            await AsyncStorage.setItem("userChats", JSON.stringify(onlineChats));
-            return onlineChats;
-
+    
+            // Tri par date décroissante (plus récent d'abord)
+            const sortedOnlineChats = onlineChats.sort((a, b) =>
+                new Date(b.lastMessage?.createdAt ?? 0).getTime() - new Date(a.lastMessage?.createdAt ?? 0).getTime()
+            );
+    
+            await AsyncStorage.setItem("userChats", JSON.stringify(sortedOnlineChats));
+            return sortedOnlineChats;
+    
         } catch (error) {
-            //essaie de recuperr les info en local
             const chats = await AsyncStorage.getItem("userChats");
             console.log("response userChat : ", chats);
-
-            if (chats) return JSON.parse(chats);
+    
+            if (chats) {
+                const parsedChats: ChatResource[] = JSON.parse(chats);
+                return parsedChats.sort((a, b) =>
+                    new Date(b.lastMessage?.createdAt ?? 0).getTime() - new Date(a.lastMessage?.createdAt ?? 0).getTime()
+                );
+            }
+    
             return [];
         }
     }
-
-
+    
 
     public static async getChatDetails(name: string): Promise<Message[]> {
-
-        //recherche l'Id de l'utilisateur à partir de son nom
-        const users = await this.api.filterUserByDisplayName({ "displayName": name, "projectId": PROJECT_ID });
-        const interlocutorId = users[0]!.externalId!;
-
-        // verifier s'il y a déja la conversation en question dans le AsyncStorage
-        const chatDetails = await AsyncStorage.getItem(interlocutorId);
-
-        // si oui, alors, on sort en retournant le contenu du l'AsycnStorage
-        if (chatDetails){
-            //NE RENVOYER QUE LES CONERSATIONS CONCERNANT L'UTILSATEUR CONNECTÉ
-            return JSON.parse(chatDetails).filter(async (message: Message) => message.sender === await this.getRequesterId());
+        // Recherche l'ID de l'utilisateur à partir de son nom
+        const users = await this.api.filterUserByDisplayName({ displayName: name, projectId: PROJECT_ID });
+        const interlocutorId = users[0]?.externalId;
+    
+        if (!interlocutorId) {
+            console.warn("Interlocuteur introuvable.");
+            return [];
         }
-
-        // si non, on fait une requete
-
+    
+        const requesterId = await this.getRequesterId();
+    
+        // Vérifie si la conversation est déjà en cache local
+        const chatDetails = await AsyncStorage.getItem(interlocutorId);
+        if (chatDetails) {
+            const parsedMessages: Message[] = JSON.parse(chatDetails);
+            const filtered = parsedMessages.filter(
+                (message) => message.sender === requesterId || message.receiver === requesterId
+            );
+    
+            // Tri chronologique
+            return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        }
+    
+        // Sinon, on fait une requête au serveur
         const chatDetailsDto: GetChatDetailsDto = {
-            "user": (await this.getRequesterId()).toString(),
-            "interlocutor": interlocutorId,
-            "projectId": PROJECT_ID
+            user: requesterId.toString(),
+            interlocutor: interlocutorId,
+            projectId: PROJECT_ID,
         };
         console.log("Données envoyées au serveur getChatDetails:", chatDetailsDto);
-
+    
         try {
             const onlineChatDetails = await this.api.getChatDetails(chatDetailsDto);
-
             if (!onlineChatDetails) {
                 console.warn("Aucune donnée reçue du serveur.");
                 return [];
             }
-            //enregistre les messages en local
-            console.log("Response serveur getChatDetails:", onlineChatDetails);
-            AsyncStorage.setItem(interlocutorId, JSON.stringify(onlineChatDetails.messages))
-            return onlineChatDetails!.messages!;
+    
+            const allMessages: Message[] = onlineChatDetails.messages ?? [];
+    
+            // Enregistre tous les messages en cache
+            await AsyncStorage.setItem(interlocutorId, JSON.stringify(allMessages));
+    
+            // Filtre et trie
+            return allMessages
+                .filter((message) => message.sender === requesterId || message.receiver === requesterId)
+                .sort((a, b) => new Date(a!.createdAt!).getTime() - new Date(b!.createdAt!).getTime());
+    
         } catch (error) {
-            console.error("Response serveur ::", error);
+            console.error("Erreur getChatDetails:", error);
             return [];
         }
-
     }
+    
+
     public static async receiveMessage(senderName: string, message: Message, messages: any, setMessages: any) {
         console.log("message reçu", message);
         

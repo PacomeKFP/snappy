@@ -21,14 +21,7 @@ export default function ChatScreen() {
         try {
           const fetchedChats = await fetchChats();
 
-          // Trier les chats du plus récent au plus ancien
-          const sortedChats = fetchedChats.sort((a, b) => {
-            const dateA = new Date(a.lastMessage?.updatedAt || 0).getTime();
-            const dateB = new Date(b.lastMessage?.updatedAt || 0).getTime();
-            return dateB - dateA; // ordre décroissant
-          });
-
-          setChats(sortedChats);
+          setChats(fetchedChats);
         } catch (error) {
           console.error("Erreur lors la recuperation des UserChats:", error);
         } finally {
