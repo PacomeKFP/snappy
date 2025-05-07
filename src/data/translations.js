@@ -116,7 +116,13 @@ export const translations = {
                     avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Pacome kengali',
+                    name: 'Jean Yves Etougue',
+                    role: 'TEO, FUllstack Java',
+                    bio: 'Software Developer',
+                    avatar:'/profile/etougue.png'
+                },
+                {
+                    name: 'Pacome Kengali',
                     role: 'role',
                     bio: 'Bio.',
                     avatar:'/profile/pacome.png'
@@ -133,9 +139,14 @@ export const translations = {
                     role: 'role',
                     bio: 'bio',
                     avatar:'/profile/rosalie.png'
+                },
+                {
+                    name: 'Kenfack Franck',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/kenfack.jpg'
                 }
             ]
-
         },
         pricing: {
             title: 'Tarifs adaptés à vos besoins',
@@ -322,7 +333,13 @@ export const translations = {
                     avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Pacome kengali',
+                    name: 'Jean Yves Etougue',
+                    role: 'TEO, FUllstack Java',
+                    bio: 'Software Developer',
+                    avatar:'/profile/etougue.png'
+                },
+                {
+                    name: 'Pacome Kengali',
                     role: 'role',
                     bio: 'Bio.',
                     avatar:'/profile/pacome.png'
@@ -339,9 +356,14 @@ export const translations = {
                     role: 'role',
                     bio: 'bio',
                     avatar:'/profile/rosalie.png'
+                },
+                {
+                    name: 'Kenfack Franck',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/kenfack.jpg'
                 }
             ]
-
         },
         pricing: {
             title: 'Pricing tailored to your needs',
@@ -528,7 +550,13 @@ export const translations = {
                     avatar:'/profile/thomas.png'
                 },
                 {
-                    name: 'Pacome kengali',
+                    name: 'Jean Yves Etougue',
+                    role: 'TEO, FUllstack Java',
+                    bio: 'Software Developer',
+                    avatar:'/profile/etougue.png'
+                },
+                {
+                    name: 'Pacome Kengali',
                     role: 'role',
                     bio: 'Bio.',
                     avatar:'/profile/pacome.png'
@@ -545,9 +573,14 @@ export const translations = {
                     role: 'role',
                     bio: 'bio',
                     avatar:'/profile/rosalie.png'
+                },
+                {
+                    name: 'Kenfack Franck',
+                    role: 'role',
+                    bio: 'bio',
+                    avatar:'/profile/kenfack.jpg'
                 }
             ]
-
         },
         pricing: {
             title: 'Preise nach Ihren Bedürfnissen',
