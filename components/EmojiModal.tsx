@@ -1,73 +1,63 @@
-import { View, StyleSheet } from "react-native";
-import Modal from 'react-native-modal';
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Picker, EmojiData } from "emoji-mart-native";
 import { ThemeText } from "@/components/ThemeText";
+import { Ionicons } from "@expo/vector-icons";
 
-const EmojiModal: React.FC<{ visible: boolean; onClose: () => void; onEmojiSelect: (emoji: string) => void }> = ({
+const EmojiPicker: React.FC<{ visible: boolean; onClose: () => void; onEmojiSelect: (emoji: string) => void }> = ({
   visible,
   onClose,
   onEmojiSelect,
 }) => {
+  if (!visible) return null;
+
   return (
-    <Modal
-      isVisible={visible}
-      onBackdropPress={onClose}
-      swipeDirection="down"
-      onSwipeComplete={onClose}
-      style={styles.modal}
-      propagateSwipe
-    >
-      <View style={styles.container}>
-        <View style={styles.headerBar} />
-        <ThemeText variant="titrelogin" style={styles.title}>Sélectionner un emoji</ThemeText>
-        <View style={styles.pickerContainer}>
-          <Picker
-            onEmojiSelect={(emoji: EmojiData) => {
-              if (emoji && emoji.native) {
-                onEmojiSelect(emoji.native);
-                onClose();
-              }
-            }}
-            theme="light"
-          />
-        </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <ThemeText variant="titrelogin" style={styles.title}>Emojis</ThemeText>
+        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Ionicons name="close" size={24} color="#7B52AB" />
+        </TouchableOpacity>
       </View>
-    </Modal>
+      <View style={styles.pickerContainer}>
+        <Picker
+          onEmojiSelect={(emoji: EmojiData) => {
+            if (emoji && emoji.native) {
+              onEmojiSelect(emoji.native);
+            }
+          }}
+          theme="light"
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 40,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: "45%",
+    borderTopWidth: 1,
+    borderTopColor: "#DDD",
+    height: 250,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#DDD",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    padding: 5,
   },
   pickerContainer: {
     flex: 1,
-    height: "100%",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    marginLeft: 8,
-  },
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  headerBar: {
-    width: 40,
-    height: 5,
-    backgroundColor: "#ccc",
-    alignSelf: "center",
-    borderRadius: 10,
-    marginBottom: 10,
   },
 });
 
-export default EmojiModal;
+export default EmojiPicker;

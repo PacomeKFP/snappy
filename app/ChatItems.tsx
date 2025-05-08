@@ -12,6 +12,7 @@ import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
 import { prepareMessagesWithDateSeparators } from '@/lib/utils';
 import { Ionicons } from "@expo/vector-icons";
 import EmojiModal from "@/components/EmojiModal";
+import EmojiPicker from "@/components/EmojiPicker";
 
 export default function ChatRoom() {
   const router = useRouter();
@@ -114,15 +115,10 @@ export default function ChatRoom() {
         <TouchableOpacity onPress={handleSendFile}>
           <Ionicons name="attach" size={24} color="#7B52AB" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setEmojiVisible(true)}>
-          <Ionicons name="happy" size={24} color="#7B52AB" />
+        <TouchableOpacity onPress={() => setEmojiVisible(!emojiVisible)}>
+          <Ionicons name={emojiVisible ? "chatbubble" : "happy"} size={24} color="#7B52AB" />
         </TouchableOpacity>
 
-        <EmojiModal
-          visible={emojiVisible}
-          onClose={() => setEmojiVisible(false)}
-          onEmojiSelect={handleEmojiSelect}
-        />
         <TextInput
           style={styles.input}
           placeholder="Écrire un message..."
@@ -142,6 +138,12 @@ export default function ChatRoom() {
           <Ionicons name="send" size={24} color="#7B52AB" />
         </TouchableOpacity>
       </View>
+
+      <EmojiPicker
+        visible={emojiVisible}
+        onClose={() => setEmojiVisible(false)}
+        onEmojiSelect={handleEmojiSelect}
+      />
     </View>
   );
 }
