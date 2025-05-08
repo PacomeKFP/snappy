@@ -179,7 +179,7 @@ export class SnappyHTTPClient extends BaseService {
 
     async getChatDetails(dto: GetChatDetailsDto): Promise<ChatDetailsResource> {
         this.refreshApiInstance(this.basePath, true, this.bearerToken!)
-        return await this.post<GetChatDetailsDto, ChatDetailsResource>(dto);
+        return await this.post<GetChatDetailsDto, ChatDetailsResource>(dto,"chat/details");
     }
 
     async getUserChats(user: string, projectId: string): Promise<ChatResource[]> {

@@ -34,6 +34,16 @@ export default function StatusScreen() {
     );
   }
 
+  function isValidUrl(url?: string): boolean {
+    if (!url) return false;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <Text style={styles.header}>Mes Contacts</Text>
@@ -45,10 +55,15 @@ export default function StatusScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.contactItem} 
-            onPress={() => startChat(item!.displayName!, item.avatar)}
+            onPress={() => startChat(item!.displayName!, isValidUrl(item.avatar)
+              ? { uri: item!.avatar! }
+              : require('../assets/images/profile.png'))}
           >
             <Image 
-              source={  require('../assets/images/me.jpeg') } 
+              source={ 
+                isValidUrl(item.avatar)
+                  ? { uri: item!.avatar! }
+                  : require('../assets/images/profile.png')} 
               style={styles.avatar} 
             />
             <Text style={styles.name}>{item.displayName}</Text>

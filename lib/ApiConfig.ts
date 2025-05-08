@@ -27,7 +27,9 @@ export class ApiConfig {
         ApiConfig.instance.interceptors.response.use(
             (response) => response,
             (error) => {
-                toast.error(error.response.data.message);
+                // toast.error(error.response.data.message);
+                console.log("error : ", JSON.stringify(error));
+
                 if (error.response?.status === 422) {
                     return Promise.reject(error.response.data as object);
                 }

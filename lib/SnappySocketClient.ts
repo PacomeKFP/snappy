@@ -33,7 +33,7 @@ export class SnappySocketClient implements ISnappySocketClient {
                 messageReceivedCallback()
             }
         )
-
+  
         this.socket = socket;
     }
 
@@ -54,7 +54,7 @@ export class SnappySocketClient implements ISnappySocketClient {
     }
 
     onMessageReceivedListener(message: Message) {
-        console.log("message received")
-        console.log(message)
+        console.log("message received pacome")
+        // console.log(message)
     }
 }
