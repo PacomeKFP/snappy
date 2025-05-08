@@ -22,6 +22,19 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ visible, onClose, onEmojiSele
           <Ionicons name="close" size={24} color="#7B52AB" />
         </TouchableOpacity>
       </View>
+      <ScrollView style={styles.pickerContainer}>
+        <View style={styles.emojiGrid}>
+          {EMOJIS[selectedCategory].map((emoji, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.emojiButton}
+              onPress={() => onEmojiSelect(emoji)}
+            >
+              <Text style={styles.emoji}>{emoji}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
       <ScrollView horizontal style={styles.categoryContainer} showsHorizontalScrollIndicator={false}>
         {Object.keys(EMOJIS).map((category) => (
           <TouchableOpacity
@@ -36,19 +49,6 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ visible, onClose, onEmojiSele
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <ScrollView style={styles.pickerContainer}>
-        <View style={styles.emojiGrid}>
-          {EMOJIS[selectedCategory].map((emoji, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.emojiButton}
-              onPress={() => onEmojiSelect(emoji)}
-            >
-              <Text style={styles.emoji}>{emoji}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
     </View>
   );
 };
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: 300,
+    height: 260,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -72,34 +72,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
+    padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#7B52AB',
   },
   closeButton: {
-    padding: 5,
-  },
-  categoryContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-  },
-  categoryButton: {
-    padding: 8,
-    marginRight: 8,
-    borderRadius: 8,
-  },
-  selectedCategory: {
-    backgroundColor: '#F0E6FF',
-  },
-  categoryEmoji: {
-    fontSize: 24,
+    padding: 4,
   },
   pickerContainer: {
     flex: 1,
@@ -107,7 +90,7 @@ const styles = StyleSheet.create({
   emojiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 10,
+    padding: 8,
   },
   emojiButton: {
     width: '12.5%',
@@ -117,6 +100,26 @@ const styles = StyleSheet.create({
   },
   emoji: {
     fontSize: 24,
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    padding: 1,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    height: 0.2,
+  },
+  categoryButton: {
+    padding: 8,
+    marginRight: 8,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedCategory: {
+    backgroundColor: '#F0E6FF',
+  },
+  categoryEmoji: {
+    fontSize: 20,
   },
 });
 
