@@ -75,7 +75,7 @@ export class ChatService {
             );
     
             // Tri chronologique
-            return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+            return filtered.sort((a, b) => new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime());
         }
     
         // Sinon, on fait une requête au serveur

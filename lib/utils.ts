@@ -13,7 +13,7 @@ export const prepareMessagesWithDateSeparators = (messages: Message[]) => {
     if (lastDate !== dateStr) {
       let label = '';
 
-      if (isToday(date)) label = 'Aujpurd\'hui';
+      if (isToday(date)) label = 'Aujourd\'hui';
       else if (isYesterday(date)) label = 'Hier';
       else label = format(date, 'MMMM d, yyyy');
 
