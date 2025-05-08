@@ -67,7 +67,10 @@ export default function ChatRoom() {
   };
 
   const handleEmojiSelect = (emoji: string) => {
-    setNewMessage(prev => prev + emoji);  // Ajoute l'emoji au message
+    setNewMessage(prev => {
+      const newText = prev + emoji;
+      return newText;
+    });
   };
 
   return (
@@ -115,7 +118,6 @@ export default function ChatRoom() {
           <Ionicons name="happy" size={24} color="#7B52AB" />
         </TouchableOpacity>
 
-        {/* Emoji modal */}
         <EmojiModal
           visible={emojiVisible}
           onClose={() => setEmojiVisible(false)}
@@ -126,6 +128,9 @@ export default function ChatRoom() {
           placeholder="Écrire un message..."
           value={newMessage}
           onChangeText={setNewMessage}
+          multiline={true}
+          textAlignVertical="center"
+          placeholderTextColor="#999"
         />
 
         <TouchableOpacity onPress={() => {
@@ -206,5 +211,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F3F3",
     borderRadius: 20,
     marginRight: 10,
+    minHeight: 40,
+    maxHeight: 100,
+    fontSize: 16,
   },
 });
