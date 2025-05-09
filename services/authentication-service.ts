@@ -57,8 +57,6 @@ export class AuthenticationService {
   }
 
   public static async register(email: string, password: string, confirm_password : string , username: string, router :any,setIsAuthentificating:any) {    
-
-  
     //generate externalId
     const { v4: uuidv4 } = require('uuid');
     console.log("start register for email", email);

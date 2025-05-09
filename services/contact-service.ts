@@ -71,6 +71,8 @@ export class ContactService {
     
   }
 
+  
+
   private static async getRequesterId(): Promise<string> {
     //Récupère l'ID de l'utilisateur demandeur à partir du stockage local ou de l'API.
     const localUser = await AsyncStorage.getItem("user");
