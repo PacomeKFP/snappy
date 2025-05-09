@@ -11,7 +11,6 @@ import { SnappySocketClient } from "@/lib/SnappySocketClient";
 import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
 import { prepareMessagesWithDateSeparators } from '@/lib/utils';
 import { Ionicons } from "@expo/vector-icons";
-import EmojiModal from "@/components/EmojiModal";
 import EmojiPicker from "@/components/EmojiPicker";
 
 export default function ChatRoom() {

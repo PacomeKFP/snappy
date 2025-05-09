@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.YowTalk"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,17 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b41a5340-6586-429e-b17c-30bda6e44a65"
+      }
+    },
+    "cli": {
+      "appVersionSource": "local"
     }
   }
 }
