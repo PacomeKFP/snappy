@@ -16,7 +16,7 @@ export default function AppMenu() {
             optionWrapper: { padding: 10 },
             optionText: { fontSize: 18, color: '#333' },
           }}/>
-        <MenuOption onSelect={() => alert("Paramètres")} text="Paramètres" 
+        <MenuOption onSelect={() => router.push("/settings")} text="Paramètres" 
           customStyles={{
             optionWrapper: { padding: 10 },
             optionText: { fontSize: 18, color: '#333' },

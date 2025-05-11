@@ -81,7 +81,6 @@ export default function ChatRoom() {
         </TouchableOpacity>
         <Image source={{ uri: avatar }} style={styles.avatar} />
         <ThemeText style={styles.headerText}>{name}</ThemeText>
-        <Ionicons name="call" size={24} color="white" style={styles.icon} />
         <AppSetting />
       </View>
 

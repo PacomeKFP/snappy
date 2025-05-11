@@ -24,7 +24,7 @@ export default function AppSetting() {
       <MenuOptions>
        
         <MenuOption
-          onSelect={() => alert("Profil")}
+          onSelect={() => router.push("/settingItems")}
           text="Paramètres"
           customStyles={{
             optionWrapper: { padding: 10 },
