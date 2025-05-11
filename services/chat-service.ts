@@ -174,7 +174,8 @@ export class ChatService {
                 sender: (await this.getRequesterId()).toString(),
                 receiver: interlocutorId,
                 ack: "SENT",
-                createdAt: new Date()
+                createdAt: new Date(),
+                
             }
             ]);
         } catch (err) {
