@@ -1,28 +1,13 @@
-"use client";
-
-import { BaseService } from "./BaseService";
+import {BaseService} from "./BaseService";
 import {
 	AddContactDto,
 	AuthenticateOrganizationDto,
 	AuthenticateUserDto,
 	AuthenticationResourceOrganization,
-	AuthenticationResourceUser,
-	ChangeMessagingModeDto,
-	Chat,
-	Chatbot,
-	ChatDetailsResource,
-	ChatResource,
-	CreateChatbotDto,
-	CreateOrganizationDto,
-	CreateUserDto,
-	FindUserByDisplayNameDto,
-	GetChatDetailsDto,
-	GetUserContactsDto,
-	Message,
-	Organization,
-	PreKeyBundle,
-	SendMessageDto,
-	User,
+	AuthenticationResourceUser, ChangeMessagingModeDto, Chat, Chatbot,
+	ChatDetailsResource, ChatResource, CreateChatbotDto,
+	CreateOrganizationDto, CreateUserDto, FindUserByDisplayNameDto,
+	GetChatDetailsDto, GetUserContactsDto, Message, Organization, PreKeyBundle, SendMessageDto, User
 } from "./models";
 
 export class SnappyHTTPClient extends BaseService {
@@ -45,7 +30,6 @@ export class SnappyHTTPClient extends BaseService {
 	loadBearerToken = () =>
 		localStorage.getItem("bearer") &&
 		this.setBearerToken(localStorage.getItem("bearer")!);
-
 	// Organization
 	async createOrganization(dto: CreateOrganizationDto) {
 		this.refreshApiInstance(this.basePath, false);
@@ -122,7 +106,7 @@ export class SnappyHTTPClient extends BaseService {
 	// CHATBOT
 	async getAllChatbots(): Promise<Chatbot[]> {
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		return this.get<Chatbot[]>(`/chatbot`);
+		return this.get<Chatbot[]>(`/chatbots`);
 	}
 
 	async createChatbot(dto: CreateChatbotDto): Promise<Chatbot> {
@@ -131,7 +115,7 @@ export class SnappyHTTPClient extends BaseService {
 			"Content-Type": "multipart/form-data",
 			Authorization: `Bearer ${this.bearerToken}`,
 		};
-		return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbot", headers);
+		return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbots", headers);
 	}
 
 	async getChatbotsForProject(projectId: string): Promise<Chatbot[]> {
@@ -219,7 +203,10 @@ export class SnappyHTTPClient extends BaseService {
 
 	async getChatDetails(dto: GetChatDetailsDto): Promise<ChatDetailsResource> {
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		return await this.post<GetChatDetailsDto, ChatDetailsResource>(dto);
+		return await this.post<GetChatDetailsDto, ChatDetailsResource>(
+			dto,
+			"chat/details"
+		);
 	}
 
 	async getUserChats(

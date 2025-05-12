@@ -8,13 +8,16 @@ interface SearchProps {
 	placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchProps> = ({ onSearch, suggestions = [], placeholder = "Rechercher des messages ou contacts..."}: SearchProps) => {
+export const SearchBar: React.FC<SearchProps> = ({
+	onSearch,
+	suggestions = [],
+	placeholder = "Rechercher des messages ou contacts...",
+}: SearchProps) => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isSearching, setIsSearching] = useState(false);
 	const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 	const searchingTimerRef = useRef<NodeJS.Timeout | null>(null);
-	
 
 	// Gestion de la recherche avec debounce
 	useEffect(() => {
@@ -32,7 +35,7 @@ export const SearchBar: React.FC<SearchProps> = ({ onSearch, suggestions = [], p
 				// Commencer à chercher
 				setIsSearching(true);
 				onSearch(searchTerm);
-				
+
 				// Configurer le timer pour arrêter l'animation après 300ms
 				searchingTimerRef.current = setTimeout(() => {
 					setIsSearching(false);
@@ -46,8 +49,10 @@ export const SearchBar: React.FC<SearchProps> = ({ onSearch, suggestions = [], p
 
 		// Nettoyage lors du démontage
 		return () => {
-			if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-			if (searchingTimerRef.current) clearTimeout(searchingTimerRef.current);
+			if (debounceTimerRef.current)
+				clearTimeout(debounceTimerRef.current);
+			if (searchingTimerRef.current)
+				clearTimeout(searchingTimerRef.current);
 		};
 	}, [searchTerm, onSearch]);
 
@@ -55,7 +60,7 @@ export const SearchBar: React.FC<SearchProps> = ({ onSearch, suggestions = [], p
 		// Nettoyage des timers existants
 		if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 		if (searchingTimerRef.current) clearTimeout(searchingTimerRef.current);
-		
+
 		setSearchTerm("");
 		setIsSearching(false);
 		onSearch(""); // Réinitialise la recherche
@@ -147,4 +152,4 @@ export const SearchBar: React.FC<SearchProps> = ({ onSearch, suggestions = [], p
 			</div>
 		</div>
 	);
-}
+};

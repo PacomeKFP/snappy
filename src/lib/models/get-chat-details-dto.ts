@@ -31,4 +31,11 @@ export interface GetChatDetailsDto {
      * @memberof GetChatDetailsDto
      */
     interlocutor?: string;
+
+        /**
+     * @type {string}
+     * @memberof GetChatDetailsDto
+     */
+    projectId: string;
+
 }

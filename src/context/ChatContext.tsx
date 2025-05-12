@@ -1,93 +1,96 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+	createContext,
+	ReactNode,
+	useContext,
+	useState,
+	useEffect,
+} from "react";
 
-import { SnappyHTTPClient } from "@/lib/SnappyHTTPClient";
-import { SnappySocketClient } from "@/lib/SnappySocketClient";
-import { ISnappySocketClient } from "@/lib/ISnappySocketClient";
-
-import { Message } from "@/lib/models";
-
-import { conversations } from "@/datas/mockDatas";
-import { Conversation } from "@/types/interfaces";
+import {
+	getUserChatsData,
+	getChatDetailsData,
+	externalID,
+	projectID,
+} from "@/datas/mockDatas";
+import { ChatResource, GetChatDetailsDto, Message, User } from "@/lib/models";
 
 interface ChatContextType {
-	currentConversation: Conversation | null;
-	setCurrentContactId: (contactId: string) => void;
-	setCurrentConversation: (newConversation: Conversation) => void;
+	chats: ChatResource[];
+	chatsLoading: boolean;
+	interlocutor: User | undefined;
+	setInterlocutorHandler: (interlocutor: string) => void;
+	messages: Message[];
 }
-
-// Initialisation du client HTTP
-export const httpClient = new SnappyHTTPClient("http://88.198.150.195:8613");
-
-// Initialisation du client Socket
-// export const socketClient = new SnappySocketClient("http://88.198.150.195:8614", "81997082-7e88-464a-9af1-b790fdd454f8", "current-user");
-
-// const socketHandlers: ISnappySocketClient = {
-// 	onConnect: () => {
-// 		console.log("Connecté au serveur");
-// 		setConnected(true);
-// 	},
-// 	onDisconnect: () => {
-// 		console.log("Déconnecté du serveur");
-// 		setConnected(false);
-// 	},
-// 	newConnectionListener: (user) => {
-// 		console.log(`${user} vient de se connecter`);
-// 	},
-// 	newDisconnectionListener: (user) => {
-// 		console.log(`${user} vient de se déconnecter`);
-// 	},
-// 	onMessageReceivedListener: (message) => {
-// 		console.log("Message reçu:", message);
-// 		setMessages((prev) => [...prev, message]);
-// 	},
-// };
-
-// socketClient.initialize(socketHandlers);
 
 // 1. Création du contexte
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 // 2. Création d'un Provider
-export const ChatProvider: React.FC<{ children: ReactNode }> = ({children}) => {
-	const [contactId, setContactId] = useState<string | null>(null);
+export const ChatProvider: React.FC<{ children: ReactNode }> = ({
+	children,
+}) => {
+	// ---
+	const [chats, setChats] = useState<ChatResource[]>([]);
+	const [chatsLoading, setChatsLoading] = useState<boolean>(true);
 
-	var currentConversation = conversations.find(conversation => conversation.contact.id === contactId) || null;
+	useEffect(() => {
+		getUserChatsData().then((chats) => {
+			setChatsLoading(false);
+			setChats(chats);
+		});
+	}, []);
+	// ---
 
-	const setCurrentContactId = (contactId: string) => {
-		setContactId(contactId);
+	// ---
+	const [interlocutor, setInterlocutor] = useState<User>();
+	const setInterlocutorHandler = (interlocutor: string) => {
+		setInterlocutor(
+			chats.find((chat) => chat.user?.externalId === interlocutor)?.user
+		);
 	};
+	// ---
 
-	const setCurrentConversation = (newConversation: Conversation) => {
-		// Find the index of the conversation to replace
-		const index = conversations.findIndex(conversation => conversation.contact.id === newConversation.contact.id);
-		
-		// If the conversation exists, replace it
-		if (index !== -1) {
-			conversations[index] = newConversation;
-		} else {
-			// Optionally, you can add the new conversation if it doesn't exist
-			conversations.push(newConversation);
+	// ---
+	const [messages, setMessages] = useState<Message[]>([]);
+	const [dto, setDto] = useState<GetChatDetailsDto>();
+
+	useEffect(() => {
+		setDto({
+			user: externalID,
+			interlocutor: interlocutor?.externalId,
+			projectId: projectID,
+		});
+
+		if (dto?.interlocutor) {
+			getChatDetailsData(dto).then((data) => {
+				setMessages(data.messages ? data.messages : []);
+			});
 		}
-
-		currentConversation = conversations.find(conversation => conversation.contact.id === newConversation.contact.id) || null;
-	};
+	}, [interlocutor]);
+	// ---
 
 	return (
-		<ChatContext.Provider value={{ currentConversation, setCurrentContactId, setCurrentConversation }}>
+		<ChatContext.Provider
+			value={{
+				chats,
+				chatsLoading,
+				interlocutor,
+				setInterlocutorHandler,
+				messages,
+			}}
+		>
 			{children}
 		</ChatContext.Provider>
 	);
 };
 
-// 3.
+// 3. Hook personnalisé pour utiliser le contexte
 export const useChat = (): ChatContextType => {
 	const context = useContext(ChatContext);
-	
 	if (context === undefined) {
-		throw new Error("useChat must be used within a ChatProvider!");
+		throw new Error("useChat must be used within a ChatProvider !");
 	}
-	
 	return context;
 };

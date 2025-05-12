@@ -1,41 +1,23 @@
 "use client";
 
+import Avatar from "./Avatar";
 import { v4 as uuidv4 } from "uuid";
 import React, { useState } from "react";
 import { Bot, Mic, Send, Check, CheckCheck, PaperclipIcon } from "lucide-react";
 
-import { Message } from "@/types/interfaces";
 import { formatTime } from "@/utils/dateFormat";
 import { useChat } from "@/context/ChatContext";
+import MessageAckStatus from "./MessageAckStatus";
 
 export const Conversation: React.FC = () => {
+	const { interlocutor, messages } = useChat();
+
 	const [message, setMessage] = useState("");
 	const [sliderPosition, setSliderPosition] = useState(1); // 0: rouge, 1: orange, 2: vert
 
-	// Messages d'exemple
-	const { currentConversation, setCurrentConversation } = useChat();
-
 	const handleSendMessage = () => {
-		if (message.trim() && currentConversation) {
-			// Logique pour envoyer le message
-			const newMessage: Message = {
-				id: uuidv4(),
-				content: message,
-				isSended: true,
-				sender: sliderPosition === 2 ? "alan" : "me",
-				timestamp: new Date(),
-				hasBeenRead: false,
-			};
-
-			const newMessages = [...currentConversation.contact.messages, newMessage];
-			currentConversation.contact.messages = newMessages;
-
-			const updatedConversation = {
-				contact: currentConversation.contact,
-				lastMessage: newMessage,
-			};
-
-			setCurrentConversation(updatedConversation);
+		if (message.trim()) {
+			console.log("Message envoyé :", message);
 			setMessage("");
 		}
 	};
@@ -64,7 +46,7 @@ export const Conversation: React.FC = () => {
 		setSliderPosition((prev) => (prev + 1) % 3);
 	};
 
-	if (currentConversation === null) {
+	if (interlocutor === undefined) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full text-center p-6">
 				<div className="animate-pulse">
@@ -72,8 +54,8 @@ export const Conversation: React.FC = () => {
 						Bienvenue à YowTalk
 					</h1>
 					<p className="text-gray-600 max-w-md mx-auto">
-						Sélectionnez une conversation pour commencer à discuter avec
-						vos contacts.
+						Sélectionnez une conversation pour commencer à discuter
+						avec vos contacts.
 					</p>
 				</div>
 			</div>
@@ -91,24 +73,21 @@ export const Conversation: React.FC = () => {
 			>
 				<div className="flex items-center flex-1">
 					<div className="relative">
-						<div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-							{/* <User size={32} className="text-gray-500" /> */}
-							<img
-								src={currentConversation.contact.avatar}
-								alt="Profile"
-								className="w-full h-full object-cover"
-							/>
-						</div>
+						<Avatar
+							src={interlocutor.avatar ? interlocutor.avatar : ""}
+							alt={"Profile"}
+							size={12}
+						/>
 						<div
-							className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-${true ? "snappy-purple" : "snappy-gray"}`}
+							className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-${interlocutor.online ? "snappy-purple" : "snappy-gray"}`}
 						></div>
 					</div>
 					<div className="ml-3">
 						<h3 className="font-medium text-gray-800">
-							{currentConversation.contact.name}
+							{interlocutor.displayName}
 						</h3>
 						<p className="text-sm text-gray-500">
-							{currentConversation.contact.isOnline.toString()}
+							{interlocutor.online ? "Connecté" : "Déconnecté"}
 						</p>
 					</div>
 				</div>
@@ -136,31 +115,39 @@ export const Conversation: React.FC = () => {
 
 			{/* 2. Zone de messages */}
 			<div className="flex-1 flex-col overflow-y-auto p-4 bg-snappy-gray">
-				{currentConversation.contact.messages.map((msg) => (
+				{messages?.map((msg) => (
 					<div
 						key={msg.id}
-						className={`mb-4 w-full flex ${msg.isSended ? "justify-end" : "justify-start"}`}
+						className={`mb-4 w-full flex ${msg.sender !== interlocutor.externalId ? "justify-end" : "justify-start"}`}
 					>
 						<div
 							className={`p-3 rounded-lg relative max-w-[45%] ${
-							msg.isSended
-								? "bg-snappy-purple text-white rounded-br-none"
-								: "bg-white text-gray-800 rounded-bl-none shadow-sm"
+								msg.sender !== interlocutor.externalId
+									? "bg-snappy-purple text-white rounded-br-none"
+									: "bg-white text-gray-800 rounded-bl-none shadow-sm"
 							}`}
 						>
-							<div className="break-words">{msg.content}</div>
+							<div className="break-words">{msg.body}</div>
 							<div
 								className={`flex items-center text-xs mt-1 ${
-									msg.isSended
-									? "text-white"
-									: "text-gray-800"
+									msg.sender !== interlocutor.externalId
+										? "text-white"
+										: "text-gray-800"
 								}`}
 							>
-								<span>
-									{msg.hasBeenRead ? (<CheckCheck size={14} />) : (<Check size={14} />)}
+								<MessageAckStatus ack={msg.ack} />
+								<span className="ml-1">
+									{formatTime(
+										msg.updatedAt
+											? msg.updatedAt
+											: new Date()
+									)}
 								</span>
-								<span className="ml-1">{formatTime(msg.timestamp)}</span>
-								{msg.sender === "alan" && (<span className="ml-1"><Bot size={14} /></span>)}
+								{!msg.writtenByHuman && (
+									<span className="ml-1">
+										<Bot size={14} />
+									</span>
+								)}
 							</div>
 						</div>
 					</div>

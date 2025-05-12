@@ -29,11 +29,11 @@ export class SnappySocketClient implements ISnappySocketClient {
         socket.on("new-disconnection", client.newDisconnectionListener)
 
         socket.on('message-send', (message: Message, messageReceivedCallback: () => void) => {
-                client.onMessageReceivedListener(message);
+                client.onMessageReceivedListener(message);                              
                 messageReceivedCallback()
             }
         )
-
+  
         this.socket = socket;
     }
 
@@ -54,7 +54,7 @@ export class SnappySocketClient implements ISnappySocketClient {
     }
 
     onMessageReceivedListener(message: Message) {
-        console.log("message received")
-        console.log(message)
+        console.log("message received pacome")
+        // console.log(message)
     }
 }

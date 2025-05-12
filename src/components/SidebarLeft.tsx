@@ -148,7 +148,7 @@ export default function SidebarLeft() {
 	];
 
 	return (
-		<div className="w-[72px] h-screen bg-snappy-dark-blue flex flex-col items-center justify-between py-4 fixed left-0 top-0 z-50">
+		<div className="w-[72px] h-screen bg-snappy-purple flex flex-col items-center justify-between py-4 fixed left-0 top-0 z-50">
 			<div className="flex flex-col items-center space-y-8">
 				{navItems.map((item) => (
 					<button

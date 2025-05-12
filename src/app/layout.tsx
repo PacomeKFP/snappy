@@ -17,7 +17,9 @@ const itim = Itim({
 	variable: "--font-itim",
 });
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
+export default function RootLayout({
+	children,
+}: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="fr">
 			<body className={`${itim.variable} antialiased`}>{children}</body>
