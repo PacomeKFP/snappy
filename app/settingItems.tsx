@@ -119,7 +119,7 @@ export default function ContactSettings() {
         <SettingItem
           icon="search-outline"
           title="Rechercher dans la conversation"
-          onPress={() => router.push(`/search-chat/${name}` as any)}
+          onPress={() => router.push("/newchat")}
         />
       </View>
 
