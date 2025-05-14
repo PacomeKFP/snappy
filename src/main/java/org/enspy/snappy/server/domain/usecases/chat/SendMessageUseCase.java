@@ -59,7 +59,7 @@ public class SendMessageUseCase implements MonoUseCase<SendMessageDto, Message> 
   }
 
   @Override
-  public Mono<Message> execute(SendMessageDto dto) {
+  /*public Mono<Message> execute(SendMessageDto dto) {
     if (dto == null
         || dto.getSenderId() == null
         || dto.getReceiverId() == null
@@ -116,7 +116,123 @@ public class SendMessageUseCase implements MonoUseCase<SendMessageDto, Message> 
 //                    .then(sendMessageToAlan(message))
                     .thenReturn(message))
         .doOnNext(message -> log.info("Processus d'envoi de message terminé"));
-  }
+  }*/
+
+ // Nouveau 
+
+ 
+public Mono<Message> execute(SendMessageDto dto) {
+   
+    if (dto.getReceiverIds() != null && !dto.getReceiverIds().isEmpty()) {
+        return sendMessageToMultipleUsers(dto);
+    }
+    
+   
+    return sendMessageToSingleUser(dto);
+}
+
+
+private Mono<Message> sendMessageToSingleUser(SendMessageDto dto) {
+   
+    Message message = new Message();
+    message.setId(UUID.randomUUID().toString());
+    message.setSenderId(dto.getSenderId());
+    message.setReceiverId(dto.getReceiverId());
+    message.setContent(dto.getContent());
+    message.setTimestamp(LocalDateTime.now());
+    message.setType(dto.getType());
+    
+    
+    return messageRepository.save(message)
+            .flatMap(savedMessage -> {
+                String receiverId = savedMessage.getReceiverId();
+                
+                
+                if (connectedUserStorage.isUserConnected(receiverId)) {
+                    
+                    List<WebSocketSession> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
+                    
+                   
+                    String messageJson = jsonFieldService.toJson(savedMessage);
+                    
+                    return Flux.fromIterable(receiverSessions)
+                            .flatMap(session -> {
+                                return session.send(Mono.just(session.textMessage(messageJson)))
+                                        .onErrorResume(e -> {
+                                            log.error("Error sending message to session: {}", e.getMessage());
+                                            return Mono.empty();
+                                        });
+                            })
+                            .then(Mono.just(savedMessage))
+                            .doOnSuccess(msg -> {
+                                
+                                if (!receiverSessions.isEmpty()) {
+                                   
+                                    notSentMessagesStorage.addNotSentMessage(savedMessage);
+                                }
+                            });
+                } else {
+                    
+                    notSentMessagesStorage.addNotSentMessage(savedMessage);
+                    return Mono.just(savedMessage);
+                }
+            });
+}
+
+
+private Mono<Message> sendMessageToMultipleUsers(SendMessageDto dto) {
+    
+    Message message = new Message();
+    message.setId(UUID.randomUUID().toString());
+    message.setSenderId(dto.getSenderId());
+    message.setContent(dto.getContent());
+    message.setTimestamp(LocalDateTime.now());
+    message.setType(dto.getType());
+    
+    
+    
+    List<String> receiverIds = dto.getReceiverIds();
+    
+    
+    return Flux.fromIterable(receiverIds)
+            .flatMap(receiverId -> {
+               
+                Message messageCopy = new Message();
+                BeanUtils.copyProperties(message, messageCopy);
+                messageCopy.setId(UUID.randomUUID().toString()); // ID unique pour chaque copie
+                messageCopy.setReceiverId(receiverId);
+                
+                
+                return messageRepository.save(messageCopy)
+                        .flatMap(savedMessage -> {
+                            
+                            if (connectedUserStorage.isUserConnected(receiverId)) {
+                               
+                                List<WebSocketSession> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
+                                
+                               
+                                String messageJson = jsonFieldService.toJson(savedMessage);
+                                
+                                return Flux.fromIterable(receiverSessions)
+                                        .flatMap(session -> {
+                                            return session.send(Mono.just(session.textMessage(messageJson)))
+                                                    .onErrorResume(e -> Mono.empty());
+                                        })
+                                        .then(Mono.just(savedMessage))
+                                        .doOnSuccess(msg -> {
+                                          
+                                            notSentMessagesStorage.addNotSentMessage(savedMessage);
+                                        });
+                            } else {
+                            
+                                notSentMessagesStorage.addNotSentMessage(savedMessage);
+                                return Mono.just(savedMessage);
+                            }
+                        });
+            })
+            .collectList()
+            .then(Mono.just(message)); 
+}
 
   private Mono<Void> sendMessageToAlan(Message message) {
     return chatRepository
