@@ -24,6 +24,7 @@
     "date-fns": "^4.1.0",
     "emoji-mart-native": "^0.6.5-beta",
     "expo": "~52.0.46",
+    
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.8",
     "expo-font": "~13.0.4",

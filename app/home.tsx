@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ChatScreen from "./chat";
 import StatutScreen from "./status";
