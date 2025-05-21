@@ -78,44 +78,48 @@ body {
 	}
 }
 
-/* Styles pour améliorer le scrolling */
-.custom-scrollbar {
-	scrollbar-width: thin;
-	scrollbar-color: #888 #f1f1f1;
-}
-
+/* Style de barres de défilement élégantes */
 .custom-scrollbar::-webkit-scrollbar {
-	width: 6px;
+	width: 8px;
+	height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-	background: #f1f1f1;
+	background-color: rgba(243, 244, 246, 0.5);
+	border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-	background: #888;
-	border-radius: 3px;
+	background-color: rgba(156, 163, 175, 0.4);
+	border-radius: 10px;
+	transition: background-color 0.3s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: #555;
+	background-color: rgba(107, 114, 128, 0.6);
 }
 
-/* Optimisations pour le texte */
-.text-ellipsis {
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
+/* Pour Firefox */
+.custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(156, 163, 175, 0.4) rgba(243, 244, 246, 0.5);
 }
 
-/* Classes utilitaires pour les barres de défilement */
-.no-scrollbar::-webkit-scrollbar {
-	display: none;
+/* Pour que les barres de défilement soient visibles au besoin seulement */
+.custom-scrollbar {
+	overflow: auto;
+	/* Masque les barres de défilement par défaut mais les montre au survol/focus */
+	scrollbar-gutter: stable;
 }
 
-.no-scrollbar {
-	-ms-overflow-style: none;
-	scrollbar-width: none;
+@media (hover: hover) {
+	.custom-scrollbar:not(:hover):not(:focus) {
+		scrollbar-color: transparent transparent;
+	}
+	
+	.custom-scrollbar:not(:hover):not(:focus)::-webkit-scrollbar-thumb {
+		background-color: transparent;
+	}
 }
 
 /* Animation for loading indicator */

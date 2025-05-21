@@ -1,25 +1,54 @@
 "use client";
 
 import Avatar from "./Avatar";
-import { v4 as uuidv4 } from "uuid";
-import React, { useState } from "react";
-import { Bot, Mic, Send, Check, CheckCheck, PaperclipIcon } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Bot, Send, Loader2, PaperclipIcon, Smile } from "lucide-react";
 
+import { EMOJIS } from "@/utils/emojis";
 import { formatTime } from "@/utils/dateFormat";
 import { useChat } from "@/context/ChatContext";
 import MessageAckStatus from "./MessageAckStatus";
 
 export const Conversation: React.FC = () => {
-	const { interlocutor, messages } = useChat();
+	const { interlocutor, messages, messagesLoading, sendMessageHandler } =	useChat();
 
 	const [message, setMessage] = useState("");
 	const [sliderPosition, setSliderPosition] = useState(1); // 0: rouge, 1: orange, 2: vert
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [activeEmojiCategory, setActiveEmojiCategory] = useState<keyof typeof EMOJIS>("smileys");
+
+	const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+	// Ferme le sélecteur d'émojis lorsqu'on clique en dehors
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				emojiPickerRef.current &&
+				!emojiPickerRef.current.contains(event.target as Node)
+			) {
+				setShowEmojiPicker(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	const handleSendMessage = () => {
 		if (message.trim()) {
-			console.log("Message envoyé :", message);
+			sendMessageHandler(message);
 			setMessage("");
 		}
+	};
+
+	const insertEmoji = (emoji: string) => {
+		setMessage((prev) => prev + emoji);
+	};
+
+	const toggleEmojiPicker = () => {
+		setShowEmojiPicker((prev) => !prev);
 	};
 
 	const sendFile = () => {
@@ -62,8 +91,19 @@ export const Conversation: React.FC = () => {
 		);
 	}
 
+	const categoryNames: Record<keyof typeof EMOJIS, string> = {
+		smileys: "Émoticônes",
+		people: "Personnes",
+		animals: "Animaux",
+		food: "Nourriture",
+		activities: "Activités",
+		travel: "Voyage",
+		objects: "Objets",
+		symbols: "Symboles",
+	};
+
 	return (
-		<div className="flex flex-col h-screen bg-gray-50">
+		<div className="flex flex-col h-full bg-gray-50">
 			{/* Conteneur principal divisé en 3 parties verticales */}
 
 			{/* 1. En-tête avec profil */}
@@ -114,51 +154,111 @@ export const Conversation: React.FC = () => {
 			</div>
 
 			{/* 2. Zone de messages */}
-			<div className="flex-1 flex-col overflow-y-auto p-4 bg-snappy-gray">
-				{messages?.map((msg) => (
-					<div
-						key={msg.id}
-						className={`mb-4 w-full flex ${msg.sender !== interlocutor.externalId ? "justify-end" : "justify-start"}`}
-					>
+			<div className="flex-1 flex-col overflow-y-auto custom-scrollbar p-4 bg-snappy-gray bg-[url('/pic5.jpg')] bg-cover bg-center bg-no-repeat">
+				{messagesLoading ? (
+					<div className="flex flex-col items-center justify-center h-full text-center">
+						<Loader2 className="w-8 h-8 text-snappy-purple animate-spin mb-2" />
+						<p className="text-gray-500 font-medium">
+							Chargement de messages...
+						</p>
+					</div>
+				) : messages && messages.length > 0 ? (
+					messages.map((msg) => (
 						<div
-							className={`p-3 rounded-lg relative max-w-[45%] ${
-								msg.sender !== interlocutor.externalId
-									? "bg-snappy-purple text-white rounded-br-none"
-									: "bg-white text-gray-800 rounded-bl-none shadow-sm"
-							}`}
+							key={msg.id}
+							className={`mb-4 w-full flex ${msg.sender !== interlocutor.externalId ? "justify-end" : "justify-start"}`}
 						>
-							<div className="break-words">{msg.body}</div>
 							<div
-								className={`flex items-center text-xs mt-1 ${
+								className={`p-3 rounded-lg relative max-w-[45%] ${
 									msg.sender !== interlocutor.externalId
-										? "text-white"
-										: "text-gray-800"
+										? "bg-snappy-purple text-white rounded-br-none"
+										: "bg-white text-gray-800 rounded-bl-none shadow-sm"
 								}`}
 							>
-								<MessageAckStatus ack={msg.ack} />
-								<span className="ml-1">
-									{formatTime(
-										msg.updatedAt
-											? msg.updatedAt
-											: new Date()
-									)}
-								</span>
-								{!msg.writtenByHuman && (
+								<div className="break-words">{msg.body}</div>
+								<div
+									className={`flex items-center text-xs mt-1 ${
+										msg.sender !== interlocutor.externalId
+											? "text-white"
+											: "text-gray-800"
+									}`}
+								>
+									<MessageAckStatus ack={msg.ack} />
 									<span className="ml-1">
-										<Bot size={14} />
+										{formatTime(
+											msg.updatedAt
+												? msg.updatedAt
+												: new Date()
+										)}
 									</span>
-								)}
+									{!msg.writtenByHuman && (
+										<span className="ml-1">
+											<Bot size={14} />
+										</span>
+									)}
+								</div>
 							</div>
 						</div>
+					))
+				) : (
+					<div className="flex flex-col items-center justify-center h-full text-center">
+						<p className="text-gray-500 font-medium">
+							Aucun message à afficher.
+						</p>
 					</div>
-				))}
+				)}
 			</div>
 
 			{/* 3. Zone de saisie */}
 			<div
-				className="p-4 bg-white"
+				className="p-4 bg-white relative"
 				style={{ borderTop: "1px solid rgba(123, 82, 171, 0.1)" }}
 			>
+				{/* Sélecteur d'émojis */}
+				{showEmojiPicker && (
+					<div
+						ref={emojiPickerRef}
+						className="absolute bottom-20 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 w-80 max-h-64 overflow-hidden"
+					>
+						<div className="flex border-b border-gray-200 pb-2 mb-2 overflow-x-auto custom-scrollbar">
+							{(
+								Object.keys(EMOJIS) as Array<
+									keyof typeof EMOJIS
+								>
+							).map((category) => (
+								<button
+									key={category}
+									onClick={() =>
+										setActiveEmojiCategory(category)
+									}
+									className={`px-3 py-1 mr-1 text-xs rounded-full whitespace-nowrap ${
+										activeEmojiCategory === category
+											? "bg-snappy-purple text-white"
+											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									}`}
+								>
+									{categoryNames[category]}
+								</button>
+							))}
+						</div>
+						<div className="overflow-y-auto h-40 custom-scrollbar">
+							<div className="grid grid-cols-8 gap-1">
+								{EMOJIS[activeEmojiCategory].map(
+									(emoji, index) => (
+										<button
+											key={index}
+											onClick={() => insertEmoji(emoji)}
+											className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
+										>
+											{emoji}
+										</button>
+									)
+								)}
+							</div>
+						</div>
+					</div>
+				)}
+
 				<div className="flex items-end">
 					<button
 						className="p-2 text-snappy-purple hover:bg-purple-50 rounded-full"
@@ -189,8 +289,11 @@ export const Conversation: React.FC = () => {
 							}}
 						/>
 					</div>
-					<button className="p-2 text-snappy-purple hover:bg-purple-50 rounded-full mr-1">
-						<Mic size={22} />
+					<button
+						className="p-2 text-snappy-purple hover:bg-purple-50 rounded-full mr-1"
+						onClick={toggleEmojiPicker}
+					>
+						<Smile size={22} />
 					</button>
 					<button
 						className={`p-2 rounded-full flex items-center justify-center ${message.trim() ? "bg-snappy-purple text-white" : "bg-gray-200 text-gray-400"}`}

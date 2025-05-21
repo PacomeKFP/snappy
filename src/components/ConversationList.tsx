@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import Avatar from "./Avatar";
 import { ChatResource } from "@/lib/models";
@@ -26,6 +26,24 @@ export default function ConversationList() {
 	};
 	// ---
 
+	// --- Gestionnaire d'événement pour la touche Escape
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				setInterlocutorHandler(undefined);
+			}
+		};
+
+		// Ajouter l'écouteur d'événement
+		window.addEventListener("keydown", handleKeyDown);
+
+		// Nettoyer l'écouteur d'événement lors du démontage du composant
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [setInterlocutorHandler]);
+	// ---
+
 	// ---
 	const handleSearch = (term: string) => {
 		if (!term.trim()) {
@@ -47,7 +65,7 @@ export default function ConversationList() {
 	// ---
 
 	return (
-		<aside className="w-[380px] h-screen bg-gray-50 border-r border-gray-200 flex flex-col fixed translate-x-[72px]">
+		<aside className="w-[380px] h-full bg-gray-50 border-r border-gray-200 flex flex-col">
 			<div className="p-4 border-b bg-white">
 				<div className="flex items-center justify-between mb-4">
 					<h1 className="text-2xl font-bold text-snappy-purple">

@@ -49,15 +49,15 @@ export default function AlanPage() {
 	};
 
 	return (
-		<div className="flex flex-col h-full bg-gray-50">
+		<div className="flex flex-col h-full bg-white">
 			{/* Mode Controls */}
-			<div className="bg-white border-b p-4 flex justify-center space-x-4">
+			<div className="bg-white border-b border-purple-100 p-4 flex justify-center space-x-4">
 				<button
 					onClick={() => handleModeChange("listen")}
-					className={`p-3 rounded-full ${
+					className={`p-3 rounded-full transition-colors ${
 						mode === "listen"
-							? "bg-green-500 text-white"
-							: "bg-gray-100"
+							? "bg-snappy-purple text-white"
+							: "bg-purple-50 text-purple-600 hover:bg-purple-100"
 					}`}
 					title="Mode écoute"
 				>
@@ -78,10 +78,10 @@ export default function AlanPage() {
 
 				<button
 					onClick={() => handleModeChange("pause")}
-					className={`p-3 rounded-full ${
+					className={`p-3 rounded-full transition-colors ${
 						mode === "pause"
-							? "bg-yellow-500 text-white"
-							: "bg-gray-100"
+							? "bg-snappy-purple text-white"
+							: "bg-purple-50 text-purple-600 hover:bg-purple-100"
 					}`}
 					title="Mode pause"
 				>
@@ -102,10 +102,10 @@ export default function AlanPage() {
 
 				<button
 					onClick={() => handleModeChange("write")}
-					className={`p-3 rounded-full ${
+					className={`p-3 rounded-full transition-colors ${
 						mode === "write"
-							? "bg-blue-500 text-white"
-							: "bg-gray-100"
+							? "bg-snappy-purple text-white"
+							: "bg-purple-50 text-purple-600 hover:bg-purple-100"
 					}`}
 					title="Mode écriture"
 				>
@@ -140,8 +140,8 @@ export default function AlanPage() {
 							<div
 								className={`max-w-sm p-4 rounded-lg ${
 									message.sender === "user"
-										? "bg-blue-500 text-white"
-										: "bg-white border"
+										? "bg-snappy-purple text-white"
+										: "bg-purple-50 text-gray-900 border border-purple-100"
 								}`}
 							>
 								<p>{message.text}</p>
@@ -155,7 +155,7 @@ export default function AlanPage() {
 			</div>
 
 			{/* Input Area */}
-			<div className="p-4 bg-white border-t">
+			<div className="p-4 bg-white border-t border-purple-100">
 				<div className="max-w-3xl mx-auto flex space-x-4">
 					<input
 						ref={inputRef}
@@ -173,12 +173,12 @@ export default function AlanPage() {
 									: "Écrivez votre message..."
 						}
 						disabled={mode !== "write"}
-						className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+						className="flex-1 p-3 border border-purple-200 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-snappy-purple focus:border-transparent"
 					/>
 					<button
 						onClick={() => handleSendMessage(inputText)}
 						disabled={mode !== "write" || !inputText.trim()}
-						className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-6 py-3 bg-snappy-purple text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 					>
 						Envoyer
 					</button>

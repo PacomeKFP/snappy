@@ -40,16 +40,18 @@ export default function SettingsPage() {
 
 	return (
 		<div className="max-w-4xl mx-auto p-6">
-			<h1 className="text-2xl font-bold mb-8">Paramètres</h1>
+			<h1 className="text-2xl font-bold mb-8 text-gray-900">
+				Paramètres
+			</h1>
 
 			{/* General Settings */}
-			<div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-				<h2 className="text-xl font-semibold mb-4">
+			<div className="bg-white rounded-lg shadow-lg p-6 mb-6 border border-purple-100">
+				<h2 className="text-xl font-semibold mb-4 text-gray-900">
 					Paramètres généraux
 				</h2>
 				<div className="space-y-4">
 					<div className="flex items-center justify-between">
-						<span>Notifications</span>
+						<span className="text-gray-900">Notifications</span>
 						<label className="relative inline-flex items-center cursor-pointer">
 							<input
 								type="checkbox"
@@ -62,12 +64,12 @@ export default function SettingsPage() {
 								}
 								className="sr-only peer"
 							/>
-							<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+							<div className="w-11 h-6 bg-purple-100 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-snappy-purple"></div>
 						</label>
 					</div>
 
 					<div className="flex items-center justify-between">
-						<span>Sons</span>
+						<span className="text-gray-900">Sons</span>
 						<label className="relative inline-flex items-center cursor-pointer">
 							<input
 								type="checkbox"
@@ -80,12 +82,12 @@ export default function SettingsPage() {
 								}
 								className="sr-only peer"
 							/>
-							<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+							<div className="w-11 h-6 bg-purple-100 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-snappy-purple"></div>
 						</label>
 					</div>
 
 					<div className="flex items-center justify-between">
-						<span>Mode sombre</span>
+						<span className="text-gray-900">Mode sombre</span>
 						<label className="relative inline-flex items-center cursor-pointer">
 							<input
 								type="checkbox"
@@ -98,18 +100,18 @@ export default function SettingsPage() {
 								}
 								className="sr-only peer"
 							/>
-							<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+							<div className="w-11 h-6 bg-purple-100 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-snappy-purple"></div>
 						</label>
 					</div>
 
 					<div className="flex items-center justify-between">
-						<span>Langue</span>
+						<span className="text-gray-900">Langue</span>
 						<select
 							value={settings.language}
 							onChange={(e) =>
 								handleSettingChange("language", e.target.value)
 							}
-							className="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+							className="p-2 border border-purple-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
 						>
 							<option value="fr">Français</option>
 							<option value="en">English</option>
@@ -117,13 +119,13 @@ export default function SettingsPage() {
 					</div>
 
 					<div className="flex items-center justify-between">
-						<span>Statut</span>
+						<span className="text-gray-900">Statut</span>
 						<select
 							value={settings.status}
 							onChange={(e) =>
 								handleSettingChange("status", e.target.value)
 							}
-							className="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+							className="p-2 border border-purple-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
 						>
 							<option value="active">Actif</option>
 							<option value="away">Absent</option>
@@ -135,20 +137,20 @@ export default function SettingsPage() {
 			</div>
 
 			{/* Account Actions */}
-			<div className="bg-white rounded-lg shadow-lg p-6">
-				<h2 className="text-xl font-semibold mb-4">
+			<div className="bg-white rounded-lg shadow-lg p-6 border border-purple-100">
+				<h2 className="text-xl font-semibold mb-4 text-gray-900">
 					Actions du compte
 				</h2>
 				<div className="space-y-4">
 					<button
 						onClick={handleLogout}
-						className="w-full p-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
+						className="w-full p-3 text-white bg-snappy-purple rounded-lg hover:bg-opacity-90 transition-colors"
 					>
 						Déconnexion
 					</button>
 					<button
 						onClick={() => setShowDeactivateModal(true)}
-						className="w-full p-3 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+						className="w-full p-3 text-white bg-purple-800 rounded-lg hover:bg-opacity-90 transition-colors"
 					>
 						Désactiver le compte
 					</button>
@@ -158,24 +160,24 @@ export default function SettingsPage() {
 			{/* Deactivate Account Modal */}
 			{showDeactivateModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="bg-white rounded-lg p-6 max-w-md w-full m-4">
-						<h3 className="text-xl font-bold mb-4">
+					<div className="bg-white rounded-lg p-6 max-w-md w-full m-4 border border-purple-100">
+						<h3 className="text-xl font-bold mb-4 text-gray-900">
 							Désactiver le compte
 						</h3>
-						<p className="text-gray-600 mb-6">
+						<p className="text-gray-900 mb-6">
 							Êtes-vous sûr de vouloir désactiver votre compte ?
 							Cette action est irréversible.
 						</p>
 						<div className="flex justify-end space-x-4">
 							<button
 								onClick={() => setShowDeactivateModal(false)}
-								className="px-4 py-2 text-gray-600 hover:text-gray-800"
+								className="px-4 py-2 text-gray-900 hover:text-purple-700"
 							>
 								Annuler
 							</button>
 							<button
 								onClick={handleDeactivateAccount}
-								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+								className="px-4 py-2 bg-purple-800 text-white rounded-lg hover:bg-opacity-90"
 							>
 								Désactiver
 							</button>

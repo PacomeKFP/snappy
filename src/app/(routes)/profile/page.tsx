@@ -50,7 +50,7 @@ export default function ProfilePage() {
 		<div className="max-w-4xl mx-auto p-6">
 			<div className="bg-white rounded-lg shadow-lg overflow-hidden">
 				{/* Cover Image */}
-				<div className="h-32 bg-gradient-to-r from-blue-600 to-blue-800"></div>
+				<div className="h-32 bg-gradient-to-r from-snappy-purple to-purple-800"></div>
 
 				<div className="relative px-6 py-8">
 					{/* Avatar */}
@@ -63,7 +63,7 @@ export default function ProfilePage() {
 							/>
 							<div
 								className={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-white
-                ${profile.status === "online" ? "bg-green-500" : "bg-gray-400"}`}
+                ${profile.status === "online" ? "bg-snappy-purple" : "bg-purple-200"}`}
 							></div>
 						</div>
 					</div>
@@ -81,7 +81,7 @@ export default function ProfilePage() {
 											name: e.target.value,
 										})
 									}
-									className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									className="w-full p-2 border border-purple-200 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
 								/>
 								<input
 									type="email"
@@ -92,7 +92,7 @@ export default function ProfilePage() {
 											email: e.target.value,
 										})
 									}
-									className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									className="w-full p-2 border border-purple-200 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
 								/>
 								<textarea
 									value={editedProfile.bio}
@@ -102,7 +102,7 @@ export default function ProfilePage() {
 											bio: e.target.value,
 										})
 									}
-									className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									className="w-full p-2 border border-purple-200 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
 									rows={3}
 								/>
 							</div>
@@ -122,13 +122,13 @@ export default function ProfilePage() {
 								<>
 									<button
 										onClick={handleSave}
-										className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+										className="px-4 py-2 bg-snappy-purple text-white rounded-lg hover:bg-opacity-90 transition-colors"
 									>
 										Enregistrer
 									</button>
 									<button
 										onClick={handleCancel}
-										className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+										className="px-4 py-2 bg-purple-100 text-gray-700 rounded-lg hover:bg-purple-200 transition-colors"
 									>
 										Annuler
 									</button>
@@ -136,7 +136,7 @@ export default function ProfilePage() {
 							) : (
 								<button
 									onClick={() => setIsEditing(true)}
-									className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+									className="px-4 py-2 bg-snappy-purple text-white rounded-lg hover:bg-opacity-90 transition-colors"
 								>
 									Modifier le profil
 								</button>
@@ -145,7 +145,7 @@ export default function ProfilePage() {
 					</div>
 
 					{/* Stats */}
-					<div className="mt-8 grid grid-cols-3 gap-4 border-t pt-6">
+					<div className="mt-8 grid grid-cols-3 gap-4 border-t border-purple-100 pt-6">
 						<div className="text-center">
 							<span className="block text-2xl font-bold text-gray-900">
 								{profile.stats.messages}
@@ -169,7 +169,7 @@ export default function ProfilePage() {
 					</div>
 
 					{/* Additional Info */}
-					<div className="mt-8 border-t pt-6">
+					<div className="mt-8 border-t border-purple-100 pt-6">
 						<h2 className="text-lg font-semibold text-gray-900 mb-4">
 							Informations supplémentaires
 						</h2>

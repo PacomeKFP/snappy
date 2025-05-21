@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { JSX, useState } from "react";
+import { JSX, useState, useEffect } from "react";
 
 interface NavItem {
 	path: string;
@@ -14,20 +14,14 @@ interface NavItem {
 export default function SidebarLeft() {
 	const router = useRouter();
 	const [activeItem, setActiveItem] = useState<string>("/profile");
-	const [isConversationListOpen, setIsConversationListOpen] = useState(false);
 
 	const handleNavigation = (path: string, callback?: () => void) => {
 		setActiveItem(path);
 		if (callback) {
 			callback();
 		} else {
-			setIsConversationListOpen(false);
 			router.push(path);
 		}
-	};
-
-	const toggleConversationList = () => {
-		setIsConversationListOpen(!isConversationListOpen);
 	};
 
 	// Icônes personnalisées SVG
@@ -111,13 +105,13 @@ export default function SidebarLeft() {
 						alt="Profile"
 						className="w-full h-full rounded-full object-cover transition-shadow duration-200 hover:shadow-[0_0_8px_rgba(59,130,246,0.4)]"
 					/>
-					<div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-snappy-green rounded-full border-2 border-gray-900"></div>
+					<div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-snappy-purple rounded-full border-2 border-gray-900"></div>
 				</div>
 			),
 		},
 		{
-			path: "/new-chat",
-			label: "Nouvelle discussion",
+			path: "/",
+			label: "Discussions",
 			icon: (
 				<svg
 					className="w-6 h-6"
@@ -133,11 +127,13 @@ export default function SidebarLeft() {
 					/>
 				</svg>
 			),
-			onClick: toggleConversationList,
+			onClick: () => {
+				router.push("/");
+			},
 		},
 		{
 			path: "/forum",
-			label: "Ajouter Contact",
+			label: "Ajouter des contacts",
 			icon: <Icons.Forum />,
 		},
 		{
@@ -148,8 +144,47 @@ export default function SidebarLeft() {
 	];
 
 	return (
-		<div className="w-[72px] h-screen bg-snappy-purple flex flex-col items-center justify-between py-4 fixed left-0 top-0 z-50">
-			<div className="flex flex-col items-center space-y-8">
+		<>
+			{/* Sidebar pour desktop */}
+			<div className={`hidden md:flex w-[72px] h-screen bg-snappy-dark-blue flex-col items-center justify-between py-4 left-0 top-0 z-50`}>
+				<div className="flex flex-col items-center space-y-8">
+					{navItems.map((item) => (
+						<button
+							key={item.path}
+							onClick={() =>
+								handleNavigation(item.path, item.onClick)
+							}
+							className={`relative ${
+								item.path === "/profile"
+									? "p-0 hover:bg-transparent"
+									: `p-3 rounded-lg transition-all duration-200 ${
+											activeItem === item.path
+												? "bg-gray-800 text-white scale-110"
+												: "text-gray-400 hover:text-white hover:bg-gray-800/50"
+										}`
+							}`}
+							title={item.label}
+						>
+							{item.icon}
+						</button>
+					))}
+				</div>
+
+				<button
+					onClick={() => handleNavigation("/settings")}
+					className={`p-3 rounded-lg transition-all duration-200 ${
+						activeItem === "/settings"
+							? "bg-gray-800 text-white scale-110"
+							: "text-gray-400 hover:text-white hover:bg-gray-800/50"
+					}`}
+					title="Paramètres"
+				>
+					<Icons.Settings />
+				</button>
+			</div>
+
+			{/* Barre de navigation mobile */}
+			<div className="md:hidden bottom-0 left-0 right-0 bg-snappy-dark-blue flex justify-around items-center py-2 px-4 z-50 fixed">
 				{navItems.map((item) => (
 					<button
 						key={item.path}
@@ -159,9 +194,9 @@ export default function SidebarLeft() {
 						className={`relative ${
 							item.path === "/profile"
 								? "p-0 hover:bg-transparent"
-								: `p-3 rounded-lg transition-all duration-200 ${
+								: `p-2 rounded-lg transition-all duration-200 ${
 										activeItem === item.path
-											? "bg-gray-800 text-white scale-110"
+											? "bg-gray-800 text-white"
 											: "text-gray-400 hover:text-white hover:bg-gray-800/50"
 									}`
 						}`}
@@ -170,19 +205,18 @@ export default function SidebarLeft() {
 						{item.icon}
 					</button>
 				))}
+				<button
+					onClick={() => handleNavigation("/settings")}
+					className={`p-2 rounded-lg transition-all duration-200 ${
+						activeItem === "/settings"
+							? "bg-gray-800 text-white"
+							: "text-gray-400 hover:text-white hover:bg-gray-800/50"
+					}`}
+					title="Paramètres"
+				>
+					<Icons.Settings />
+				</button>
 			</div>
-
-			<button
-				onClick={() => handleNavigation("/settings")}
-				className={`p-3 rounded-lg transition-all duration-200 ${
-					activeItem === "/settings"
-						? "bg-gray-800 text-white scale-110"
-						: "text-gray-400 hover:text-white hover:bg-gray-800/50"
-				}`}
-				title="Paramètres"
-			>
-				<Icons.Settings />
-			</button>
-		</div>
+		</>
 	);
 }
