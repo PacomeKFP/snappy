@@ -5,19 +5,60 @@ import React, { useState, useRef, useEffect } from "react";
 import { Bot, Send, Loader2, PaperclipIcon, Smile } from "lucide-react";
 
 import { EMOJIS } from "@/utils/emojis";
-import { formatTime } from "@/utils/dateFormat";
 import { useChat } from "@/context/ChatContext";
 import MessageAckStatus from "./MessageAckStatus";
+import { formatTime, formatDate, isSameDay } from "@/utils/dateFormat";
 
 export const Conversation: React.FC = () => {
-	const { interlocutor, messages, messagesLoading, sendMessageHandler } =	useChat();
+	const { interlocutor, messages, messagesLoading, sendMessageHandler } =
+		useChat();
 
 	const [message, setMessage] = useState("");
 	const [sliderPosition, setSliderPosition] = useState(1); // 0: rouge, 1: orange, 2: vert
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-	const [activeEmojiCategory, setActiveEmojiCategory] = useState<keyof typeof EMOJIS>("smileys");
+	const [activeEmojiCategory, setActiveEmojiCategory] =
+		useState<keyof typeof EMOJIS>("smileys");
 
 	const emojiPickerRef = useRef<HTMLDivElement>(null);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+	const messageInputRef = useRef<HTMLTextAreaElement>(null);
+
+	const insertEmoji = (emoji: string) => {
+		if (!messageInputRef.current) return;
+
+		const input = messageInputRef.current;
+		const start = input.selectionStart;
+		const end = input.selectionEnd;
+
+		const newText = message.slice(0, start) + emoji + message.slice(end);
+
+		setMessage(newText);
+
+		requestAnimationFrame(() => {
+			input.focus();
+			input.selectionStart = input.selectionEnd = start + emoji.length;
+		});
+	};
+
+	// Fonction pour scroller vers le bas
+	const scrollToBottom = () => {
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	};
+
+	// Auto-scroll quand les messages changent
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages]);
+
+	// Auto-scroll quand un nouvel interlocuteur est sélectionné
+	useEffect(() => {
+		if (interlocutor && !messagesLoading) {
+			// Petit délai pour laisser le temps au DOM de se mettre à jour
+			setTimeout(scrollToBottom, 100);
+		}
+	}, [interlocutor, messagesLoading]);
 
 	// Ferme le sélecteur d'émojis lorsqu'on clique en dehors
 	useEffect(() => {
@@ -41,10 +82,6 @@ export const Conversation: React.FC = () => {
 			sendMessageHandler(message);
 			setMessage("");
 		}
-	};
-
-	const insertEmoji = (emoji: string) => {
-		setMessage((prev) => prev + emoji);
 	};
 
 	const toggleEmojiPicker = () => {
@@ -104,8 +141,6 @@ export const Conversation: React.FC = () => {
 
 	return (
 		<div className="flex flex-col h-full bg-gray-50">
-			{/* Conteneur principal divisé en 3 parties verticales */}
-
 			{/* 1. En-tête avec profil */}
 			<div
 				className="flex items-center p-4 bg-white shadow-sm"
@@ -119,7 +154,9 @@ export const Conversation: React.FC = () => {
 							size={12}
 						/>
 						<div
-							className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-${interlocutor.online ? "snappy-purple" : "snappy-gray"}`}
+							className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+								interlocutor.online ? "bg-snappy-purple" : "bg-snappy-gray"
+							}`}
 						></div>
 					</div>
 					<div className="ml-3">
@@ -143,8 +180,8 @@ export const Conversation: React.FC = () => {
 									sliderPosition === 0
 										? "3px"
 										: sliderPosition === 1
-											? "calc(50% - 12px)"
-											: "calc(100% - 27px)",
+										? "calc(50% - 12px)"
+										: "calc(100% - 27px)",
 							}}
 						>
 							<Bot size={14} color="white" />
@@ -152,9 +189,12 @@ export const Conversation: React.FC = () => {
 					</div>
 				</div>
 			</div>
-
+	
 			{/* 2. Zone de messages */}
-			<div className="flex-1 flex-col overflow-y-auto custom-scrollbar p-4 bg-snappy-gray bg-[url('/pic5.jpg')] bg-cover bg-center bg-no-repeat">
+			<div
+				ref={messagesContainerRef}
+				className="flex-1 flex flex-col overflow-y-auto custom-scrollbar p-4 bg-snappy-gray bg-[url('/pic5.jpg')] bg-cover bg-center bg-no-repeat"
+			>
 				{messagesLoading ? (
 					<div className="flex flex-col items-center justify-center h-full text-center">
 						<Loader2 className="w-8 h-8 text-snappy-purple animate-spin mb-2" />
@@ -163,43 +203,68 @@ export const Conversation: React.FC = () => {
 						</p>
 					</div>
 				) : messages && messages.length > 0 ? (
-					messages.map((msg) => (
-						<div
-							key={msg.id}
-							className={`mb-4 w-full flex ${msg.sender !== interlocutor.externalId ? "justify-end" : "justify-start"}`}
-						>
-							<div
-								className={`p-3 rounded-lg relative max-w-[45%] ${
-									msg.sender !== interlocutor.externalId
-										? "bg-snappy-purple text-white rounded-br-none"
-										: "bg-white text-gray-800 rounded-bl-none shadow-sm"
-								}`}
-							>
-								<div className="break-words">{msg.body}</div>
-								<div
-									className={`flex items-center text-xs mt-1 ${
-										msg.sender !== interlocutor.externalId
-											? "text-white"
-											: "text-gray-800"
-									}`}
-								>
-									<MessageAckStatus ack={msg.ack} />
-									<span className="ml-1">
-										{formatTime(
-											msg.updatedAt
-												? msg.updatedAt
-												: new Date()
-										)}
-									</span>
-									{!msg.writtenByHuman && (
-										<span className="ml-1">
-											<Bot size={14} />
-										</span>
+					<>
+						{messages.map((msg, index) => {
+							const messageDate = new Date(msg.updatedAt || new Date());
+							const previousMessageDate =
+								index > 0
+									? new Date(messages[index - 1].updatedAt || new Date())
+									: null;
+							const showDateSeparator =
+								index === 0 ||
+								(previousMessageDate && !isSameDay(messageDate, previousMessageDate));
+	
+							return (
+								<div key={msg.id}>
+									{showDateSeparator && (
+										<div className="flex justify-center mb-4 mt-2">
+											<div className="bg-snappy-gray backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-snappy-purple">
+												<span className="text-sm text-gray-600 font-medium">
+													{formatDate(messageDate)}
+												</span>
+											</div>
+										</div>
 									)}
+									<div
+										className={`mb-4 w-full flex ${
+											msg.sender !== interlocutor.externalId
+												? "justify-end"
+												: "justify-start"
+										}`}
+									>
+										<div
+											className={`p-3 rounded-lg relative max-w-[45%] ${
+												msg.sender !== interlocutor.externalId
+													? "bg-snappy-purple text-white rounded-br-none"
+													: "bg-white text-gray-800 rounded-bl-none shadow-sm"
+											}`}
+										>
+											<div className="break-words">{msg.body}</div>
+											<div
+												className={`flex items-center text-xs mt-1 ${
+													msg.sender !== interlocutor.externalId
+														? "text-white"
+														: "text-gray-800"
+												}`}
+											>
+												<MessageAckStatus ack={msg.ack} />
+												<span className="ml-1">
+													{formatTime(msg.updatedAt || new Date())}
+												</span>
+												{!msg.writtenByHuman && (
+													<span className="ml-1">
+														<Bot size={14} />
+													</span>
+												)}
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
-					))
+							);
+						})}
+						{/* Élément invisible pour le scroll automatique */}
+						<div ref={messagesEndRef} />
+					</>
 				) : (
 					<div className="flex flex-col items-center justify-center h-full text-center">
 						<p className="text-gray-500 font-medium">
@@ -208,7 +273,7 @@ export const Conversation: React.FC = () => {
 					</div>
 				)}
 			</div>
-
+	
 			{/* 3. Zone de saisie */}
 			<div
 				className="p-4 bg-white relative"
@@ -221,44 +286,38 @@ export const Conversation: React.FC = () => {
 						className="absolute bottom-20 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-50 w-80 max-h-64 overflow-hidden"
 					>
 						<div className="flex border-b border-gray-200 pb-2 mb-2 overflow-x-auto custom-scrollbar">
-							{(
-								Object.keys(EMOJIS) as Array<
-									keyof typeof EMOJIS
-								>
-							).map((category) => (
-								<button
-									key={category}
-									onClick={() =>
-										setActiveEmojiCategory(category)
-									}
-									className={`px-3 py-1 mr-1 text-xs rounded-full whitespace-nowrap ${
-										activeEmojiCategory === category
-											? "bg-snappy-purple text-white"
-											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-									}`}
-								>
-									{categoryNames[category]}
-								</button>
-							))}
+							{(Object.keys(EMOJIS) as Array<keyof typeof EMOJIS>).map(
+								(category) => (
+									<button
+										key={category}
+										onClick={() => setActiveEmojiCategory(category)}
+										className={`px-3 py-1 mr-1 text-xs rounded-full whitespace-nowrap ${
+											activeEmojiCategory === category
+												? "bg-snappy-purple text-white"
+												: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+										}`}
+									>
+										{categoryNames[category]}
+									</button>
+								)
+							)}
 						</div>
 						<div className="overflow-y-auto h-40 custom-scrollbar">
 							<div className="grid grid-cols-8 gap-1">
-								{EMOJIS[activeEmojiCategory].map(
-									(emoji, index) => (
-										<button
-											key={index}
-											onClick={() => insertEmoji(emoji)}
-											className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
-										>
-											{emoji}
-										</button>
-									)
-								)}
+								{EMOJIS[activeEmojiCategory].map((emoji, index) => (
+									<button
+										key={index}
+										onClick={() => insertEmoji(emoji)}
+										className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
+									>
+										{emoji}
+									</button>
+								))}
 							</div>
 						</div>
 					</div>
 				)}
-
+	
 				<div className="flex items-end">
 					<button
 						className="p-2 text-snappy-purple hover:bg-purple-50 rounded-full"
@@ -271,15 +330,13 @@ export const Conversation: React.FC = () => {
 						style={{ borderColor: "rgba(123, 82, 171, 0.3)" }}
 					>
 						<textarea
+							ref={messageInputRef}
 							className="w-full p-3 outline-none resize-none bg-white text-gray-800 min-h-[44px] max-h-32"
 							placeholder="Écrivez un message..."
 							value={message}
 							disabled={sliderPosition === 2}
 							onChange={(e) => setMessage(e.target.value)}
-							rows={Math.min(
-								4,
-								Math.max(1, message.split("\n").length)
-							)}
+							rows={Math.min(4, Math.max(1, message.split("\n").length))}
 							style={{ lineHeight: "1.1" }}
 							onKeyDown={(e) => {
 								if (e.key === "Enter" && !e.shiftKey) {
@@ -296,7 +353,11 @@ export const Conversation: React.FC = () => {
 						<Smile size={22} />
 					</button>
 					<button
-						className={`p-2 rounded-full flex items-center justify-center ${message.trim() ? "bg-snappy-purple text-white" : "bg-gray-200 text-gray-400"}`}
+						className={`p-2 rounded-full flex items-center justify-center ${
+							message.trim()
+								? "bg-snappy-purple text-white"
+								: "bg-gray-200 text-gray-400"
+						}`}
 						onClick={handleSendMessage}
 						disabled={!message.trim()}
 					>
@@ -306,4 +367,4 @@ export const Conversation: React.FC = () => {
 			</div>
 		</div>
 	);
-};
+}

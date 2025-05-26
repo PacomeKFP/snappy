@@ -7,6 +7,7 @@ import { ChatDetailsResource, ChatResource, SendMessageDto } from "@/lib/models"
 
 // CONSTANTES
 const basePath = "http://88.198.150.195:8613";
+export const socketPath = "http://88.198.150.195:8614";
 export const projectID = "81997082-7e88-464a-9af1-b790fdd454f8";
 export const externalID = "8c375c66-8f32-4122-91cc-bca69f8951a9"; // Pacome
 // export const externalID = "4482f030-bbfe-4d2d-8375-68b93e1212e6"; // Pio

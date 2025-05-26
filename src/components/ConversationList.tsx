@@ -17,6 +17,25 @@ export default function ConversationList() {
 	const [selectedId, setSelectedId] = useState<string>("");
 	const [hoveredId, setHoveredId] = useState<string>("");
 
+	// Fonction pour trier les chats par date du dernier message
+	const sortChatsByLastMessage = (chats: ChatResource[]) => {
+		return [...chats].sort((a, b) => {
+			const dateA = a.lastMessage?.updatedAt
+				? new Date(a.lastMessage.updatedAt)
+				: new Date(0);
+			const dateB = b.lastMessage?.updatedAt
+				? new Date(b.lastMessage.updatedAt)
+				: new Date(0);
+			return dateB.getTime() - dateA.getTime(); // Tri décroissant (plus récent en premier)
+		});
+	};
+
+	// Mettre à jour filteredChats quand chats change
+	useEffect(() => {
+		const sortedChats = sortChatsByLastMessage(chats);
+		setFilteredChats(sortedChats);
+	}, [chats]);
+
 	// ---
 	const hey = (id: string) => {
 		setSelectedId(id);
@@ -47,7 +66,8 @@ export default function ConversationList() {
 	// ---
 	const handleSearch = (term: string) => {
 		if (!term.trim()) {
-			setFilteredChats(chats);
+			const sortedChats = sortChatsByLastMessage(chats);
+			setFilteredChats(sortedChats);
 			return;
 		}
 
@@ -60,7 +80,10 @@ export default function ConversationList() {
 					?.toLowerCase()
 					.includes(term.toLowerCase())
 		);
-		setFilteredChats(filtered);
+
+		// Trier aussi les résultats de recherche
+		const sortedFiltered = sortChatsByLastMessage(filtered);
+		setFilteredChats(sortedFiltered);
 	};
 	// ---
 

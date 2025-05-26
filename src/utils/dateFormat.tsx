@@ -24,6 +24,11 @@ export const formatDate = (date: Date): string => {
 		return d.toLocaleDateString("fr-FR", {
 			day: "numeric",
 			month: "short",
+			year: "numeric",
 		});
 	}
+};
+
+export const isSameDay = (date1: Date, date2: Date) => {
+	return date1.toDateString() === date2.toDateString();
 };

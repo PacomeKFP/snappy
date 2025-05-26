@@ -13,8 +13,9 @@ import {
 	getUserChatsData,
 	sendMessageData,
 	externalID,
+	socketPath,
 	projectID,
-	ChatAPI
+	ChatAPI,
 } from "@/datas/mockDatas";
 
 import {
@@ -24,6 +25,9 @@ import {
 	Message,
 	User,
 } from "@/lib/models";
+
+import { SnappySocketClient } from "@/lib/SnappySocketClient";
+import { ISnappySocketClient } from "@/lib/ISnappySocketClient";
 
 interface ChatContextType {
 	chats: ChatResource[];
@@ -39,7 +43,21 @@ interface ChatContextType {
 const MESSAGES_STORAGE_PREFIX = "yowTalk_messages_";
 
 // Fonction pour obtenir la clé de stockage pour un interlocuteur spécifique
-const getStorageKey = (interlocutorId: string) => `${MESSAGES_STORAGE_PREFIX}${interlocutorId}`;
+const getStorageKey = (interlocutorId: string) =>
+	`${MESSAGES_STORAGE_PREFIX}${interlocutorId}`;
+
+// Fonction pour trier les chats par date du dernier message
+const sortChatsByLastMessage = (chats: ChatResource[]) => {
+	return [...chats].sort((a, b) => {
+		const dateA = a.lastMessage?.updatedAt
+			? new Date(a.lastMessage.updatedAt)
+			: new Date(0);
+		const dateB = b.lastMessage?.updatedAt
+			? new Date(b.lastMessage.updatedAt)
+			: new Date(0);
+		return dateB.getTime() - dateA.getTime(); // Tri décroissant (plus récent en premier)
+	});
+};
 
 // 1. Création du contexte
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -51,11 +69,16 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 	// --- Chats loading
 	const [chats, setChats] = useState<ChatResource[]>([]);
 	const [chatsLoading, setChatsLoading] = useState<boolean>(true);
+	const [socketClient] = useState(
+		() => new SnappySocketClient(socketPath, projectID, "Pacome") // ---
+	);
 
 	useEffect(() => {
 		getUserChatsData().then((chats) => {
 			setChatsLoading(false);
-			setChats(chats);
+			// Trier les chats lors du chargement initial
+			const sortedChats = sortChatsByLastMessage(chats);
+			setChats(sortedChats);
 		});
 	}, []);
 	// ---
@@ -66,20 +89,128 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 	const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
 
 	// Fonction pour sauvegarder les messages dans localStorage
-	const saveMessagesToLocalStorage = (interlocutorId: string | undefined, messages: Message[]) => {
-		if (typeof window !== 'undefined') {
-			localStorage.setItem(getStorageKey(interlocutorId ? interlocutorId : ""), JSON.stringify(messages));
+	const saveMessagesToLocalStorage = (
+		interlocutorId: string | undefined,
+		messages: Message[]
+	) => {
+		if (typeof window !== "undefined") {
+			localStorage.setItem(
+				getStorageKey(interlocutorId ? interlocutorId : ""),
+				JSON.stringify(messages)
+			);
 		}
 	};
 
 	// Fonction pour récupérer les messages depuis localStorage
-	const getMessagesFromLocalStorage = (interlocutorId: string): Message[] | null => {
-		if (typeof window !== 'undefined') {
-			const storedMessages = localStorage.getItem(getStorageKey(interlocutorId));
+	const getMessagesFromLocalStorage = (
+		interlocutorId: string
+	): Message[] | null => {
+		if (typeof window !== "undefined") {
+			const storedMessages = localStorage.getItem(
+				getStorageKey(interlocutorId)
+			);
 			return storedMessages ? JSON.parse(storedMessages) : null;
 		}
 		return null;
 	};
+
+	// --- Configuration WebSocket
+	useEffect(() => {
+		const socketHandlers: ISnappySocketClient = {
+			onConnect: () => {
+				console.log("Connecté au serveur.");
+			},
+			onDisconnect: () => {
+				console.log("Déconnecté du serveur.");
+			},
+			newConnectionListener: (user) => {
+				console.log(`${user} vient de se connecter.`);
+
+				// Mettre à jour le statut online dans la liste des chats
+				setChats((prevChats) => {
+					const updatedChats = prevChats.map((chat) =>
+						chat.user?.displayName === user
+							? { ...chat, user: { ...chat.user, online: true } }
+							: chat
+					);
+					return sortChatsByLastMessage(updatedChats);
+				});
+
+				// Mettre à jour l'interlocuteur actuel s'il correspond
+				setInterlocutor((prev) =>
+					prev?.displayName === user
+						? { ...prev, online: true }
+						: prev
+				);
+			},
+			newDisconnectionListener: (user) => {
+				console.log(`${user} vient de se déconnecter.`);
+
+				// Mettre à jour le statut online dans la liste des chats
+				setChats((prevChats) => {
+					const updatedChats = prevChats.map((chat) =>
+						chat.user?.displayName === user
+							? { ...chat, user: { ...chat.user, online: false } }
+							: chat
+					);
+					return sortChatsByLastMessage(updatedChats);
+				});
+
+				// Mettre à jour l'interlocuteur actuel s'il correspond
+				setInterlocutor((prev) =>
+					prev?.displayName === user
+						? { ...prev, online: false }
+						: prev
+				);
+			},
+			onMessageReceivedListener: (message) => {
+				console.log("Message reçu : ", message);
+
+				// Trouver l'expéditeur dans la liste des chats
+				const senderChat = chats.find(
+					(chat) => chat.user?.externalId === message.sender
+				);
+
+				if (senderChat) {
+					// Si l'interlocuteur actuel est l'expéditeur, ajouter le message à la conversation
+					if (interlocutor?.externalId === message.sender) {
+						setMessages((prevMessages) => {
+							const updatedMessages = [...prevMessages, message];
+							// Mettre à jour le cache localStorage
+							saveMessagesToLocalStorage(
+								message.sender,
+								updatedMessages
+							);
+							return updatedMessages;
+						});
+					} else {
+						// Sinon, mettre à jour seulement le cache localStorage
+						const cachedMessages =
+							getMessagesFromLocalStorage(
+								message?.sender ? message?.sender : ""
+							) || [];
+						const updatedMessages = [...cachedMessages, message];
+						saveMessagesToLocalStorage(
+							message.sender,
+							updatedMessages
+						);
+					}
+
+					// Mettre à jour le lastMessage dans la liste des chats et trier
+					setChats((prevChats) => {
+						const updatedChats = prevChats.map((chat) =>
+							chat.user?.externalId === message.sender
+								? { ...chat, lastMessage: message }
+								: chat
+						);
+						return sortChatsByLastMessage(updatedChats);
+					});
+				}
+			},
+		};
+
+		socketClient.initialize(socketHandlers);
+	}, [chats, interlocutor, socketClient]);
 
 	const setInterlocutorHandler = (interlocutorId: string | undefined) => {
 		setMessagesLoading(true);
@@ -92,13 +223,14 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 
 		if (selectedUser?.externalId) {
 			// Vérifier d'abord si les messages sont dans le localStorage
-			const cachedMessages = getMessagesFromLocalStorage(selectedUser.externalId);
-			
+			const cachedMessages = getMessagesFromLocalStorage(
+				selectedUser.externalId
+			);
+
 			if (cachedMessages) {
 				// Utiliser les messages du cache
 				setMessages(cachedMessages);
 				setMessagesLoading(false);
-
 			} else {
 				// Si pas de cache, charger depuis l'API
 				const dto: GetChatDetailsDto = {
@@ -113,13 +245,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 						setMessages(messagesData);
 
 						// Stocker les messages dans localStorage
-						saveMessagesToLocalStorage(selectedUser.externalId, messagesData);
+						saveMessagesToLocalStorage(
+							selectedUser.externalId,
+							messagesData
+						);
 					})
 					.finally(() => {
 						setMessagesLoading(false);
 					});
 			}
-
 		} else {
 			setMessagesLoading(false);
 		}
@@ -145,11 +279,14 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 				setMessages(updatedMessages);
 
 				// Mettre à jour le cache dans localStorage
-				saveMessagesToLocalStorage(interlocutor.externalId, updatedMessages);
+				saveMessagesToLocalStorage(
+					interlocutor.externalId,
+					updatedMessages
+				);
 
-				// Mettre à jour le lastMessage du chat correspondant
+				// Mettre à jour le lastMessage du chat correspondant et trier
 				setChats((prevChats) => {
-					return prevChats.map((chat) => {
+					const updatedChats = prevChats.map((chat) => {
 						// Si c'est le chat avec l'interlocuteur actuel
 						if (chat.user?.externalId === interlocutor.externalId) {
 							// Créer une copie du chat avec le nouveau lastMessage
@@ -160,6 +297,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 						}
 						return chat;
 					});
+					return sortChatsByLastMessage(updatedChats);
 				});
 			})
 			.catch((error) => {
