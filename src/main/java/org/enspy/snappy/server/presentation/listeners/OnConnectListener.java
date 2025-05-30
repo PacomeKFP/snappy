@@ -31,23 +31,39 @@ public class OnConnectListener implements ConnectListener {
   public void onConnect(SocketIOClient client) {
     log.info("new user connected with socket " + client.getSessionId());
     String sessionId = client.getSessionId().toString();
-    User user = authenticateSocketRequest.execute(client.getHandshakeData()).block();
-    assert user != null;
-    String userExternalId = user.getExternalId();
-    String userId = user.getId().toString();
-    connectedUserStorage.addConnectedUser(userId, sessionId);
 
-    // alerter tous les autres utilisateurs
-    client
-        .getNamespace()
-        .getAllClients()
-        .forEach(
-            namespaceClient -> {
-              namespaceClient.sendEvent(
-                  WebSocketHelper.OutputEndpoints.NEW_USER_CONNECTION, userExternalId);
-            });
+    authenticateSocketRequest
+        .execute(client.getHandshakeData())
+        .doOnSuccess(
+            user -> {
+              if (user == null) {
+                log.error("Authentication failed for client: " + client.getSessionId());
+                client.disconnect(); // Or handle error appropriately
+                return;
+              }
+              String userExternalId = user.getExternalId();
+              String userId = user.getId().toString();
+              connectedUserStorage.addConnectedUser(userId, sessionId);
 
-    /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
+              // alerter tous les autres utilisateurs
+              client
+                  .getNamespace()
+                  .getAllClients()
+                  .forEach(
+                      namespaceClient -> {
+                        namespaceClient.sendEvent(
+                            WebSocketHelper.OutputEndpoints.NEW_USER_CONNECTION, userExternalId);
+                      });
+
+              /*Pour chaque message recu, envoyer le message à l'utilisateur qui s'est connecté*/
+            })
+        .doOnError(
+            throwable -> {
+              log.error(
+                  "Error during authentication for client: " + client.getSessionId(), throwable);
+              client.disconnect(); // Or handle error appropriately
+            })
+        .subscribe(); // Subscribe to trigger the reactive chain
     //        List<Message> notSentUserMessages =
     // notSentMessagesStorage.getNotSentMessagesForUser(userId);
     //        if (!notSentUserMessages.isEmpty()) {

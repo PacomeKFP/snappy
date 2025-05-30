@@ -47,15 +47,11 @@ public class GetUserChatsUseCase implements FluxUseCase<GetUserChatsDto, ChatRes
                     .flatMap(
                         group ->
                             group
-                                .collectList()
+                                .reduce(
+                                    (m1, m2) ->
+                                        m1.getCreatedAt().isAfter(m2.getCreatedAt()) ? m1 : m2)
                                 .flatMap(
-                                    messages -> {
-                                      // Trouver le dernier message
-                                      Message lastMessage =
-                                          messages.stream()
-                                              .max(Comparator.comparing(Message::getCreatedAt))
-                                              .orElse(null);
-
+                                    lastMessage -> {
                                       // Déterminer l'interlocuteur
                                       User interlocutor =
                                           lastMessage.getSender().getId().equals(user.getId())
