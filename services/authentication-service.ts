@@ -50,7 +50,11 @@ export class AuthenticationService {
 
       console.error("Error during authentication:", error);
       setIsAuthentificating(false)
-      // alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+       if (error instanceof Error) {
+         alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer. " + error.message);
+       } else {
+         alert("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+       }
     
     }
 
