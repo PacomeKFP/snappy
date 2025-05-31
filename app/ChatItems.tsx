@@ -12,6 +12,8 @@ import { API_SOCKET_URL, PROJECT_ID } from "@/lib/constants";
 import { prepareMessagesWithDateSeparators } from '@/lib/utils';
 import { Ionicons } from "@expo/vector-icons";
 import EmojiPicker from "@/components/EmojiPicker";
+import * as DocumentPicker from 'expo-document-picker';
+
 
 export default function ChatRoom() {
   const router = useRouter();
@@ -62,9 +64,34 @@ export default function ChatRoom() {
     return <ActivityIndicator size="large" color="#7B52AB" />;
   }
 
-  const handleSendFile = () => {
-    // Fonction pour envoyer un fichier
+
+  const handleSendFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+
+      // Cast pour contourner l'erreur TS
+      if (result.canceled == false) {
+        const file = result as DocumentPicker.DocumentPickerResult & { uri: string, name: string, mimeType?: string,path?: string };
+        console.log('Fichier sélectionné:', file);
+        // Utilise file.uri, file.name, etc.
+        await ChatService.sendMessageWithAttachment(
+          file,
+          name,
+          messages,
+          setMessages
+        );
+      } else {
+        // Annulé ou autre type
+        console.log('Sélection annulée ou autre');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sélection du fichier:', error);
+    }
   };
+  
 
   const handleEmojiSelect = (emoji: string) => {
     setNewMessage(prev => {

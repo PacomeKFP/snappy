@@ -2,6 +2,7 @@
   "expo": {
     "name": "Yow-Talk",
     "slug": "Yow-Talk",
+    "owner": "delmat237",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -13,11 +14,21 @@
       "bundleIdentifier": "com.YowTalk"
     },
     "android": {
+      "package": "com.YowTalk",
+      "usesCleartextTraffic": true,
+       "permissions": [
+        "INTERNET", 
+        "ACCESS_NETWORK_STATE",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECORD_AUDIO",
+        "CAMERA",
+        "FOREGROUND_SERVICE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.YowTalk"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -44,11 +55,11 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b41a5340-6586-429e-b17c-30bda6e44a65"
+        "projectId": "14350187-726b-425d-a1bd-587a1d9e3f8a"
       }
     },
     "cli": {
-      "appVersionSource": "local"
+      "appVersionSource": "remote"
     }
   }
 }
