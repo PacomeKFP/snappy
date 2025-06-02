@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import Avatar from "./Avatar";
 import { ChatResource } from "@/lib/models";
@@ -18,7 +18,7 @@ export default function ConversationList() {
 	const [hoveredId, setHoveredId] = useState<string>("");
 
 	// Fonction pour trier les chats par date du dernier message
-	const sortChatsByLastMessage = (chats: ChatResource[]) => {
+	const sortChatsByLastMessage = useCallback((chats: ChatResource[]) => {
 		return [...chats].sort((a, b) => {
 			const dateA = a.lastMessage?.updatedAt
 				? new Date(a.lastMessage.updatedAt)
@@ -28,7 +28,7 @@ export default function ConversationList() {
 				: new Date(0);
 			return dateB.getTime() - dateA.getTime(); // Tri décroissant (plus récent en premier)
 		});
-	};
+	}, []);
 
 	// Mettre à jour filteredChats quand chats change
 	useEffect(() => {
@@ -64,7 +64,7 @@ export default function ConversationList() {
 	// ---
 
 	// ---
-	const handleSearch = (term: string) => {
+	const handleSearch = useCallback((term: string) => {
 		if (!term.trim()) {
 			const sortedChats = sortChatsByLastMessage(chats);
 			setFilteredChats(sortedChats);
@@ -84,7 +84,7 @@ export default function ConversationList() {
 		// Trier aussi les résultats de recherche
 		const sortedFiltered = sortChatsByLastMessage(filtered);
 		setFilteredChats(sortedFiltered);
-	};
+	} , [chats, sortChatsByLastMessage]) //dépendances nécessaires pour éviter les boucles infinies;
 	// ---
 
 	return (

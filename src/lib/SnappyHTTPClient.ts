@@ -1,13 +1,28 @@
-import {BaseService} from "./BaseService";
+"use client";
+
+import { BaseService } from "./BaseService";
 import {
 	AddContactDto,
 	AuthenticateOrganizationDto,
 	AuthenticateUserDto,
 	AuthenticationResourceOrganization,
-	AuthenticationResourceUser, ChangeMessagingModeDto, Chat, Chatbot,
-	ChatDetailsResource, ChatResource, CreateChatbotDto,
-	CreateOrganizationDto, CreateUserDto, FindUserByDisplayNameDto,
-	GetChatDetailsDto, GetUserContactsDto, Message, Organization, PreKeyBundle, SendMessageDto, User
+	AuthenticationResourceUser,
+	ChangeMessagingModeDto,
+	Chat,
+	Chatbot,
+	ChatDetailsResource,
+	ChatResource,
+	CreateChatbotDto,
+	CreateOrganizationDto,
+	CreateUserDto,
+	FindUserByDisplayNameDto,
+	GetChatDetailsDto,
+	GetUserContactsDto,
+	Message,
+	Organization,
+	PreKeyBundle,
+	SendMessageDto,
+	User,
 } from "./models";
 
 export class SnappyHTTPClient extends BaseService {
@@ -20,16 +35,31 @@ export class SnappyHTTPClient extends BaseService {
 		this.projectId = projectId;
 		this.bearerToken = bearerToken;
 		this.basePath = basePath;
-		if (!this.bearerToken) this.loadBearerToken();
+		if (typeof window !== 'undefined' && !this.bearerToken) {
+			this.loadBearerToken();
+		}
 	}
 
 	setProjectId = (projectId: string) => (this.projectId = projectId);
-	setBearerToken = (bearerToken: string) => (this.bearerToken = bearerToken);
-	saveBearerToken = () =>
-		this.bearerToken && localStorage.setItem("bearer", this.bearerToken);
-	loadBearerToken = () =>
-		localStorage.getItem("bearer") &&
-		this.setBearerToken(localStorage.getItem("bearer")!);
+	setBearerToken = (token: string) => {
+		this.bearerToken = token;
+		if (typeof window !== 'undefined') {
+			localStorage.setItem("bearer", token);
+		}
+	};
+
+
+	loadBearerToken = () => {
+		if (typeof window !== 'undefined') {
+			const token = localStorage.getItem("bearer");
+			if (token) {
+				this.setBearerToken(token);
+			}
+		}
+	};
+    setUser = (user: User)=> this.user = user;
+    getUser = () => this.user;
+
 	// Organization
 	async createOrganization(dto: CreateOrganizationDto) {
 		this.refreshApiInstance(this.basePath, false);
@@ -40,7 +70,6 @@ export class SnappyHTTPClient extends BaseService {
 		this.setBearerToken(authenticationResourceOrganization.token);
 		this.setProjectId(authenticationResourceOrganization.data.projectId!);
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		this.saveBearerToken();
 		return authenticationResourceOrganization;
 	}
 
@@ -85,7 +114,6 @@ export class SnappyHTTPClient extends BaseService {
 		this.setBearerToken(authenticationResourceOrganization.token);
 		this.setProjectId(authenticationResourceOrganization.data.projectId!);
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		this.saveBearerToken();
 		return authenticationResourceOrganization;
 	}
 
@@ -99,14 +127,13 @@ export class SnappyHTTPClient extends BaseService {
 		>(dto, "/auth/user");
 		this.setBearerToken(authenticationResourceUser.token);
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		this.saveBearerToken();
 		return authenticationResourceUser;
 	}
 
 	// CHATBOT
 	async getAllChatbots(): Promise<Chatbot[]> {
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		return this.get<Chatbot[]>(`/chatbots`);
+		return this.get<Chatbot[]>(`/chatbot`);
 	}
 
 	async createChatbot(dto: CreateChatbotDto): Promise<Chatbot> {
@@ -115,7 +142,7 @@ export class SnappyHTTPClient extends BaseService {
 			"Content-Type": "multipart/form-data",
 			Authorization: `Bearer ${this.bearerToken}`,
 		};
-		return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbots", headers);
+		return this.post<CreateChatbotDto, Chatbot>(dto, "/chatbot", headers);
 	}
 
 	async getChatbotsForProject(projectId: string): Promise<Chatbot[]> {
@@ -203,10 +230,7 @@ export class SnappyHTTPClient extends BaseService {
 
 	async getChatDetails(dto: GetChatDetailsDto): Promise<ChatDetailsResource> {
 		this.refreshApiInstance(this.basePath, true, this.bearerToken!);
-		return await this.post<GetChatDetailsDto, ChatDetailsResource>(
-			dto,
-			"chat/details"
-		);
+		return await this.post<GetChatDetailsDto, ChatDetailsResource>(dto);
 	}
 
 	async getUserChats(
