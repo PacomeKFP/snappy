@@ -146,36 +146,21 @@ private Mono<Message> sendMessageToSingleUser(SendMessageDto dto) {
     return messageRepository.save(message)
             .flatMap(savedMessage -> {
                 String receiverId = savedMessage.getReceiverId();
+                final Message messageToSend = savedMessage; // Final for lambda
                 
+                List<SocketIOClient> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
                 
-                if (connectedUserStorage.isUserConnected(receiverId)) {
-                    
-                    List<WebSocketSession> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
-                    
-                   
-                    String messageJson = jsonFieldService.toJson(savedMessage);
-                    
-                    return Flux.fromIterable(receiverSessions)
-                            .flatMap(session -> {
-                                return session.send(Mono.just(session.textMessage(messageJson)))
-                                        .onErrorResume(e -> {
-                                            log.error("Error sending message to session: {}", e.getMessage());
-                                            return Mono.empty();
-                                        });
-                            })
-                            .then(Mono.just(savedMessage))
-                            .doOnSuccess(msg -> {
-                                
-                                if (!receiverSessions.isEmpty()) {
-                                   
-                                    notSentMessagesStorage.addNotSentMessage(savedMessage);
-                                }
-                            });
+                if (!receiverSessions.isEmpty()) {
+                    log.info("User {} is connected with {} device(s). Broadcasting message ID {}.", receiverId, receiverSessions.size(), messageToSend.getId());
+                    receiverSessions.forEach(socketClient -> {
+                        socketClient.sendEvent("RECEIVE_MESSAGE", messageToSend);
+                        log.debug("Sent message ID {} to device session ID {} for user {}", messageToSend.getId(), socketClient.getSessionId(), receiverId);
+                    });
                 } else {
-                    
+                    log.warn("User {} is not connected with any device. Adding message ID {} to notSentMessagesStorage.", receiverId, messageToSend.getId());
                     notSentMessagesStorage.addNotSentMessage(savedMessage);
-                    return Mono.just(savedMessage);
                 }
+                return Mono.just(savedMessage);
             });
 }
 
@@ -205,29 +190,20 @@ private Mono<Message> sendMessageToMultipleUsers(SendMessageDto dto) {
                 
                 return messageRepository.save(messageCopy)
                         .flatMap(savedMessage -> {
-                            
-                            if (connectedUserStorage.isUserConnected(receiverId)) {
-                               
-                                List<WebSocketSession> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
-                                
-                               
-                                String messageJson = jsonFieldService.toJson(savedMessage);
-                                
-                                return Flux.fromIterable(receiverSessions)
-                                        .flatMap(session -> {
-                                            return session.send(Mono.just(session.textMessage(messageJson)))
-                                                    .onErrorResume(e -> Mono.empty());
-                                        })
-                                        .then(Mono.just(savedMessage))
-                                        .doOnSuccess(msg -> {
-                                          
-                                            notSentMessagesStorage.addNotSentMessage(savedMessage);
-                                        });
+                            final Message currentMessageToSend = savedMessage; // Final for lambda
+                            List<SocketIOClient> receiverSessions = connectedUserStorage.getUserSessions(receiverId);
+
+                            if (!receiverSessions.isEmpty()) {
+                                log.info("User {} is connected with {} device(s) in multi-send. Broadcasting message ID {}.", receiverId, receiverSessions.size(), currentMessageToSend.getId());
+                                receiverSessions.forEach(socketClient -> {
+                                    socketClient.sendEvent("RECEIVE_MESSAGE", currentMessageToSend);
+                                    log.debug("Sent message ID {} to device session ID {} for user {} (multi-send)", currentMessageToSend.getId(), socketClient.getSessionId(), receiverId);
+                                });
                             } else {
-                            
-                                notSentMessagesStorage.addNotSentMessage(savedMessage);
-                                return Mono.just(savedMessage);
+                                log.warn("User {} is not connected with any device in multi-send. Adding message ID {} to notSentMessagesStorage.", receiverId, currentMessageToSend.getId());
+                                notSentMessagesStorage.addNotSentMessage(savedMessage); // Use savedMessage (which is currentMessageToSend)
                             }
+                            return Mono.just(savedMessage); // This is still within the flatMap for each receiverId
                         });
             })
             .collectList()

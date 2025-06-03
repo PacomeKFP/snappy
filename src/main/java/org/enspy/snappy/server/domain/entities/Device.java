@@ -44,6 +44,12 @@ public class Device {
     @Column("fcm_token")
     private String fcmToken; // Pour les notifications push (optionnel)
     
+    @Column("device_public_key")
+    private byte[] devicePublicKey;
+
+    @Column("key_algorithm")
+    private String keyAlgorithm;
+
     @CreatedDate
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

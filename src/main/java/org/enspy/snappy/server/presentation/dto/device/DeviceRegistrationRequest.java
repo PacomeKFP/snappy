@@ -20,5 +20,13 @@ public class DeviceRegistrationRequest {
     @NotBlank(message = "Device name is required")
     private String deviceName;
 
-    private String fcmToken; 
+    private String fcmToken;
+
+    @NotBlank(message = "Temporary code is required")
+    private String temporaryCode;
+
+    // Consider adding @NotNull or similar validation if the key is always expected
+    private byte[] devicePublicKey;
+
+    private String keyAlgorithm;
 }
