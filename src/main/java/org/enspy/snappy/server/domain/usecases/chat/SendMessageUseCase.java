@@ -122,13 +122,18 @@ public class SendMessageUseCase implements MonoUseCase<SendMessageDto, Message> 
 
  
 public Mono<Message> execute(SendMessageDto dto) {
-   
     if (dto.getReceiverIds() != null && !dto.getReceiverIds().isEmpty()) {
+        // Potentially add validation: if dto.getReceiverId() is also present, log a warning or decide on precedence.
+        // For now, assume if receiverIds is present, it takes precedence.
+        log.info("Processing message for multiple receivers via receiverIds list (size: {}).", dto.getReceiverIds().size());
         return sendMessageToMultipleUsers(dto);
+    } else if (dto.getReceiverId() != null) {
+        log.info("Processing message for a single receiver via receiverId field: {}.", dto.getReceiverId());
+        return sendMessageToSingleUser(dto);
+    } else {
+        log.error("Message sending failed: Receiver ID or IDs must be provided. DTO: {}", dto);
+        return Mono.error(new IllegalArgumentException("Receiver ID or IDs must be provided."));
     }
-    
-   
-    return sendMessageToSingleUser(dto);
 }
 
 
