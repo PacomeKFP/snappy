@@ -14,5 +14,6 @@ import java.util.UUID;
 public interface DeviceRepository extends ReactiveCrudRepository<Device, UUID> {
     Flux<Device> findByUserId(String userId);
     Mono<Device> findByDeviceId(String deviceId);
+    Mono<Device> findByUserIdAndDeviceId(String userId, String deviceId);
     Mono<Void> deleteByDeviceId(String deviceId);
 }
