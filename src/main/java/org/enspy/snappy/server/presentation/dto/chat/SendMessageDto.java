@@ -12,8 +12,11 @@ public class SendMessageDto {
     @NotNull
     private String senderId;        
 
-    @NotNull
+    // @NotNull // Removed to allow receiverId to be null if receiverIds is used
     private String receiverId;      
+
+    private List<String> receiverIds; // Added new field
+
     @NotBlank
     private String body;
 
