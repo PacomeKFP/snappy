@@ -11,7 +11,19 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.YowTalk"
+      "bundleIdentifier": "com.YowTalk",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSExceptionDomains": {
+            "88.198.150.195": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSExceptionMinimumTLSVersion": "1.0",
+              "NSIncludesSubdomains": true
+            }
+          }
+        }
+      }
     },
     "android": {
       "package": "com.YowTalk",
@@ -19,6 +31,7 @@
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "RECORD_AUDIO",
@@ -28,6 +41,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
+      },
+      "networkSecurityConfig": {
+        "cleartextTrafficPermitted": true,
+        "domain": [
+          {
+            "name": "88.198.150.195",
+            "cleartextTrafficPermitted": true
+          }
+        ]
       }
     },
     "web": {
