@@ -7,7 +7,7 @@ import {  SafeAreaView } from 'react-native-safe-area-context';
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
 
       <ContactProvider>
         <Stack screenOptions={{ 

@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ChatScreen from "./chat";
 import StatutScreen from "./status";
@@ -77,24 +77,36 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Navigation */}
+        {/* Navigation avec onglets en bas + swipe */}
         <Tab.Navigator
+          tabBarPosition="bottom"
+          swipeEnabled={true}
+          animationEnabled={true}
           screenOptions={{
             tabBarStyle: styles.tabBar,
             tabBarIndicatorStyle: styles.tabIndicator,
             tabBarActiveTintColor: "#7B52AB",
-            tabBarInactiveTintColor: "#555",
-            tabBarLabelStyle: { fontWeight: "bold", fontSize: 16 },
+            tabBarInactiveTintColor: "#999",
+            tabBarLabelStyle: styles.tabLabel,
+            tabBarIconStyle: styles.tabIcon,
+            tabBarShowIcon: true,
+            tabBarPressColor: 'rgba(123, 82, 171, 0.1)', // Couleur du ripple sur Android
+            tabBarPressOpacity: 0.8, // Opacité sur iOS
           }}
         >
           <Tab.Screen 
             name="Chats" 
             component={ChatScreenWrapper}
             options={{
-              tabBarLabel: ({ color }) => (
+              tabBarLabel: ({ focused, color }) => (
                 <View style={styles.tabLabelContainer}>
-                  <Ionicons name="chatbubble-outline" size={20} color={color} />
-                  <Text style={[styles.tabLabel, { color }]}>Chats</Text>
+                  <Ionicons 
+                    name={focused ? 'chatbubbles' : 'chatbubbles-outline'} 
+                    size={20} 
+                    color={color} 
+                    style={styles.tabIconStyle}
+                  />
+                  <Text style={[styles.tabLabelText, { color }]}>Chats</Text>
                 </View>
               ),
             }}
@@ -103,10 +115,15 @@ export default function Home() {
             name="Contacts" 
             component={StatusScreenWrapper}
             options={{
-              tabBarLabel: ({ color }) => (
+              tabBarLabel: ({ focused, color }) => (
                 <View style={styles.tabLabelContainer}>
-                  <Ionicons name="people-outline" size={20} color={color} />
-                  <Text style={[styles.tabLabel, { color }]}>Contacts</Text>
+                  <Ionicons 
+                    name={focused ? 'people' : 'people-outline'} 
+                    size={20} 
+                    color={color}
+                    style={styles.tabIconStyle}
+                  />
+                  <Text style={[styles.tabLabelText, { color }]}>Contacts</Text>
                 </View>
               ),
             }}
@@ -128,12 +145,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 15,
     paddingVertical: 12,
+    paddingTop: Platform.OS === 'ios' ? 50 : 12,
     backgroundColor: "white",
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    zIndex: 1000,
   },
   boxsearch: {
     flexDirection: "row",
@@ -174,24 +193,43 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     backgroundColor: "#ffffff",
-    elevation: 4,
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    elevation: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -1 },
+    shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
+    height: Platform.OS === 'ios' ? 85 : 90,
+    paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+    paddingTop: 5,
   },
   tabIndicator: { 
     backgroundColor: "#7B52AB", 
     height: 3,
     borderRadius: 2,
-  },
-  tabLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+    bottom: Platform.OS === 'ios' ? 25 : 10,
   },
   tabLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
+    textTransform: 'none',
+  },
+  tabIcon: {
+    marginBottom: 2,
+  },
+  tabLabelContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+  },
+  tabIconStyle: {
+    marginBottom: 4,
+  },
+  tabLabelText: {
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: 'none',
   },
 });
