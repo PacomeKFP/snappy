@@ -2,7 +2,6 @@
   "name": "yow-talk",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  
   "scripts": {
     "start": "expo start --port 3001",
     "reset-project": "node ./scripts/reset-project.js",
@@ -41,11 +40,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-native": "0.79.4",
-    "react-native-emoji-board": "^1.2.1",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-get-random-values": "^1.11.0",
-    "react-native-modal": "^14.0.0-rc.1",
-    "react-native-popup-menu": "^0.17.0",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-modal": "^13.0.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
