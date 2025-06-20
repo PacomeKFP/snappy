@@ -55,7 +55,8 @@
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.3",
     "tailwindcss": "^3.4.17",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "expo-build-properties": "~0.14.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

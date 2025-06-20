@@ -11,19 +11,7 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.YowTalk",
-      "infoPlist": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true,
-          "NSExceptionDomains": {
-            "88.198.150.195": {
-              "NSExceptionAllowsInsecureHTTPLoads": true,
-              "NSExceptionMinimumTLSVersion": "1.0",
-              "NSIncludesSubdomains": true
-            }
-          }
-        }
-      }
+      "bundleIdentifier": "com.YowTalk"
     },
     "android": {
       "package": "com.YowTalk",
@@ -41,15 +29,6 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      },
-      "networkSecurityConfig": {
-        "cleartextTrafficPermitted": true,
-        "domain": [
-          {
-            "name": "88.198.150.195",
-            "cleartextTrafficPermitted": true
-          }
-        ]
       }
     },
     "web": {
@@ -66,6 +45,23 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "networkSecurityConfig": {
+              "cleartextTrafficPermitted": true,
+              "domain": [
+                {
+                  "name": "88.198.150.195",
+                  "cleartextTrafficPermitted": true
+                }
+              ]
+            }
+          }
         }
       ]
     ],
