@@ -26,7 +26,18 @@
       "android": {
         "buildType": "app-bundle"
       }
-    }
+    },
+    "cleartext": {
+  "distribution": "internal",
+  "android": {
+    "buildType": "apk"
+  },
+  "env": {
+    "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+    "EAS_NO_LOCKFILE": "1"
+  }
+}
+
   },
   "submit": {
     "production": {}

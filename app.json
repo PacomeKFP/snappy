@@ -51,16 +51,7 @@
         "expo-build-properties",
         {
           "android": {
-            "usesCleartextTraffic": true,
-            "networkSecurityConfig": {
-              "cleartextTrafficPermitted": true,
-              "domain": [
-                {
-                  "name": "88.198.150.195",
-                  "cleartextTrafficPermitted": true
-                }
-              ]
-            }
+            "usesCleartextTraffic": true
           }
         }
       ]
