@@ -26,7 +26,6 @@ export const DEBUG_INFO = {
   apiUrl: API_URL,
   socketUrl: API_SOCKET_URL,
   expoVersion: Constants.expoVersion,
-  manifestURL: Constants.manifest?.developer?.projectRoot,
 };
 
 // Fonction pour afficher les infos de debug
