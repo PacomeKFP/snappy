@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Yow-Talk",
-    "slug": "Yow-Talk",
-    "owner": "delmat237",
+    "slug": "yow-talk",
+    "owner": "piovia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -16,9 +16,10 @@
     "android": {
       "package": "com.YowTalk",
       "usesCleartextTraffic": true,
-       "permissions": [
-        "INTERNET", 
+      "permissions": [
+        "INTERNET",
         "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "RECORD_AUDIO",
@@ -45,6 +46,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "experiments": {
@@ -55,7 +64,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "14350187-726b-425d-a1bd-587a1d9e3f8a"
+        "projectId": "85f32532-fa43-4c12-b8d7-7411ff1d9c24"
       }
     },
     "cli": {
