@@ -6,11 +6,11 @@ const isRunningInExpoGo = Constants.expoVersion != null;
 const isDevelopment = __DEV__;
 
 // URLs selon l'environnement
-const DEVELOPMENT_API_URL = "https://gateway.yowyob.com/snappy-service";
+const DEVELOPMENT_API_URL = "http://88.198.150.195:8613";
 const DEVELOPMENT_SOCKET_URL = "http://88.198.150.195:8614";
 
 // Pour APK, on peut avoir besoin d'URLs différentes
-const PRODUCTION_API_URL = "https://gateway.yowyob.com/snappy-service";
+const PRODUCTION_API_URL = "http://88.198.150.195:8613";
 const PRODUCTION_SOCKET_URL = "http://88.198.150.195:8614";
 
 // URLs finales
