@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Linking } from 'react-native';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -101,7 +102,7 @@ export default function Settings() {
           icon="help-circle-outline"
           title="Aide"
           value={false}
-          onPress={() => router.push('/help' as any)}
+          onPress={()=>{Linking.openURL('https://snappy-sdk-documentation.vercel.app/');}}
         />
       </View>
 
