@@ -10,6 +10,7 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 # Modèle de table pour les chatbots
 class ChatbotDB(Base):
     __tablename__ = "chatbots"
@@ -32,9 +33,13 @@ class EmbeddingDB(Base):
     id = Column(UUID(as_uuid=True), primary_key=True)
     accesskeys = Column(String, ForeignKey("chatbots.accesskeys"))
     embedding = Column(JSON)
-
+    text = Column(Text)
     # Relation
     chatbot = relationship("ChatbotDB", back_populates="embeddings")
+
+
+
+
 
 # Modèle de table pour les conversations
 class ConversationDB(Base):

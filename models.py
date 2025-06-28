@@ -76,3 +76,14 @@ class ChatbotInfo(BaseModel):
 class InstancesResponse(BaseModel):
     chatbotInfo: ChatbotInfo
     instances: List[InstanceInfo]
+
+
+# Modèle pour la réponse de liste des LLM
+class LLMListResponse(BaseModel):
+    available_llms: List[str]
+
+
+# Modèle pour la réponse de changement de LLM d'un chatbot
+class UpdateChatbotLLMResponse(BaseModel):
+    status: str
+    message: str
