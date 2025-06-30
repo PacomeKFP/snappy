@@ -61,7 +61,7 @@ cohere_client = cohere.Client(LLM_CONFIG["cohere-chat"]["api_key"])
 
 
 # Configuration de Google Gemini
-genai.configure(api_key="AIzaSyAfCi7g6555XvHg2Qfr84eX04J3fo5kvz8")
+genai.configure(api_key="AIzaSyAnx0b6Vvo_MiBoXQiSMwGRgy5W0Ha-Xt4")
 model = genai.GenerativeModel('gemini-1.5-pro')
 
 app = FastAPI(title="Chatbot RAG API")
@@ -75,58 +75,177 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
+
+
+# Assurez-vous que l'import de traceback est au début du fichier
+import traceback
+
+# ... les autres imports et la configuration LLM ...
+
+# Assurez-vous que l'initialisation globale des clients LLM est conditionnelle
+# si vous utilisez os.getenv, ou si les clés par défaut sont vides
+if LLM_CONFIG["gemini-pro"]["api_key"] and not LLM_CONFIG["gemini-pro"]["api_key"].startswith("AIzaS"): # Check for default placeholder
+    genai.configure(api_key=LLM_CONFIG["gemini-pro"]["api_key"])
+    # L'instance 'model' globale peut être initialisée ici si besoin,
+    # ou dans la fonction get_llm_response. Pour l'instant, je la laisse comme avant
+    # mais notez que ré-initialiser genai.configure plusieurs fois n'est pas optimal.
+    # model = genai.GenerativeModel('gemini-1.5-pro') # Initialisation globale de l'instance
+
+if LLM_CONFIG["openai-gpt-3.5"]["api_key"] and not LLM_CONFIG["openai-gpt-3.5"]["api_key"].startswith("sk-proj-"):
+    openai.api_key = LLM_CONFIG["openai-gpt-3.5"]["api_key"]
+
+if LLM_CONFIG["cohere-chat"]["api_key"] and not LLM_CONFIG["cohere-chat"]["api_key"].startswith("dceIuAX"):
+    cohere_client = cohere.Client(LLM_CONFIG["cohere-chat"]["api_key"])
+else:
+    cohere_client = None # Set to None if key is missing/placeholder
+
+
 @app.post("/init", response_model=InitResponse)
 async def init_chatbot(request: InitRequest):
+    """
+    Initialise un nouveau chatbot RAG, y compris le traitement des documents.
+    """
     db = SessionLocal()
     try:
-        # Vérifier si le chatbot existe déjà
+        # 1. Vérifier si le chatbot existe déjà (par id)
         existing_chatbot = db.query(ChatbotDB).filter(ChatbotDB.id == request.id).first()
         if existing_chatbot:
-            raise HTTPException(status_code=400, detail="Chatbot déjà initialisé")
+             # Note: Si vous voulez aussi empêcher la réutilisation de l'accesskeys, ajoutez une vérif ici.
+             # Vérifiez aussi si l'accesskeys est déjà utilisé par un autre ID si accesskeys doit être unique.
+            raise HTTPException(status_code=400, detail="Chatbot déjà initialisé avec cet ID.")
 
-        # Traiter les pièces jointes (PDF)
+        # 2. Vérifier si le LLM configuré existe dans notre configuration
+        if request.languageModel not in LLM_CONFIG:
+             # Note: Le nom du LLM doit correspondre exactement à une clé dans LLM_CONFIG (ex: "huggingface-mistral", pas "MISTRAL")
+             raise HTTPException(status_code=400, detail=f"Modèle de langage '{request.languageModel}' non supporté. LLMs disponibles: {list(LLM_CONFIG.keys())}")
+
+
+        # 3. Traiter les pièces jointes (PDF) pour générer et sauvegarder les embeddings
+        # Parcourir les pièces jointes dans la requête. chatbotAttachements est une liste de ChatbotAttachment.
+        print(f"Initialisation du chatbot {request.id} avec accesskeys {request.accesskeys}...")
+        print(f"Traitement de {len(request.chatbotAttachements)} pièces jointes...")
+
+        # Liste pour stocker temporairement les embeddings DB objects avant de les ajouter
+        embedding_dbs_to_add = []
+
         for attachment in request.chatbotAttachements:
             if attachment.mimetype == "application/pdf":
-                # Extraire le texte du PDF
-                text = extract_text_from_pdf(attachment.path)
+                try:
+                    # Extraire le texte du PDF
+                    print(f"Traitement du PDF: {attachment.filename} à {attachment.path}")
+                    # Utilisez os.path.exists pour une meilleure vérification du fichier
+                    if not os.path.exists(attachment.path):
+                         print(f"Erreur: Fichier PDF non trouvé à {attachment.path}. Saut de cette pièce jointe.")
+                         # Decide if FileNotFoundError should stop init or skip attachment
+                         # If critical: raise FileNotFoundError(f"File not found: {attachment.path}")
+                         continue # Skip this attachment and continue with others
 
-                # Diviser le texte en chunks
-                chunks = split_text_into_chunks(text)
+                    text = extract_text_from_pdf(attachment.path)
+                    print(f"Texte extrait (premiers 200 caractères): {text[:200]}...")
 
-                # Générer des embeddings pour chaque chunk
-                embeddings = generate_embeddings(chunks)
+                    if not text or text.strip() == "":
+                         print(f"Warning: Fichier PDF {attachment.filename} vide ou extraction a échoué. Saut de cette pièce jointe.")
+                         continue
 
-                # Sauvegarder chaque embedding dans la base de données
-                for embedding in embeddings:
-                    embedding_id = uuid.uuid4()
-                    embedding_list = embedding.tolist()
-                    embedding_db = EmbeddingDB(
-                        id=embedding_id,
-                        accesskeys=str(request.accesskeys),
-                        embedding=embedding_list,
-                    )
-                    db.add(embedding_db)
+                    # Diviser le texte en chunks
+                    chunks = split_text_into_chunks(text)
+                    print(f"Divisé en {len(chunks)} chunks.")
 
-        # Enregistrer le chatbot dans la base de données
+                    if not chunks:
+                         print(f"Warning: Aucun chunk généré pour le fichier {attachment.filename}. Saut de cette pièce jointe.")
+                         continue
+
+
+                    # Générer des embeddings pour chaque chunk
+                    # generate_embeddings renvoie List[np.ndarray]
+                    embeddings_vectors = generate_embeddings(chunks) # <-- Variable nommée correctement ici
+                    print(f"Généré {len(embeddings_vectors)} embeddings.")
+
+                    # Sauvegarder chaque embedding *avec son texte* dans la base de données
+                    # Il DOIT y avoir un embedding pour chaque chunk si spacy.load a réussi
+                    if len(chunks) != len(embeddings_vectors):
+                         print(f"Warning: Mismatch! Chunks ({len(chunks)}) vs Embeddings ({len(embeddings_vectors)}) for {attachment.filename}. Possible issue with embedding generation. Skipping embedding save for this file.")
+                         # Vous pourriez vouloir lever une erreur ici si c'est critique
+                         continue # Skip embedding save for this file if mismatch
+
+                    # Utilisez la variable correcte 'embeddings_vectors' dans le zip
+                    for chunk_text, embedding_vector in zip(chunks, embeddings_vectors):
+                        embedding_id = uuid.uuid4()
+                        embedding_list = embedding_vector.tolist() # Convertir np.ndarray en list pour stockage JSONB
+                        embedding_dbs_to_add.append( # Ajouter à la liste temporaire
+                           EmbeddingDB(
+                                id=embedding_id,
+                                accesskeys=str(request.accesskeys), # Sauvegarder l'accesskeys du chatbot parent
+                                embedding=embedding_list,
+                                text=chunk_text, # <-- CORRECTION : Sauvegarder le texte du chunk
+                            )
+                        )
+                        # print(f"Préparé embedding {embedding_id} pour chunk...") # Trop verbeux peut-être
+
+                except Exception as attachment_error:
+                     # Attraper d'autres erreurs potentielles pendant le traitement (spacy, numpy, etc.)
+                     print(f"Erreur critique lors du traitement de la pièce jointe {attachment.filename}: {attachment_error}")
+                     traceback.print_exc() # Afficher la pile d'appels complète dans les logs
+                     # Vous pouvez choisir de lever une erreur ici ou de continuer avec les autres attachments
+                     # Pour l'instant, on log et on continue. Si vous voulez que ça bloque, décommentez la ligne ci-dessous:
+                     # raise HTTPException(status_code=500, detail=f"Erreur lors du traitement de la pièce jointe {attachment.filename}: {str(attachment_error)}")
+                     continue # Passer à la prochaine pièce jointe en cas d'erreur
+
+        # 4. Ajouter tous les embeddings collectés à la session DB
+        print(f"Ajout de {len(embedding_dbs_to_add)} embeddings à la session DB...")
+        db.add_all(embedding_dbs_to_add) # Ajouter tous les objets EmbeddingDB d'un coup
+
+        # 5. Enregistrer le chatbot dans la base de données (après avoir traité les attachments)
+        # S'il y a eu des erreurs critiques bloquantes dans le traitement des attachments, on aurait déjà levé une exception.
+        # Si on arrive ici, les attachments ont été traités (ou il n'y en avait pas) et les embeddings préparés/ajoutés.
         chatbot = ChatbotDB(
             id=request.id,
-            accesskeys=str(request.accesskeys),
+            accesskeys=str(request.accesskeys), # S'assurer que l'UUID est bien une chaîne ici si la colonne DB est String
             label=request.label,
             prompt=request.prompt,
             description=request.description,
             projectId=request.projectId,
             languageModel=request.languageModel,
-            chatbotAttachements=[attachment.dict() for attachment in request.chatbotAttachements],
+            # Stocker la liste des attachments comme JSONB
+            chatbotAttachements=[att.model_dump() for att in request.chatbotAttachements], # Use model_dump() for Pydantic V2
         )
         db.add(chatbot)
-        db.commit()
-        db.refresh(chatbot)
+        print(f"Ajout du chatbot {request.id} à la session DB...")
 
+
+        # 6. Commit toutes les modifications à la base de données
+        # Si le commit échoue (ex: contrainte DB), l'exception sera attrapée ci-dessous.
+        print("Commit des changements à la base de données...")
+        db.commit()
+        # db.refresh(chatbot) # Rafraîchir l'objet chatbot pour avoir les valeurs générées par la DB si besoin (optionnel)
+
+        print(f"Chatbot {request.id} initialisé avec succès.")
         return InitResponse(status="success", message="Chatbot initialisé avec succès")
-    except Exception as e:
+
+    except HTTPException as http_exc:
+        # Les HTTPException (400, 404, etc. contrôlées) sont attrapées ici pour rollback avant de les relancer
+        print(f"HTTP Exception caught: {http_exc.detail}")
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Erreur lors de l'initialisation du chatbot : {str(e)}")
+        raise http_exc # Relance l'exception HTTP pour qu'FastAPI la gère
+
+    except Exception as e:
+        # Attrape toute autre exception inattendue (DB, Python, etc.)
+        print(f"\n--- Erreur inattendue lors de l'initialisation du chatbot ---")
+        db.rollback() # Assurez-vous d'annuler en cas d'erreur
+        print(f"Type d'erreur: {type(e).__name__}")
+        print(f"Détail de l'erreur: {e}")
+        traceback.print_exc() # Print the full traceback to the server logs
+        print(f"--------------------------------------------------------------\n")
+        # Retourner un message d'erreur générique au client pour ne pas exposer les détails internes
+        # Vous pourriez vouloir log l'ID de la requête ou l'ID de l'erreur pour le support
+        raise HTTPException(status_code=500, detail=f"Une erreur interne est survenue lors de l'initialisation du chatbot.")
+        # Note: Inclure 'str(e)' dans le detail client peut être bien en dev, mais risqué en prod.
+        # Si vous voulez le détail pour le débogage client, utilisez:
+        # raise HTTPException(status_code=500, detail=f"Une erreur interne est survenue: {str(e)}")
     finally:
+        # S'assure que la session DB est fermée dans tous les cas
         db.close()
 
 @app.post("/create", response_model=CreateResponse)
@@ -159,77 +278,6 @@ async def create_chatbot_instance(request: CreateRequest):
 
 
 
-# @app.post("/infer", response_model=InferResponse)
-# async def infer_chatbot_response(request: InferRequest):
-#     db = SessionLocal()
-#     try:
-#         # Vérifier si l'instance de conversation existe
-#         conversation = db.query(ConversationDB).filter(ConversationDB.idInstanceChat == request.idInstanceChat).first()
-#         if not conversation:
-#             raise HTTPException(status_code=404, detail="Conversation non trouvée")
-
-#         # Récupérer les embeddings associés au chatbot
-#         embeddings = db.query(EmbeddingDB).filter(EmbeddingDB.accesskeys == conversation.accesskeys).all()
-#         if not embeddings:
-#             raise HTTPException(status_code=404, detail="Aucun embedding trouvé pour ce chatbot")
-
-#         # Convertir les embeddings en tableau numpy
-#         embeddings_list = [np.array(embedding.embedding).reshape(1, -1) for embedding in embeddings]
-#         embeddings_array = np.vstack(embeddings_list)
-
-#         # Diviser le message de l'utilisateur en chunks
-#         chunks = split_text_into_chunks(text=request.message)
-
-#         # Générer un embedding pour le message de l'utilisateur
-#         user_message_embedding = np.array(generate_embeddings(chunks))
-#         user_message_embedding = user_message_embedding.reshape(1, -1)
-
-#         # Calculer la similarité cosinus entre le message et les embeddings
-#         similarities = cosine_similarity(user_message_embedding, embeddings_array)[0]
-
-#         # Trouver l'embedding le plus similaire
-#         most_similar_index = np.argmax(similarities)
-#         most_similar_embedding = embeddings[most_similar_index]
-
-#         # Récupérer le contexte de la conversation
-#         messages = db.query(MessageDB).filter(
-#             MessageDB.idInstanceChat == request.idInstanceChat
-#         ).order_by(MessageDB.timestamp.desc()).limit(5).all()
-
-#         conversation_history = "\n".join(
-#             [f"User: {msg.message}\nBot: {msg.response}" for msg in reversed(messages)]
-#         )
-
-#         # Utiliser Google Gemini pour générer une réponse
-#         prompt = f"""Contexte documentaire: {most_similar_embedding.embedding}
-
-# Historique de conversation:
-# {conversation_history}
-
-# Question: {request.message}
-
-# Réponds de manière naturelle et précise:"""
-
-#         response = model.generate_content(prompt).text
-
-#         # Enregistrer le message et la réponse
-#         message_id = uuid.uuid4()
-#         user_message = MessageDB(
-#             id=message_id,
-#             idInstanceChat=request.idInstanceChat,
-#             message=request.message,
-#             response=response,
-#         )
-#         db.add(user_message)
-#         db.commit()
-#         db.refresh(user_message)
-
-#         return InferResponse(response=response)
-#     except Exception as e:
-#         db.rollback()
-#         raise HTTPException(status_code=500, detail=f"Erreur lors de l'interaction avec le chatbot : {str(e)}")
-#     finally:
-#         db.close()
 
 
 @app.post("/infer", response_model=InferResponse)

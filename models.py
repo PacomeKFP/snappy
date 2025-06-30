@@ -78,6 +78,11 @@ class InstancesResponse(BaseModel):
     instances: List[InstanceInfo]
 
 
+# Nouveau modèle pour changer le LLM d'un chatbot
+class UpdateChatbotLLMRequest(BaseModel):
+    new_llm_name: str
+
+
 # Modèle pour la réponse de liste des LLM
 class LLMListResponse(BaseModel):
     available_llms: List[str]
