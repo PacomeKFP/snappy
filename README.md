@@ -52,7 +52,7 @@ Yow Talk est une application de chat complète permettant aux utilisateurs de co
 
 1. **Cloner le repository**
 ```bash
-git clone [URL_DU_REPOSITORY]
+git clone https://github.com/PIO-VIA/Snapppy.git
 cd yow-talk
 ```
 
@@ -213,18 +213,13 @@ npm run reset-project
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-## 👥 Équipe
 
-- **Développeur Principal** - [Votre nom]
-- **Backend** - API Snappy
-- **Design** - Interface Material Design
 
 ## 📞 Support
 
 Pour toute question ou problème :
-- 📧 Email : [votre.email@example.com]
-- 🐛 Issues : [Lien vers les issues GitHub]
-- 📚 Documentation : [Lien vers la documentation]
+- 📧 Email : piodjiele@gmail.com
+- 📚 Documentation : (https://snappy-sdk-documentation.vercel.app/)
 
 ## 🔄 Changelog
 
