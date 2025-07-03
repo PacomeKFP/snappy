@@ -56,13 +56,13 @@ public class SaveMessageAttachementUseCase implements FluxUseCase<SaveMessageAtt
         file.getInputStream().transferTo(fout);
         fout.close();
 
-        MessageAttachement messageAttachement = new MessageAttachement();
-        messageAttachement.setFilename(file.getOriginalFilename());
-        messageAttachement.setMimetype(file.getContentType());
-        messageAttachement.setFilesize(file.getSize());
-        messageAttachement.setPath(publicPath);
-        // Note: In R2DBC, we need to set messageId instead of message object
-        messageAttachement.setMessageId(dto.getMessage().getId());
+        MessageAttachement messageAttachement = new MessageAttachement(
+            file.getContentType(),  // mimetype
+            file.getOriginalFilename(),  // filename
+            publicPath,  // path
+            file.getSize(),  // filesize
+            dto.getMessage().getId()  // messageId
+        );
 
         log.info("File saved successfully: {}", uniqueFileName);
         return messageAttachement;

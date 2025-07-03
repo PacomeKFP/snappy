@@ -56,13 +56,13 @@ public class SaveChatbotAttachementUseCase implements FluxUseCase<SaveChatbotAtt
         file.getInputStream().transferTo(fout);
         fout.close();
 
-        ChatbotAttachement chatbotAttachement = new ChatbotAttachement();
-        chatbotAttachement.setFilename(file.getOriginalFilename());
-        chatbotAttachement.setMimetype(file.getContentType());
-        chatbotAttachement.setFilesize(file.getSize());
-        chatbotAttachement.setPath(publicPath);
-        // Note: In R2DBC, we need to set chatbotId instead of chatbot object
-        chatbotAttachement.setChatbotId(dto.getChatbot().getId());
+        ChatbotAttachement chatbotAttachement = new ChatbotAttachement(
+            file.getSize(),  // filesize
+            file.getContentType(),  // mimetype
+            file.getOriginalFilename(),  // filename
+            publicPath,  // path
+            dto.getChatbot().getId()  // chatbotId
+        );
 
         log.info("File saved successfully: {}", uniqueFileName);
         return chatbotAttachement;

@@ -42,15 +42,13 @@ public class SendMessageUseCase implements MonoUseCase<SendMessageDto, Message> 
           User sender = tuple.getT1();
           User receiver = tuple.getT2();
 
-          // Create message
-          Message message = new Message();
-          message.setId(UUID.randomUUID());
-          message.setProjectId(dto.getProjectId());
-          message.setBody(dto.getBody());
-          message.setWrittenByHuman(true);
-          message.setAck("SENT");
-          message.setSenderId(sender.getId());
-          message.setReceiverId(receiver.getId());
+          // Create message using constructor that generates UUID
+          Message message = new Message(
+              dto.getProjectId(),
+              dto.getBody(),
+              sender.getId(),
+              receiver.getId()
+          );
 
           return messageRepository.save(message)
               .doOnSuccess(savedMessage -> {

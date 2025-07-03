@@ -72,7 +72,8 @@ public class Organization implements Persistable<UUID> {
   @Override
   @JsonIgnore
   public boolean isNew() {
-    return isNew;
+    // An entity is new if ID is null OR if explicitly marked as new
+    return this.id == null || this.isNew;
   }
 
   public void setNew(boolean isNew) {
@@ -82,5 +83,13 @@ public class Organization implements Persistable<UUID> {
   // When we load from database, mark as not new
   public void markAsNotNew() {
     this.isNew = false;
+  }
+
+  // Override setId to mark as not new when ID is set from database
+  public void setId(UUID id) {
+    this.id = id;
+    if (id != null) {
+      this.isNew = false;
+    }
   }
 }

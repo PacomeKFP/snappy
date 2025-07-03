@@ -87,10 +87,10 @@ public class DatabaseConstraintInitializer {
             -- Create message_attachements table
             CREATE TABLE IF NOT EXISTS message_attachements (
                 id UUID PRIMARY KEY,
-                file_name VARCHAR(255),
-                file_type VARCHAR(100),
-                file_size BIGINT,
-                file_path VARCHAR(500),
+                filename VARCHAR(255),
+                mimetype VARCHAR(100),
+                filesize BIGINT,
+                path VARCHAR(500),
                 message_id UUID,
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
@@ -99,10 +99,10 @@ public class DatabaseConstraintInitializer {
             -- Create chatbot_attachements table
             CREATE TABLE IF NOT EXISTS chatbot_attachements (
                 id UUID PRIMARY KEY,
-                file_name VARCHAR(255),
-                file_type VARCHAR(100),
-                file_size BIGINT,
-                file_path VARCHAR(500),
+                filename VARCHAR(255),
+                mimetype VARCHAR(100),
+                filesize BIGINT,
+                path VARCHAR(500),
                 chatbot_id UUID,
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP

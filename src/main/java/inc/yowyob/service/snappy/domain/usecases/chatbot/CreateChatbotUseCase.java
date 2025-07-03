@@ -30,16 +30,17 @@ public class CreateChatbotUseCase implements MonoUseCase<CreateChatbotDto, Chatb
         .findByProjectId(dto.getProjectId())
         .switchIfEmpty(Mono.error(new IllegalArgumentException("Project not found")))
         .flatMap(organization -> {
-          Chatbot chatbot = new Chatbot();
-          chatbot.setId(UUID.randomUUID());
-          chatbot.setLabel(dto.getLabel());
-          chatbot.setPrompt(dto.getPrompt());
-          chatbot.setDescription(dto.getDescription());
-          chatbot.setProjectId(dto.getProjectId());
+          // Use the constructor that generates a UUID
+          Chatbot chatbot = new Chatbot(
+              dto.getLabel(),
+              dto.getPrompt(), 
+              dto.getDescription(),
+              dto.getProjectId(),
+              organization.getId()
+          );
           // Convert enum to string for R2DBC compatibility
           chatbot.setLanguageModel(dto.getLanguageModel() != null ? dto.getLanguageModel().toString() : null);
           chatbot.setAccessKey(generateAccessKey());
-          chatbot.setOrganizationId(organization.getId());
 
           return chatbotRepository.save(chatbot);
         })

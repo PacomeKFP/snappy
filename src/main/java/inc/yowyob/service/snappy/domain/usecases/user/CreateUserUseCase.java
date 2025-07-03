@@ -7,6 +7,7 @@ import inc.yowyob.service.snappy.domain.usecases.MonoUseCase;
 import inc.yowyob.service.snappy.infrastructure.repositories.OrganizationRepository;
 import inc.yowyob.service.snappy.infrastructure.repositories.UserRepository;
 import inc.yowyob.service.snappy.presentation.dto.user.CreateUserDto;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -29,30 +30,30 @@ public class CreateUserUseCase implements MonoUseCase<CreateUserDto, User> {
         .then(organizationRepository.findByProjectId(dto.getProjectId())
             .switchIfEmpty(Mono.error(new ProjectNotFoundException(
                 "Project with ID '" + dto.getProjectId() + "' not found.")))
-        )
-        .then(userRepository.findByExternalIdAndProjectId(dto.getExternalId(), dto.getProjectId())
-            .hasElement()
-            .flatMap(exists -> {
-              if (exists) {
-                return Mono.error(new UserAlreadyExistsException(
-                    "User with external ID '" + dto.getExternalId() + "' already exists."));
-              }
-              return createNewUser(dto);
+            .flatMap(organization -> {
+              return userRepository.findByExternalIdAndProjectId(dto.getExternalId(), dto.getProjectId())
+                  .hasElement()
+                  .flatMap(exists -> {
+                    if (exists) {
+                      return Mono.error(new UserAlreadyExistsException(
+                          "User with external ID '" + dto.getExternalId() + "' already exists."));
+                    }
+                    return createNewUser(dto, organization.getId());
+                  });
             })
         );
   }
 
-  private Mono<User> createNewUser(CreateUserDto dto) {
-    User newUser = new User();
+  private Mono<User> createNewUser(CreateUserDto dto, UUID organizationId) {
+    // Use the constructor that generates a UUID
+    User newUser = new User(dto.getDisplayName(), dto.getEmail(), dto.getLogin());
     newUser.setAvatar(dto.getAvatar());
-    newUser.setDisplayName(dto.getDisplayName());
-    newUser.setEmail(dto.getEmail());
     newUser.setPhoneNumber(dto.getPhoneNumber());
     newUser.setExternalId(dto.getExternalId());
-    newUser.setLogin(dto.getLogin());
     // Note: Removed password encoding since authentication was removed
     newUser.setSecret(dto.getSecret());
     newUser.setProjectId(dto.getProjectId());
+    newUser.setOrganizationId(organizationId); // Set the organization reference
     // Note: R2DBC doesn't support complex JSON mapping like customJson directly
     // This would need to be handled as JSON string or separate table
     
