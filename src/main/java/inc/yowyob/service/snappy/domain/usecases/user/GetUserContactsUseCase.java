@@ -3,6 +3,7 @@ package inc.yowyob.service.snappy.domain.usecases.user;
 import inc.yowyob.service.snappy.domain.entities.User;
 import inc.yowyob.service.snappy.domain.usecases.FluxUseCase;
 import inc.yowyob.service.snappy.infrastructure.repositories.UserRepository;
+import inc.yowyob.service.snappy.infrastructure.repositories.UserContactRepository;
 import inc.yowyob.service.snappy.presentation.dto.user.GetUserContactsDto;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -12,9 +13,11 @@ import reactor.core.publisher.Mono;
 public class GetUserContactsUseCase implements FluxUseCase<GetUserContactsDto, User> {
 
   private final UserRepository userRepository;
+  private final UserContactRepository userContactRepository;
 
-  public GetUserContactsUseCase(UserRepository userRepository) {
+  public GetUserContactsUseCase(UserRepository userRepository, UserContactRepository userContactRepository) {
     this.userRepository = userRepository;
+    this.userContactRepository = userContactRepository;
   }
 
   @Override
@@ -32,8 +35,11 @@ public class GetUserContactsUseCase implements FluxUseCase<GetUserContactsDto, U
         .findByExternalIdAndProjectId(dto.getUserExternalId(), dto.getProjectId())
         .switchIfEmpty(Mono.error(new IllegalArgumentException(
             "User with external ID " + dto.getUserExternalId() + " not found.")))
-        .flatMapMany(user -> Flux.empty()); // TODO: Implement contact relationship using separate table/queries
-        // For now, return empty list since R2DBC doesn't support complex relationships
-        // This would need a separate ContactRepository or user_contacts table
+        .flatMapMany(user -> 
+            // Get contact IDs from user_contacts table
+            userContactRepository.findContactIdsByUserId(user.getId())
+                // For each contact ID, fetch the actual User object
+                .flatMap(contactId -> userRepository.findById(contactId))
+        );
   }
 }

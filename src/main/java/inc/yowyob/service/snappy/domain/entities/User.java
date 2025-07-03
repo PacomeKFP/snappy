@@ -47,6 +47,9 @@ public class User {
 
   private boolean isOnline;
 
+  @Column("organization_id")
+  private UUID organizationId; // Reference to organization
+
   // Note: R2DBC doesn't support @ElementCollection and complex mappings
   // Custom JSON fields would need to be handled as JSON strings or separate tables
   // For now, commenting out the complex mappings
