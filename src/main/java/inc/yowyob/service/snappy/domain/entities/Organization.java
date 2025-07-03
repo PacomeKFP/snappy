@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -20,7 +22,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("organizations")
-public class Organization {
+public class Organization implements Persistable<UUID> {
 
   @Id
   private UUID id;
@@ -54,9 +56,31 @@ public class Organization {
   @Column("updated_at")
   private LocalDateTime updatedAt;
 
+  // Track if this is a new entity for R2DBC
+  @JsonIgnore
+  @Transient  // Exclude from R2DBC mapping
+  private boolean isNew = true;
+
   public Organization(String name, String email, String password) {
+    this.id = UUID.randomUUID(); // Generate UUID on creation
     this.name = name;
     this.email = email;
     this.password = password;
+    this.isNew = true;
+  }
+
+  @Override
+  @JsonIgnore
+  public boolean isNew() {
+    return isNew;
+  }
+
+  public void setNew(boolean isNew) {
+    this.isNew = isNew;
+  }
+
+  // When we load from database, mark as not new
+  public void markAsNotNew() {
+    this.isNew = false;
   }
 }
