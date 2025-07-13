@@ -24,11 +24,10 @@ public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDet
   }
 
   @Override
-  public ChatDetailsResource execute(GetChatDetailsDto userId) {
+  public ChatDetailsResource execute(GetChatDetailsDto dto) {
     // Find the users involved in the chat
-    Optional<User> user = userRepository.findById(UUID.fromString(userId.getUser()));
-    Optional<User> interlocutor =
-        userRepository.findById(UUID.fromString(userId.getInterlocutor()));
+    Optional<User> user = userRepository.findByExternalIdAndProjectId(dto.getUser(), dto.getProjectId());
+    Optional<User> interlocutor = userRepository.findByExternalIdAndProjectId(dto.getInterlocutor(), dto.getProjectId());
 
     if (user.isEmpty() || interlocutor.isEmpty()) {
       throw new IllegalArgumentException("User or interlocutor not found");
@@ -36,9 +35,10 @@ public class GetChatDetailsUseCase implements UseCase<GetChatDetailsDto, ChatDet
 
     // Fetch messages exchanged between the two users using a repository query
     List<Message> messages =
-        messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
-            UUID.fromString(userId.getUser()), UUID.fromString(userId.getInterlocutor()),
-            UUID.fromString(userId.getInterlocutor()), UUID.fromString(userId.getUser()));
+        messageRepository.findConversationBetweenTwoUsersInProject(
+                        dto.getProjectId(),
+                        user.get(),
+                        interlocutor.get());
 
     // Transform messages into ChatDetailsResource objects
     ChatDetailsResource resource = new ChatDetailsResource();
