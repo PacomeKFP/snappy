@@ -1,0 +1,507 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows,shadows,matrix}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{array}
+
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Document de Conception - Système Chatbot Snappy}
+\fancyfoot[C]{\thepage}
+
+\title{\textbf{Document de Conception\\Système Chatbot Snappy avec Chiffrement E2EE}}
+\author{Équipe de Développement}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Ce document présente la conception technique du système Chatbot Snappy, une solution de chatbot intelligent intégrant un module de chiffrement de bout en bout (E2EE). Le système permet de créer des chatbots personnalisés basés sur des documents PDF avec des capacités de traitement du langage naturel et de sécurité avancée.
+
+\subsection{Objectifs du Système}
+\begin{itemize}
+\item Créer et gérer des chatbots personnalisés
+\item Traiter et indexer des documents PDF pour la base de connaissances
+\item Fournir des réponses contextuelles intelligentes
+\item Assurer la sécurité des communications avec le chiffrement E2EE
+\item Maintenir l'historique des conversations
+\end{itemize}
+
+\subsection{Technologies Utilisées}
+\begin{itemize}
+\item \textbf{Backend:} FastAPI, Python
+\item \textbf{Base de données:} PostgreSQL avec SQLAlchemy
+\item \textbf{IA:} Google Gemini, spaCy, sentence-transformers
+\item \textbf{Traitement PDF:} PyPDF2
+\item \textbf{Chiffrement:} Module E2EE (@Nameless0l/e2ee)
+\end{itemize}
+
+\newpage
+
+\section{Diagramme de Classes}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    class/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=3cm,
+        minimum height=2cm,
+        text width=2.8cm,
+        align=center,
+        font=\footnotesize
+    },
+    arrow/.style={
+        thick,
+        ->,
+        >=stealth
+    }
+]
+
+% Classes positioning
+\node[class] (chatbot) at (0,8) {
+    \textbf{ChatbotDB}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    id: UUID\\
+    accesskeys: String\\
+    label: String\\
+    prompt: String\\
+    description: String\\
+    projectId: String\\
+    languageModel: String\\
+    chatbotAttachements: JSONB\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    create\_chatbot()\\
+    get\_chatbot\_by\_access\_key()
+};
+
+\node[class] (conversation) at (8,8) {
+    \textbf{ConversationDB}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    idInstanceChat: String\\
+    accesskeys: String\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    create\_conversation()\\
+    get\_conversation()
+};
+
+\node[class] (message) at (16,8) {
+    \textbf{MessageDB}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    id: String\\
+    idInstanceChat: String\\
+    message: Text\\
+    response: Text\\
+    timestamp: DateTime\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    save\_message()\\
+    get\_messages\_by\_conversation()
+};
+
+\node[class] (embedding) at (0,4) {
+    \textbf{EmbeddingDB}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    id: String\\
+    accesskeys: String\\
+    embedding: JSON\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    save\_embedding()\\
+    get\_embeddings\_by\_chatbot()
+};
+
+\node[class] (fastapi) at (8,4) {
+    \textbf{FastAPIApp}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    app: FastAPI\\
+    model: GenerativeModel\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    init\_chatbot()\\
+    create\_chatbot\_instance()\\
+    infer\_chatbot\_response()\\
+    get\_conversation\_history()
+};
+
+\node[class] (e2ee) at (16,4) {
+    \textbf{E2EEModule}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    public\_key: String\\
+    private\_key: String\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    encrypt\_message()\\
+    decrypt\_message()\\
+    generate\_keys()\\
+    exchange\_keys()
+};
+
+\node[class] (pdf) at (0,0) {
+    \textbf{PDFProcessor}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    nlp: spacy.Language\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    extract\_text\_from\_pdf()\\
+    split\_text\_into\_chunks()\\
+    generate\_embeddings()
+};
+
+\node[class] (models) at (12,0) {
+    \textbf{PydanticModels}\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    InitRequest\\
+    CreateRequest\\
+    InferRequest\\
+    HistoryRequest\\[0.1cm]
+    \rule{2.5cm}{0.4pt}\\[0.1cm]
+    validate\_request()\\
+    serialize\_response()
+};
+
+% Associations
+\draw[arrow] (chatbot) -- (conversation) node[midway,above] {1:*};
+\draw[arrow] (conversation) -- (message) node[midway,above] {1:*};
+\draw[arrow] (chatbot) -- (embedding) node[midway,left] {1:*};
+\draw[arrow] (fastapi) -- (pdf) node[midway,below] {uses};
+\draw[arrow] (fastapi) -- (e2ee) node[midway,below] {uses};
+\draw[arrow] (fastapi) -- (models) node[midway,below] {uses};
+
+\end{tikzpicture}
+\caption{Diagramme de classes du système Chatbot Snappy}
+\end{figure}
+
+\newpage
+
+\section{Diagramme de Cas d'Utilisation}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    actor/.style={
+        stick figure,
+        minimum width=1cm,
+        minimum height=1.5cm
+    },
+    usecase/.style={
+        ellipse,
+        draw=black,
+        thick,
+        minimum width=2.5cm,
+        minimum height=1cm,
+        text centered,
+        font=\footnotesize
+    },
+    system/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=1.5cm,
+        minimum height=1cm,
+        text centered,
+        font=\footnotesize
+    }
+]
+
+% Actors
+\node[actor] (user) at (-3,4) {Utilisateur};
+\node[actor] (admin) at (-3,1) {Administrateur};
+\node[system] (ai) at (12,2.5) {Système IA};
+
+% Use cases
+\node[usecase] (init) at (6,6) {Initialiser\\Chatbot};
+\node[usecase] (create) at (6,4.5) {Créer\\Conversation};
+\node[usecase] (send) at (6,3) {Envoyer\\Message};
+\node[usecase] (history) at (6,1.5) {Consulter\\Historique};
+\node[usecase] (encrypt) at (6,0) {Chiffrer\\Communication};
+\node[usecase] (pdf) at (9,6) {Traiter\\Document PDF};
+
+% Associations
+\draw[-] (user) -- (create);
+\draw[-] (user) -- (send);
+\draw[-] (user) -- (history);
+\draw[-] (user) -- (encrypt);
+
+\draw[-] (admin) -- (init);
+\draw[-] (admin) -- (pdf);
+\draw[-] (admin) -- (encrypt);
+
+\draw[-] (ai) -- (send);
+\draw[-] (ai) -- (pdf);
+
+% Include relationships
+\draw[dashed,->] (send) -- (encrypt) node[midway,below,font=\tiny] {<<include>>};
+\draw[dashed,->] (init) -- (pdf) node[midway,above,font=\tiny] {<<include>>};
+
+\end{tikzpicture}
+\caption{Diagramme de cas d'utilisation}
+\end{figure}
+
+\newpage
+
+\section{Diagrammes de Séquence}
+
+\subsection{Cas d'utilisation: Initialiser Chatbot}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    participant/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=2cm,
+        minimum height=0.8cm,
+        text centered,
+        font=\footnotesize
+    },
+    lifeline/.style={
+        dashed,
+        thick
+    },
+    message/.style={
+        thick,
+        ->
+    }
+]
+
+% Participants
+\node[participant] (admin) at (0,8) {Administrateur};
+\node[participant] (api) at (3,8) {API FastAPI};
+\node[participant] (pdf) at (6,8) {PDFProcessor};
+\node[participant] (db) at (9,8) {Base de Données};
+\node[participant] (ai) at (12,8) {Système IA};
+
+% Lifelines
+\draw[lifeline] (admin.south) -- (0,0);
+\draw[lifeline] (api.south) -- (3,0);
+\draw[lifeline] (pdf.south) -- (6,0);
+\draw[lifeline] (db.south) -- (9,0);
+\draw[lifeline] (ai.south) -- (12,0);
+
+% Messages
+\draw[message] (0,7) -- (3,7) node[midway,above,font=\tiny] {POST /init avec PDF};
+\draw[message] (3,6.5) -- (9,6.5) node[midway,above,font=\tiny] {Vérifier chatbot existant};
+\draw[message] (9,6) -- (3,6) node[midway,below,font=\tiny] {Résultat requête};
+\draw[message] (3,5.5) -- (6,5.5) node[midway,above,font=\tiny] {Extraire texte PDF};
+\draw[message] (6,5) -- (3,5) node[midway,below,font=\tiny] {Texte extrait};
+\draw[message] (6,4.5) -- (12,4.5) node[midway,above,font=\tiny] {Générer embeddings};
+\draw[message] (12,4) -- (6,4) node[midway,below,font=\tiny] {Liste embeddings};
+\draw[message] (3,3.5) -- (9,3.5) node[midway,above,font=\tiny] {Sauvegarder embeddings};
+\draw[message] (3,3) -- (9,3) node[midway,below,font=\tiny] {Sauvegarder chatbot};
+\draw[message] (3,2.5) -- (0,2.5) node[midway,below,font=\tiny] {Réponse succès};
+
+\end{tikzpicture}
+\caption{Diagramme de séquence - Initialisation Chatbot}
+\end{figure}
+
+\subsection{Cas d'utilisation: Créer Conversation}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    participant/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=2cm,
+        minimum height=0.8cm,
+        text centered,
+        font=\footnotesize
+    },
+    lifeline/.style={
+        dashed,
+        thick
+    },
+    message/.style={
+        thick,
+        ->
+    }
+]
+
+% Participants
+\node[participant] (user) at (0,6) {Utilisateur};
+\node[participant] (api) at (3,6) {API FastAPI};
+\node[participant] (db) at (6,6) {Base de Données};
+\node[participant] (e2ee) at (9,6) {Module E2EE};
+
+% Lifelines
+\draw[lifeline] (user.south) -- (0,0);
+\draw[lifeline] (api.south) -- (3,0);
+\draw[lifeline] (db.south) -- (6,0);
+\draw[lifeline] (e2ee.south) -- (9,0);
+
+% Messages
+\draw[message] (0,5) -- (3,5) node[midway,above,font=\tiny] {POST /create};
+\draw[message] (3,4.5) -- (6,4.5) node[midway,above,font=\tiny] {Vérifier accesskeys};
+\draw[message] (6,4) -- (3,4) node[midway,below,font=\tiny] {Chatbot trouvé};
+\draw[message] (3,3.5) -- (9,3.5) node[midway,above,font=\tiny] {Initialiser chiffrement};
+\draw[message] (9,3) -- (3,3) node[midway,below,font=\tiny] {Clés générées};
+\draw[message] (3,2.5) -- (6,2.5) node[midway,above,font=\tiny] {Créer conversation};
+\draw[message] (3,2) -- (0,2) node[midway,below,font=\tiny] {ID conversation};
+
+\end{tikzpicture}
+\caption{Diagramme de séquence - Création Conversation}
+\end{figure}
+
+\subsection{Cas d'utilisation: Envoyer Message}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    participant/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=1.8cm,
+        minimum height=0.8cm,
+        text centered,
+        font=\footnotesize
+    },
+    lifeline/.style={
+        dashed,
+        thick
+    },
+    message/.style={
+        thick,
+        ->
+    }
+]
+
+% Participants
+\node[participant] (user) at (0,10) {Utilisateur};
+\node[participant] (api) at (2.5,10) {API};
+\node[participant] (e2ee) at (5,10) {E2EE};
+\node[participant] (db) at (7.5,10) {DB};
+\node[participant] (ai) at (10,10) {IA};
+\node[participant] (gemini) at (12.5,10) {Gemini};
+
+% Lifelines
+\draw[lifeline] (user.south) -- (0,0);
+\draw[lifeline] (api.south) -- (2.5,0);
+\draw[lifeline] (e2ee.south) -- (5,0);
+\draw[lifeline] (db.south) -- (7.5,0);
+\draw[lifeline] (ai.south) -- (10,0);
+\draw[lifeline] (gemini.south) -- (12.5,0);
+
+% Messages
+\draw[message] (0,9) -- (2.5,9) node[midway,above,font=\tiny] {Message chiffré};
+\draw[message] (2.5,8.5) -- (5,8.5) node[midway,above,font=\tiny] {Déchiffrer};
+\draw[message] (5,8) -- (2.5,8) node[midway,below,font=\tiny] {Message clair};
+\draw[message] (2.5,7.5) -- (7.5,7.5) node[midway,above,font=\tiny] {Vérifier conversation};
+\draw[message] (2.5,7) -- (7.5,7) node[midway,below,font=\tiny] {Récupérer embeddings};
+\draw[message] (2.5,6.5) -- (10,6.5) node[midway,above,font=\tiny] {Générer embedding};
+\draw[message] (10,6) -- (2.5,6) node[midway,below,font=\tiny] {Embedding utilisateur};
+\draw[message] (2.5,5.5) -- (12.5,5.5) node[midway,above,font=\tiny] {Générer réponse};
+\draw[message] (12.5,5) -- (2.5,5) node[midway,below,font=\tiny] {Réponse IA};
+\draw[message] (2.5,4.5) -- (7.5,4.5) node[midway,above,font=\tiny] {Sauvegarder échange};
+\draw[message] (2.5,4) -- (5,4) node[midway,above,font=\tiny] {Chiffrer réponse};
+\draw[message] (2.5,3.5) -- (0,3.5) node[midway,below,font=\tiny] {Réponse chiffrée};
+
+\end{tikzpicture}
+\caption{Diagramme de séquence - Envoi Message}
+\end{figure}
+
+\subsection{Cas d'utilisation: Consulter Historique}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    participant/.style={
+        rectangle,
+        draw=black,
+        thick,
+        minimum width=2cm,
+        minimum height=0.8cm,
+        text centered,
+        font=\footnotesize
+    },
+    lifeline/.style={
+        dashed,
+        thick
+    },
+    message/.style={
+        thick,
+        ->
+    }
+]
+
+% Participants
+\node[participant] (user) at (0,6) {Utilisateur};
+\node[participant] (api) at (3,6) {API FastAPI};
+\node[participant] (e2ee) at (6,6) {Module E2EE};
+\node[participant] (db) at (9,6) {Base de Données};
+
+% Lifelines
+\draw[lifeline] (user.south) -- (0,0);
+\draw[lifeline] (api.south) -- (3,0);
+\draw[lifeline] (e2ee.south) -- (6,0);
+\draw[lifeline] (db.south) -- (9,0);
+
+% Messages
+\draw[message] (0,5) -- (3,5) node[midway,above,font=\tiny] {Demander historique};
+\draw[message] (3,4.5) -- (9,4.5) node[midway,above,font=\tiny] {Vérifier conversation};
+\draw[message] (9,4) -- (3,4) node[midway,below,font=\tiny] {Conversation trouvée};
+\draw[message] (3,3.5) -- (9,3.5) node[midway,above,font=\tiny] {Récupérer messages};
+\draw[message] (9,3) -- (3,3) node[midway,below,font=\tiny] {Liste messages};
+\draw[message] (3,2.5) -- (6,2.5) node[midway,above,font=\tiny] {Chiffrer historique};
+\draw[message] (3,2) -- (0,2) node[midway,below,font=\tiny] {Historique chiffré};
+
+\end{tikzpicture}
+\caption{Diagramme de séquence - Consultation Historique}
+\end{figure}
+
+\newpage
+
+\section{Architecture du Système}
+
+\subsection{Architecture Générale}
+Le système Chatbot Snappy suit une architecture modulaire en couches:
+
+\begin{itemize}
+\item \textbf{Couche Présentation:} API REST FastAPI
+\item \textbf{Couche Logique Métier:} Traitement des requêtes, IA, chiffrement
+\item \textbf{Couche Données:} Base de données PostgreSQL
+\item \textbf{Couche Sécurité:} Module E2EE pour le chiffrement
+\end{itemize}
+
+\subsection{Flux de Données}
+\begin{enumerate}
+\item Les documents PDF sont traités et convertis en embeddings
+\item Les messages utilisateur sont chiffrés côté client
+\item Le système recherche le contexte pertinent via similarité cosinus
+\item Google Gemini génère une réponse contextualisée
+\item La réponse est chiffrée avant envoi à l'utilisateur
+\item Tous les échanges sont sauvegardés de manière sécurisée
+\end{enumerate}
+
+\subsection{Sécurité et Chiffrement}
+Le module E2EE (@Nameless0l/e2ee) assure:
+\begin{itemize}
+\item Chiffrement de bout en bout des communications
+\item Génération et échange sécurisé des clés
+\item Protection des données sensibles en base
+\item Authentification des utilisateurs
+\end{itemize}
+
+\section{Conclusion}
+
+Ce document présente la conception complète du système Chatbot Snappy avec son module de chiffrement intégré. L'architecture modulaire permet une maintenance aisée et une évolutivité future. L'intégration du chiffrement E2EE garantit la confidentialité des échanges, répondant aux exigences de sécurité modernes.
+
+Le système offre une solution complète pour créer des chatbots intelligents et sécurisés, capables de traiter des documents métier et de fournir des réponses contextuelles pertinentes.
+
+\end{document}

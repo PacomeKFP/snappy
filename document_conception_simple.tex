@@ -1,0 +1,409 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Document de Conception - Système Chatbot Snappy}
+\fancyfoot[C]{\thepage}
+
+\title{\textbf{Document de Conception\\Système Chatbot Snappy avec Chiffrement E2EE}}
+\author{Équipe de Développement}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Ce document présente la conception technique du système Chatbot Snappy, une solution de chatbot intelligent intégrant un module de chiffrement de bout en bout (E2EE). Le système permet de créer des chatbots personnalisés basés sur des documents PDF avec des capacités de traitement du langage naturel et de sécurité avancée.
+
+\subsection{Objectifs du Système}
+\begin{itemize}
+\item Créer et gérer des chatbots personnalisés
+\item Traiter et indexer des documents PDF pour la base de connaissances
+\item Fournir des réponses contextuelles intelligentes
+\item Assurer la sécurité des communications avec le chiffrement E2EE
+\item Maintenir l'historique des conversations
+\end{itemize}
+
+\subsection{Technologies Utilisées}
+\begin{itemize}
+\item \textbf{Backend:} FastAPI, Python
+\item \textbf{Base de données:} PostgreSQL avec SQLAlchemy
+\item \textbf{IA:} Google Gemini, spaCy, sentence-transformers
+\item \textbf{Traitement PDF:} PyPDF2
+\item \textbf{Chiffrement:} Module E2EE (@Nameless0l/e2ee)
+\end{itemize}
+
+\newpage
+
+\section{Diagramme de Classes}
+
+Le système est composé des classes principales suivantes :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Classe} & \textbf{Attributs} & \textbf{Méthodes} \\
+\hline
+\hline
+\textbf{ChatbotDB} & 
+\begin{itemize}
+\item id: UUID
+\item accesskeys: String
+\item label: String
+\item prompt: String
+\item description: String
+\item projectId: String
+\item languageModel: String
+\item chatbotAttachements: JSONB
+\end{itemize} & 
+\begin{itemize}
+\item create\_chatbot()
+\item get\_chatbot\_by\_access\_key()
+\end{itemize} \\
+\hline
+\textbf{ConversationDB} & 
+\begin{itemize}
+\item idInstanceChat: String
+\item accesskeys: String
+\end{itemize} & 
+\begin{itemize}
+\item create\_conversation()
+\item get\_conversation()
+\end{itemize} \\
+\hline
+\textbf{MessageDB} & 
+\begin{itemize}
+\item id: String
+\item idInstanceChat: String
+\item message: Text
+\item response: Text
+\item timestamp: DateTime
+\end{itemize} & 
+\begin{itemize}
+\item save\_message()
+\item get\_messages\_by\_conversation()
+\end{itemize} \\
+\hline
+\textbf{EmbeddingDB} & 
+\begin{itemize}
+\item id: String
+\item accesskeys: String
+\item embedding: JSON
+\end{itemize} & 
+\begin{itemize}
+\item save\_embedding()
+\item get\_embeddings\_by\_chatbot()
+\end{itemize} \\
+\hline
+\textbf{FastAPIApp} & 
+\begin{itemize}
+\item app: FastAPI
+\item model: GenerativeModel
+\end{itemize} & 
+\begin{itemize}
+\item init\_chatbot()
+\item create\_chatbot\_instance()
+\item infer\_chatbot\_response()
+\item get\_conversation\_history()
+\end{itemize} \\
+\hline
+\textbf{E2EEModule} & 
+\begin{itemize}
+\item public\_key: String
+\item private\_key: String
+\end{itemize} & 
+\begin{itemize}
+\item encrypt\_message()
+\item decrypt\_message()
+\item generate\_keys()
+\item exchange\_keys()
+\end{itemize} \\
+\hline
+\textbf{PDFProcessor} & 
+\begin{itemize}
+\item nlp: spacy.Language
+\end{itemize} & 
+\begin{itemize}
+\item extract\_text\_from\_pdf()
+\item split\_text\_into\_chunks()
+\item generate\_embeddings()
+\end{itemize} \\
+\hline
+\end{tabular}
+\caption{Classes principales du système}
+\end{table}
+
+\subsection{Relations entre Classes}
+\begin{itemize}
+\item \textbf{ChatbotDB} a une relation 1:* avec \textbf{ConversationDB}
+\item \textbf{ConversationDB} a une relation 1:* avec \textbf{MessageDB}
+\item \textbf{ChatbotDB} a une relation 1:* avec \textbf{EmbeddingDB}
+\item \textbf{FastAPIApp} utilise \textbf{PDFProcessor}, \textbf{E2EEModule} et les modèles Pydantic
+\end{itemize}
+
+\newpage
+
+\section{Diagramme de Cas d'Utilisation}
+
+\subsection{Acteurs du Système}
+\begin{itemize}
+\item \textbf{Utilisateur:} Personne qui interagit avec le chatbot
+\item \textbf{Administrateur:} Personne qui configure et initialise les chatbots
+\item \textbf{Système IA:} Composant intelligent pour le traitement du langage naturel
+\end{itemize}
+
+\subsection{Cas d'Utilisation}
+\begin{itemize}
+\item \textbf{Initialiser Chatbot} (Administrateur)
+\item \textbf{Créer Conversation} (Utilisateur)
+\item \textbf{Envoyer Message} (Utilisateur, Système IA)
+\item \textbf{Consulter Historique} (Utilisateur)
+\item \textbf{Chiffrer Communication} (Utilisateur, Administrateur)
+\item \textbf{Traiter Document PDF} (Administrateur, Système IA)
+\end{itemize}
+
+\subsection{Relations}
+\begin{itemize}
+\item \textbf{Include:} "Envoyer Message" inclut "Chiffrer Communication"
+\item \textbf{Include:} "Initialiser Chatbot" inclut "Traiter Document PDF"
+\end{itemize}
+
+\section{Description des Cas d'Utilisation}
+
+\subsection{Cas d'utilisation 1: Initialiser Chatbot}
+\begin{itemize}
+\item \textbf{Acteur principal:} Administrateur
+\item \textbf{Description:} Créer un nouveau chatbot avec des documents PDF
+\item \textbf{Préconditions:} L'administrateur a accès au système
+\item \textbf{Flux principal:}
+  \begin{enumerate}
+    \item L'administrateur envoie une requête POST /init avec les paramètres du chatbot
+    \item Le système vérifie si le chatbot existe déjà
+    \item Le système traite les documents PDF joints
+    \item Le système génère des embeddings à partir du contenu
+    \item Le système sauvegarde le chatbot et les embeddings en base
+    \item Le système retourne une confirmation de succès
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Cas d'utilisation 2: Créer Conversation}
+\begin{itemize}
+\item \textbf{Acteur principal:} Utilisateur
+\item \textbf{Description:} Initier une nouvelle conversation avec un chatbot
+\item \textbf{Préconditions:} Le chatbot existe et l'utilisateur a les clés d'accès
+\item \textbf{Flux principal:}
+  \begin{enumerate}
+    \item L'utilisateur envoie une requête POST /create avec les clés d'accès
+    \item Le système vérifie l'existence du chatbot
+    \item Le système génère un identifiant unique de conversation
+    \item Le système initialise le chiffrement E2EE
+    \item Le système retourne l'ID de la conversation
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Cas d'utilisation 3: Envoyer Message}
+\begin{itemize}
+\item \textbf{Acteur principal:} Utilisateur
+\item \textbf{Description:} Envoyer un message et recevoir une réponse du chatbot
+\item \textbf{Préconditions:} Une conversation active existe
+\item \textbf{Flux principal:}
+  \begin{enumerate}
+    \item L'utilisateur envoie un message chiffré
+    \item Le système déchiffre le message
+    \item Le système génère un embedding du message
+    \item Le système recherche le contexte pertinent par similarité
+    \item Le système génère une réponse via Google Gemini
+    \item Le système sauvegarde l'échange en base
+    \item Le système chiffre et retourne la réponse
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Cas d'utilisation 4: Consulter Historique}
+\begin{itemize}
+\item \textbf{Acteur principal:} Utilisateur
+\item \textbf{Description:} Consulter l'historique d'une conversation
+\item \textbf{Préconditions:} Une conversation existe avec des messages
+\item \textbf{Flux principal:}
+  \begin{enumerate}
+    \item L'utilisateur demande l'historique d'une conversation
+    \item Le système vérifie l'existence de la conversation
+    \item Le système récupère tous les messages de la conversation
+    \item Le système chiffre l'historique
+    \item Le système retourne l'historique chiffré
+  \end{enumerate}
+\end{itemize}
+
+\newpage
+
+\section{Diagrammes de Séquence}
+
+\subsection{Séquence: Initialiser Chatbot}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{4cm}|p{4cm}|p{4cm}|}
+\hline
+\textbf{Étape} & \textbf{Administrateur} & \textbf{API FastAPI} & \textbf{Système/Base} \\
+\hline
+1 & Envoie POST /init avec PDF & & \\
+\hline
+2 & & Vérifie chatbot existant & Base de données \\
+\hline
+3 & & Extrait texte PDF & PDFProcessor \\
+\hline
+4 & & Génère embeddings & Système IA \\
+\hline
+5 & & Sauvegarde chatbot et embeddings & Base de données \\
+\hline
+6 & Reçoit confirmation & Retourne succès & \\
+\hline
+\end{tabular}
+\caption{Séquence d'initialisation du chatbot}
+\end{table}
+
+\subsection{Séquence: Envoyer Message}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Étape} & \textbf{Utilisateur} & \textbf{API} & \textbf{E2EE/IA} & \textbf{Base} \\
+\hline
+1 & Envoie message chiffré & & & \\
+\hline
+2 & & Déchiffre message & Module E2EE & \\
+\hline
+3 & & Vérifie conversation & & Base de données \\
+\hline
+4 & & Génère embedding & Système IA & \\
+\hline
+5 & & Recherche similarité & Système IA & \\
+\hline
+6 & & Génère réponse & Google Gemini & \\
+\hline
+7 & & Sauvegarde échange & & Base de données \\
+\hline
+8 & & Chiffre réponse & Module E2EE & \\
+\hline
+9 & Reçoit réponse chiffrée & Retourne réponse & & \\
+\hline
+\end{tabular}
+\caption{Séquence d'envoi de message}
+\end{table}
+
+\newpage
+
+\section{Architecture du Système}
+
+\subsection{Architecture Générale}
+Le système Chatbot Snappy suit une architecture modulaire en couches:
+
+\begin{itemize}
+\item \textbf{Couche Présentation:} API REST FastAPI
+\item \textbf{Couche Logique Métier:} Traitement des requêtes, IA, chiffrement
+\item \textbf{Couche Données:} Base de données PostgreSQL
+\item \textbf{Couche Sécurité:} Module E2EE pour le chiffrement
+\end{itemize}
+
+\subsection{Flux de Données}
+\begin{enumerate}
+\item Les documents PDF sont traités et convertis en embeddings
+\item Les messages utilisateur sont chiffrés côté client
+\item Le système recherche le contexte pertinent via similarité cosinus
+\item Google Gemini génère une réponse contextualisée
+\item La réponse est chiffrée avant envoi à l'utilisateur
+\item Tous les échanges sont sauvegardés de manière sécurisée
+\end{enumerate}
+
+\subsection{Sécurité et Chiffrement}
+Le module E2EE (@Nameless0l/e2ee) assure:
+\begin{itemize}
+\item Chiffrement de bout en bout des communications
+\item Génération et échange sécurisé des clés
+\item Protection des données sensibles en base
+\item Authentification des utilisateurs
+\end{itemize}
+
+\section{Modèle de Données}
+
+\subsection{Base de Données PostgreSQL}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Table} & \textbf{Clé Primaire} & \textbf{Clés Étrangères} \\
+\hline
+chatbots & id (UUID) & - \\
+\hline
+conversations & idInstanceChat & accesskeys → chatbots.accesskeys \\
+\hline
+messages & id & idInstanceChat → conversations.idInstanceChat \\
+\hline
+embeddings & id & accesskeys → chatbots.accesskeys \\
+\hline
+\end{tabular}
+\caption{Structure de la base de données}
+\end{table}
+
+\subsection{APIs REST}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Endpoint} & \textbf{Méthode} & \textbf{Description} \\
+\hline
+/init & POST & Initialiser un nouveau chatbot \\
+\hline
+/create & POST & Créer une nouvelle conversation \\
+\hline
+/infer & POST & Envoyer un message et recevoir une réponse \\
+\hline
+/history & POST & Récupérer l'historique d'une conversation \\
+\hline
+\end{tabular}
+\caption{Endpoints de l'API}
+\end{table}
+
+\section{Conclusion}
+
+Ce document présente la conception complète du système Chatbot Snappy avec son module de chiffrement intégré. L'architecture modulaire permet une maintenance aisée et une évolutivité future. L'intégration du chiffrement E2EE garantit la confidentialité des échanges, répondant aux exigences de sécurité modernes.
+
+Le système offre une solution complète pour créer des chatbots intelligents et sécurisés, capables de traiter des documents métier et de fournir des réponses contextuelles pertinentes.
+
+\subsection{Points Clés}
+\begin{itemize}
+\item Architecture en couches pour la séparation des responsabilités
+\item Chiffrement E2EE pour la sécurité des communications
+\item Utilisation d'embeddings pour la recherche sémantique
+\item Intégration avec Google Gemini pour la génération de réponses
+\item Base de données PostgreSQL pour la persistance
+\item API REST FastAPI pour l'interface
+\end{itemize}
+
+\end{document}
